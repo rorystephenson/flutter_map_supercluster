@@ -1,0 +1,21 @@
+name: flutter_map_fast_cluster
+description: A more basic and faster alternative to flutter_map_marker_cluster for clustering Markers in flutter_map.
+version: 0.0.1
+
+homepage: https://github.com/rorystephenson/flutter_map_fast_cluster
+
+environment:
+  sdk: ">=2.17.1 <3.0.0"
+
+dependencies:
+  flutter:
+    sdk: flutter
+  flutter_map: ">=1.0.0 <2.0.0"
+  flutter_map_marker_popup: ^2.2.0
+  latlong2: ^0.8.1
+  supercluster: ^0.1.0
+
+dev_dependencies:
+  flutter_lints: ^2.0.1
+  flutter_test:
+    sdk: flutter

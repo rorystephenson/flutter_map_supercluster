@@ -1,0 +1,24 @@
+name: flutter_map_fast_cluster_example
+description: Example for Flutter Map Marker cluster
+
+publish_to: "none"
+
+environment:
+  sdk: ">=2.12.0 <3.0.0"
+
+dependencies:
+  flutter:
+    sdk: flutter
+  flutter_map: ">=1.0.0 <2.0.0"
+  flutter_map_fast_cluster:
+    path: ../
+  cupertino_icons: ^1.0.2
+  latlong2: ^0.8.0
+
+dev_dependencies:
+  flutter_lints: ^1.0.4
+  flutter_test:
+    sdk: flutter
+
+flutter:
+  uses-material-design: true
