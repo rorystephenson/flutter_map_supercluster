@@ -79,12 +79,8 @@ class _ClusteringManyMarkersPageState extends State<ClusteringManyMarkersPage> {
           FastClusterLayerWidget(
             options: FastClusterLayerOptions(
               //maxClusterRadius: 45,
-              size: const Size(40, 40),
+              clusterWidgetSize: const Size(40, 40),
               anchor: AnchorPos.align(AnchorAlign.center),
-              fitBoundsOptions: const FitBoundsOptions(
-                padding: EdgeInsets.all(50),
-                maxZoom: 15,
-              ),
               markers: markers,
               builder: (context, markerCount, extraClusterData) {
                 return Container(

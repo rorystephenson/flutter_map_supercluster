@@ -59,7 +59,8 @@ class _FastClusterLayerState extends State<FastClusterLayer>
     }
 
     _mapCalculator = MapCalculator(
-      widget.mapState,
+      mapState: widget.mapState,
+      clusterWidgetSize: widget.options.clusterWidgetSize,
       clusterAnchorPos: widget.options.anchor,
     );
 
@@ -106,8 +107,6 @@ class _FastClusterLayerState extends State<FastClusterLayer>
       maxZoom: _maxZoom,
       extractClusterData: (marker) => ClusterData(
         marker,
-        computeVisualSize:
-            widget.options.computeSize ?? (_, __) => widget.options.size,
         innerExtractor: widget.options.clusterDataExtractor,
       ),
       radius: widget.options.maxClusterRadius,
@@ -148,12 +147,13 @@ class _FastClusterLayerState extends State<FastClusterLayer>
   }
 
   Iterable<Widget> _buildClustersAndMarkers() {
+    final paddedBounds = _mapCalculator.paddedMapBounds();
     return _supercluster
         .getClustersAndPoints(
-          widget.mapState.bounds.west,
-          widget.mapState.bounds.south,
-          widget.mapState.bounds.east,
-          widget.mapState.bounds.north,
+          paddedBounds.west,
+          paddedBounds.south,
+          paddedBounds.east,
+          paddedBounds.north,
           widget.mapState.zoom.ceil(),
         )
         .map(_buildMarkerOrCluster);
@@ -172,7 +172,7 @@ class _FastClusterLayerState extends State<FastClusterLayer>
       cluster: cluster,
       builder: widget.options.builder,
       onTap: _onClusterTap(cluster),
-      size: _mapCalculator.clusterSize(cluster),
+      size: widget.options.clusterWidgetSize,
     );
   }
 

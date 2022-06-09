@@ -6,8 +6,6 @@ import 'package:flutter_map_marker_popup/extension_api.dart';
 import 'package:flutter_map_marker_popup/flutter_map_marker_popup.dart';
 import 'package:supercluster/supercluster.dart';
 
-import 'cluster_data.dart';
-
 typedef ClusterWidgetBuilder = Widget Function(
     BuildContext context, int markerCount, ClusterDataBase? extraClusterData);
 
@@ -17,9 +15,6 @@ class FastClusterLayerOptions extends LayerOptions {
 
   /// Cluster builder
   final ClusterWidgetBuilder builder;
-
-  /// Options for fit bounds
-  final FitBoundsOptions fitBoundsOptions;
 
   /// The maximum radius in pixels that a cluster can cover.
   final int maxClusterRadius;
@@ -64,11 +59,7 @@ class FastClusterLayerOptions extends LayerOptions {
   final AlignmentGeometry? rotateAlignment;
 
   /// Cluster size
-  final Size size;
-
-  /// Cluster compute size
-  final Size Function(
-      ClusterData clusterData, ClusterDataBase? extraClusterData)? computeSize;
+  final Size clusterWidgetSize;
 
   /// Cluster anchor
   final AnchorPos? anchor;
@@ -81,8 +72,6 @@ class FastClusterLayerOptions extends LayerOptions {
   FastClusterLayerOptions({
     required this.markers,
     required this.builder,
-    this.fitBoundsOptions =
-        const FitBoundsOptions(padding: EdgeInsets.all(12.0)),
     this.maxClusterRadius = 80,
     this.clusterDataExtractor,
     this.minimumClusterSize,
@@ -91,8 +80,7 @@ class FastClusterLayerOptions extends LayerOptions {
     this.rotate,
     this.rotateOrigin,
     this.rotateAlignment,
-    this.size = const Size(30, 30),
-    this.computeSize,
+    this.clusterWidgetSize = const Size(30, 30),
     this.anchor,
     this.clusterZoomAnimation = const AnimationOptions.animate(
       curve: Curves.linear,

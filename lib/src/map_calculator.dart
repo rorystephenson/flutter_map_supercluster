@@ -5,16 +5,20 @@ import 'package:flutter_map/plugin_api.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:supercluster/supercluster.dart';
 
-import 'cluster_data.dart';
-
 class MapCalculator {
   final MapState mapState;
+  final Size clusterWidgetSize;
   final AnchorPos? clusterAnchorPos;
+  final CustomPoint _boundsPixelPadding;
 
-  MapCalculator(
-    this.mapState, {
+  MapCalculator({
+    required this.mapState,
+    required this.clusterWidgetSize,
     required this.clusterAnchorPos,
-  });
+  }) : _boundsPixelPadding = CustomPoint(
+          clusterWidgetSize.width / 2,
+          clusterWidgetSize.height / 2,
+        );
 
   CustomPoint<num> getPixelFromPoint(LatLng point) {
     var pos = mapState.project(point);
@@ -22,25 +26,29 @@ class MapCalculator {
         mapState.getPixelOrigin();
   }
 
+  LatLngBounds paddedMapBounds() {
+    final bounds = mapState.pixelBounds;
+    return LatLngBounds(
+      mapState.unproject(bounds.topLeft - _boundsPixelPadding),
+      mapState.unproject(bounds.bottomRight + _boundsPixelPadding),
+    );
+  }
+
   LatLng clusterPoint(Cluster<Marker> cluster) {
     return LatLng(cluster.latitude, cluster.longitude);
   }
 
-  Size clusterSize(Cluster<Marker> cluster) =>
-      (cluster.clusterData as ClusterData).visualSize!;
-
   Point<double> removeClusterAnchor(CustomPoint pos, Cluster<Marker> cluster) {
-    final calculatedSize = clusterSize(cluster);
     final anchor = Anchor.forPos(
       clusterAnchorPos,
-      calculatedSize.width,
-      calculatedSize.height,
+      clusterWidgetSize.width,
+      clusterWidgetSize.height,
     );
 
     return removeAnchor(
       pos,
-      calculatedSize.width,
-      calculatedSize.height,
+      clusterWidgetSize.width,
+      clusterWidgetSize.height,
       anchor,
     );
   }
