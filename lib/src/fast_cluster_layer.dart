@@ -22,18 +22,15 @@ class FastClusterLayer extends StatefulWidget {
   final FastClusterLayerOptions options;
   final MapState mapState;
 
+  final int minZoom;
+  final int maxZoom;
+
   final Stream<void> stream;
 
-  const FastClusterLayer(this.options, this.mapState, this.stream, {Key? key})
-      : super(key: key);
-
-  int get minZoom => mapState.options.minZoom == null
-      ? defaultMinZoom
-      : mapState.options.minZoom!.ceil();
-
-  int get maxZoom => mapState.options.maxZoom == null
-      ? defaultMaxZoom
-      : mapState.options.maxZoom!.ceil() - 1;
+  FastClusterLayer(this.options, this.mapState, this.stream, {Key? key})
+      : minZoom = mapState.options.minZoom?.ceil() ?? defaultMinZoom,
+        maxZoom = mapState.options.maxZoom?.ceil() ?? defaultMaxZoom,
+        super(key: key);
 
   @override
   State<FastClusterLayer> createState() => _FastClusterLayerState();
@@ -43,8 +40,6 @@ class _FastClusterLayerState extends State<FastClusterLayer>
     with TickerProviderStateMixin {
   late MapCalculator _mapCalculator;
   late Supercluster<Marker> _supercluster;
-  late int _maxZoom;
-  late int _minZoom;
 
   late CenterZoomController _centerZoomController;
   StreamSubscription<void>? _movementStreamSubscription;
@@ -64,8 +59,6 @@ class _FastClusterLayerState extends State<FastClusterLayer>
       clusterAnchorPos: widget.options.anchor,
     );
 
-    _minZoom = widget.minZoom;
-    _maxZoom = widget.maxZoom;
     _initializeClusterManager();
     _centerZoomController = CenterZoomController(
       vsync: this,
@@ -82,11 +75,8 @@ class _FastClusterLayerState extends State<FastClusterLayer>
         oldWidget.options.maxClusterRadius != widget.options.maxClusterRadius ||
         oldWidget.options.minimumClusterSize !=
             widget.options.minimumClusterSize ||
-        _minZoom != (widget.minZoom) ||
-        _maxZoom != widget.maxZoom) {
-      _minZoom = widget.minZoom;
-      _maxZoom = widget.maxZoom;
-
+        oldWidget.minZoom != widget.minZoom ||
+        oldWidget.maxZoom != widget.maxZoom) {
       _initializeClusterManager();
     }
 
@@ -103,8 +93,8 @@ class _FastClusterLayerState extends State<FastClusterLayer>
       points: widget.options.markers,
       getX: (m) => m.point.longitude,
       getY: (m) => m.point.latitude,
-      minZoom: _minZoom,
-      maxZoom: _maxZoom,
+      minZoom: widget.minZoom,
+      maxZoom: widget.maxZoom,
       extractClusterData: (marker) => ClusterData(
         marker,
         innerExtractor: widget.options.clusterDataExtractor,
