@@ -13,6 +13,7 @@ dependencies:
   flutter_map_fast_cluster:
     path: ../
   cupertino_icons: ^1.0.2
+  kdbush: ^0.0.3
   latlong2: ^0.8.0
 
 dev_dependencies:

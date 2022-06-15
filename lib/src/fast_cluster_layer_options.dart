@@ -2,31 +2,20 @@ import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:flutter_map/plugin_api.dart';
 import 'package:flutter_map_fast_cluster/flutter_map_fast_cluster.dart';
+import 'package:flutter_map_fast_cluster/src/cluster_layer_controller.dart';
 import 'package:flutter_map_marker_popup/extension_api.dart';
-import 'package:flutter_map_marker_popup/flutter_map_marker_popup.dart';
-import 'package:supercluster/supercluster.dart';
 
 typedef ClusterWidgetBuilder = Widget Function(
-    BuildContext context, int markerCount, ClusterDataBase? extraClusterData);
+    BuildContext context, ClusterDataBase? clusterData);
 
 class FastClusterLayerOptions extends LayerOptions {
-  /// List of markers
-  final List<Marker> markers;
+  /// Create the [ClusterManager] which is responsible for
+  /// creating/storing/fetching clusters and [Marker]s.
+  final ClusterManager Function(ClusterLayerController controller)
+      createClusterManager;
 
   /// Cluster builder
   final ClusterWidgetBuilder builder;
-
-  /// The maximum radius in pixels that a cluster can cover.
-  final int maxClusterRadius;
-
-  /// Implement this function to extract extra data from Markers which can be
-  /// used in the [builder] and [computeSize].
-  final ClusterDataBase Function(Marker marker)? clusterDataExtractor;
-
-  /// The minimum number of points required to form a cluster, if there is less
-  /// than this number of points within the [maxClusterRadius] the markers will
-  /// be left unclustered.
-  final int? minimumClusterSize;
 
   /// Function to call when a Marker is tapped
   final void Function(Marker)? onMarkerTap;
@@ -70,11 +59,8 @@ class FastClusterLayerOptions extends LayerOptions {
   final AnimationOptions clusterZoomAnimation;
 
   FastClusterLayerOptions({
-    required this.markers,
     required this.builder,
-    this.maxClusterRadius = 80,
-    this.clusterDataExtractor,
-    this.minimumClusterSize,
+    required this.createClusterManager,
     this.onMarkerTap,
     this.popupOptions,
     this.rotate,

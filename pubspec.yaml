@@ -11,7 +11,8 @@ dependencies:
   flutter:
     sdk: flutter
   flutter_map: ">=1.0.0 <2.0.0"
-  flutter_map_marker_popup: ^2.2.0
+  flutter_map_marker_popup: ^2.2.1
+  kdbush: ^0.0.4
   latlong2: ^0.8.1
   supercluster: ^0.1.0
 

@@ -3,10 +3,6 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:flutter_map/plugin_api.dart';
 import 'package:flutter_map_fast_cluster/flutter_map_fast_cluster.dart';
-import 'package:flutter_map_fast_cluster/src/map_calculator.dart';
-import 'package:supercluster/supercluster.dart';
-
-import 'cluster_data.dart';
 
 class ClusterWidget extends StatelessWidget {
   final Cluster<Marker> cluster;
@@ -27,7 +23,7 @@ class ClusterWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final clusterData = cluster.clusterData as ClusterData;
+    final clusterData = cluster.clusterData as ClusterDataBase;
     return Positioned(
       width: size.width,
       height: size.height,
@@ -36,7 +32,7 @@ class ClusterWidget extends StatelessWidget {
       child: GestureDetector(
         behavior: HitTestBehavior.opaque,
         onTap: onTap,
-        child: builder(context, clusterData.markerCount, clusterData.innerData),
+        child: builder(context, clusterData),
       ),
     );
   }

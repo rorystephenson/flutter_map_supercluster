@@ -4,33 +4,21 @@ import 'package:flutter/material.dart';
 import 'package:flutter_map/plugin_api.dart';
 import 'package:flutter_map_fast_cluster/flutter_map_fast_cluster.dart';
 import 'package:flutter_map_fast_cluster/src/center_zoom_controller.dart';
+import 'package:flutter_map_fast_cluster/src/cluster_layer_controller.dart';
 import 'package:flutter_map_fast_cluster/src/cluster_widget.dart';
-import 'package:flutter_map_fast_cluster/src/fast_cluster_layer_options.dart';
-import 'package:flutter_map_fast_cluster/src/map_calculator.dart';
 import 'package:flutter_map_fast_cluster/src/marker_widget.dart';
 import 'package:flutter_map_fast_cluster/src/rotate.dart';
 import 'package:flutter_map_marker_popup/extension_api.dart';
 import 'package:latlong2/latlong.dart';
-import 'package:supercluster/supercluster.dart';
-
-import 'cluster_data.dart';
 
 class FastClusterLayer extends StatefulWidget {
-  static const defaultMinZoom = 1;
-  static const defaultMaxZoom = 20;
-
   final FastClusterLayerOptions options;
   final MapState mapState;
 
-  final int minZoom;
-  final int maxZoom;
-
   final Stream<void> stream;
 
-  FastClusterLayer(this.options, this.mapState, this.stream, {Key? key})
-      : minZoom = mapState.options.minZoom?.ceil() ?? defaultMinZoom,
-        maxZoom = mapState.options.maxZoom?.ceil() ?? defaultMaxZoom,
-        super(key: key);
+  const FastClusterLayer(this.options, this.mapState, this.stream, {Key? key})
+      : super(key: key);
 
   @override
   State<FastClusterLayer> createState() => _FastClusterLayerState();
@@ -38,8 +26,10 @@ class FastClusterLayer extends StatefulWidget {
 
 class _FastClusterLayerState extends State<FastClusterLayer>
     with TickerProviderStateMixin {
-  late MapCalculator _mapCalculator;
-  late Supercluster<Marker> _supercluster;
+  late final ClusterLayerController _controller;
+  late final StreamSubscription<ClusterLayerEvent> _controllerSubscription;
+  late final ClusterManager _clusterManager;
+  late final MapCalculator _mapCalculator;
 
   late CenterZoomController _centerZoomController;
   StreamSubscription<void>? _movementStreamSubscription;
@@ -49,6 +39,9 @@ class _FastClusterLayerState extends State<FastClusterLayer>
 
   @override
   void initState() {
+    _controller = ClusterLayerController();
+    _controllerSubscription = _controller.stream.listen(_onControllerEvent);
+    _clusterManager = widget.options.createClusterManager(_controller);
     if (widget.options.popupOptions != null) {
       _movementStreamSubscription = widget.stream.listen(_onMove);
     }
@@ -59,7 +52,6 @@ class _FastClusterLayerState extends State<FastClusterLayer>
       clusterAnchorPos: widget.options.anchor,
     );
 
-    _initializeClusterManager();
     _centerZoomController = CenterZoomController(
       vsync: this,
       mapState: widget.mapState,
@@ -71,15 +63,6 @@ class _FastClusterLayerState extends State<FastClusterLayer>
 
   @override
   void didUpdateWidget(FastClusterLayer oldWidget) {
-    if (oldWidget.options.markers != widget.options.markers ||
-        oldWidget.options.maxClusterRadius != widget.options.maxClusterRadius ||
-        oldWidget.options.minimumClusterSize !=
-            widget.options.minimumClusterSize ||
-        oldWidget.minZoom != widget.minZoom ||
-        oldWidget.maxZoom != widget.maxZoom) {
-      _initializeClusterManager();
-    }
-
     if (oldWidget.options.clusterZoomAnimation !=
         widget.options.clusterZoomAnimation) {
       _centerZoomController.animationOptions =
@@ -88,24 +71,10 @@ class _FastClusterLayerState extends State<FastClusterLayer>
     super.didUpdateWidget(oldWidget);
   }
 
-  void _initializeClusterManager() {
-    _supercluster = Supercluster<Marker>(
-      points: widget.options.markers,
-      getX: (m) => m.point.longitude,
-      getY: (m) => m.point.latitude,
-      minZoom: widget.minZoom,
-      maxZoom: widget.maxZoom,
-      extractClusterData: (marker) => ClusterData(
-        marker,
-        innerExtractor: widget.options.clusterDataExtractor,
-      ),
-      radius: widget.options.maxClusterRadius,
-      minPoints: widget.options.minimumClusterSize,
-    );
-  }
-
   @override
   void dispose() {
+    _controllerSubscription.cancel();
+    _controller.dispose();
     _movementStreamSubscription?.cancel();
     _centerZoomController.dispose();
     super.dispose();
@@ -117,10 +86,15 @@ class _FastClusterLayerState extends State<FastClusterLayer>
       stream: widget.stream, // a Stream<void> or null
       builder: (BuildContext context, _) {
         final popupOptions = widget.options.popupOptions;
+        final rotatedOverlay =
+            _clusterManager.buildRotatedOverlay(context, _mapCalculator);
+        final nonRotatedOverlay = _nonRotatedOverlay(context);
 
         return Stack(
           children: [
             ..._buildClustersAndMarkers(),
+            if (rotatedOverlay != null) rotatedOverlay,
+            if (nonRotatedOverlay != null) nonRotatedOverlay,
             if (popupOptions != null)
               PopupLayer(
                 popupBuilder: popupOptions.popupBuilder,
@@ -138,12 +112,9 @@ class _FastClusterLayerState extends State<FastClusterLayer>
 
   Iterable<Widget> _buildClustersAndMarkers() {
     final paddedBounds = _mapCalculator.paddedMapBounds();
-    return _supercluster
-        .getClustersAndPoints(
-          paddedBounds.west,
-          paddedBounds.south,
-          paddedBounds.east,
-          paddedBounds.north,
+    return _clusterManager
+        .getClustersAndPointsIn(
+          paddedBounds,
           widget.mapState.zoom.ceil(),
         )
         .map(_buildMarkerOrCluster);
@@ -185,18 +156,45 @@ class _FastClusterLayerState extends State<FastClusterLayer>
     );
   }
 
+  Widget? _nonRotatedOverlay(BuildContext context) {
+    final overlay =
+        _clusterManager.buildNonRotatedOverlay(context, _mapCalculator);
+    if (overlay == null) return null;
+    if (!InteractiveFlag.hasFlag(
+        _mapCalculator.mapState.options.interactiveFlags,
+        InteractiveFlag.rotate)) {
+      return overlay;
+    }
+
+    final CustomPoint<num> size = widget.mapState.size;
+    final sizeChangeDueToRotation =
+        size - (widget.mapState.originalSize ?? widget.mapState.size)
+            as CustomPoint<double>;
+    return Positioned.fill(
+      top: sizeChangeDueToRotation.y / 2,
+      bottom: sizeChangeDueToRotation.y / 2,
+      left: sizeChangeDueToRotation.x / 2,
+      right: sizeChangeDueToRotation.x / 2,
+      child: Transform(
+        alignment: Alignment.center,
+        transform: Matrix4.identity()..rotateZ(-widget.mapState.rotationRad),
+        child: overlay,
+      ),
+    );
+  }
+
   VoidCallback _onClusterTap(Cluster<Marker> cluster) {
     return () {
       _centerZoomController.moveTo(
         CenterZoom(
           center: LatLng(cluster.latitude, cluster.longitude),
-          zoom: _supercluster.getClusterExpansionZoom(cluster.id).toDouble(),
+          zoom: _clusterManager.getClusterExpansionZoom(cluster),
         ),
       );
     };
   }
 
-  VoidCallback _onMarkerTap(MapPoint mapPoint) {
+  VoidCallback _onMarkerTap(MapPoint<Marker> mapPoint) {
     return () {
       if (widget.options.popupOptions != null) {
         final popupOptions = widget.options.popupOptions!;
@@ -207,6 +205,7 @@ class _FastClusterLayerState extends State<FastClusterLayer>
         _hidePopupIfZoomLessThan = mapPoint.zoom;
       }
 
+      debugPrint('tapping: ${mapPoint.originalPoint.point}');
       widget.options.onMarkerTap?.call(mapPoint.originalPoint);
     };
   }
@@ -217,5 +216,9 @@ class _FastClusterLayerState extends State<FastClusterLayer>
       widget.options.popupOptions?.popupController.hideAllPopups();
       _hidePopupIfZoomLessThan = null;
     }
+  }
+
+  void _onControllerEvent(ClusterLayerEvent event) {
+    setState(() {});
   }
 }

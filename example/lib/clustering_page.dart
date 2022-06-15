@@ -204,10 +204,13 @@ class _ClusteringPageState extends State<ClusteringPage> {
           ),
           FastClusterLayerWidget(
             options: FastClusterLayerOptions(
+              createClusterManager: (_) => SuperclusterClusterManager(
+                maximumMarkerOrClusterSize: const Size(40, 40),
+                markers: markers,
+              ),
               rotate: true,
               clusterWidgetSize: const Size(40, 40),
               anchor: AnchorPos.align(AnchorAlign.center),
-              markers: markers,
               popupOptions: PopupOptions(
                 popupSnap: PopupSnap.markerTop,
                 popupController: _popupController,
@@ -227,14 +230,15 @@ class _ClusteringPageState extends State<ClusteringPage> {
                 curve: Curves.linear,
                 velocity: 1,
               ),
-              builder: (context, markerCount, extraClusterData) {
+              builder: (context, clusterData) {
+                clusterData as ClusterDataWithCount;
                 return Container(
                   decoration: BoxDecoration(
                       borderRadius: BorderRadius.circular(20.0),
                       color: Colors.blue),
                   child: Center(
                     child: Text(
-                      markerCount.toString(),
+                      clusterData.markerCount.toString(),
                       style: const TextStyle(color: Colors.white),
                     ),
                   ),

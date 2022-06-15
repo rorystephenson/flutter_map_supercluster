@@ -21,7 +21,7 @@ class MapCalculator {
         );
 
   CustomPoint<num> getPixelFromPoint(LatLng point) {
-    var pos = mapState.project(point);
+    final pos = mapState.project(point);
     return pos.multiplyBy(mapState.getZoomScale(mapState.zoom, mapState.zoom)) -
         mapState.getPixelOrigin();
   }
@@ -59,4 +59,7 @@ class MapCalculator {
     final y = (pos.y - (height - anchor.top)).toDouble();
     return Point(x, y);
   }
+
+  CustomPoint project(LatLng latLng, {double? zoom}) =>
+      mapState.project(latLng, zoom);
 }

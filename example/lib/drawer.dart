@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_map_fast_cluster/flutter_map_fast_cluster.dart';
 import 'package:flutter_map_fast_cluster_example/clustering_many_markers_page.dart';
 import 'package:flutter_map_fast_cluster_example/clustering_page.dart';
+import 'package:flutter_map_fast_cluster_example/radius_cluster_manager_page.dart';
 
 Widget _buildMenuItem(
     BuildContext context, Widget title, String routeName, String currentRoute) {
@@ -38,6 +40,12 @@ Drawer buildDrawer(BuildContext context, String currentRoute) {
           context,
           const Text('Clustering Many Markers'),
           ClusteringManyMarkersPage.route,
+          currentRoute,
+        ),
+        _buildMenuItem(
+          context,
+          Text('$RadiusClusterManager'),
+          RadiusClusterManagerPage.route,
           currentRoute,
         ),
       ],

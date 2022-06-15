@@ -4,24 +4,25 @@ import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:flutter_map_fast_cluster/flutter_map_fast_cluster.dart';
 import 'package:flutter_map_fast_cluster_example/drawer.dart';
+import 'package:kdbush/kdbush.dart';
 import 'package:latlong2/latlong.dart';
 
-class ClusteringManyMarkersPage extends StatefulWidget {
-  static const String route = 'clusteringManyMarkersPage';
+class RadiusClusterManagerPage extends StatefulWidget {
+  static const String route = 'radiusClusterManagerPage';
 
-  const ClusteringManyMarkersPage({Key? key}) : super(key: key);
+  const RadiusClusterManagerPage({Key? key}) : super(key: key);
 
   @override
-  _ClusteringManyMarkersPageState createState() =>
-      _ClusteringManyMarkersPageState();
+  _RadiusClusterManagerPageState createState() =>
+      _RadiusClusterManagerPageState();
 }
 
-class _ClusteringManyMarkersPageState extends State<ClusteringManyMarkersPage> {
+class _RadiusClusterManagerPageState extends State<RadiusClusterManagerPage> {
   static const totalMarkers = 2000.0;
   final minLatLng = LatLng(49.8566, 1.3522);
   final maxLatLng = LatLng(58.3498, -10.2603);
 
-  late List<Marker> markers;
+  late final KDBush<Marker, double> _kdbush;
 
   @override
   void initState() {
@@ -34,7 +35,7 @@ class _ClusteringManyMarkersPageState extends State<ClusteringManyMarkersPage> {
     final latStep = latitudeRange / stepsInEachDirection;
     final lonStep = longitudeRange / stepsInEachDirection;
 
-    markers = [];
+    final markers = <Marker>[];
     for (var i = 0; i < stepsInEachDirection; i++) {
       for (var j = 0; j < stepsInEachDirection; j++) {
         final latLng = LatLng(
@@ -52,22 +53,30 @@ class _ClusteringManyMarkersPageState extends State<ClusteringManyMarkersPage> {
         );
       }
     }
+
+    _kdbush = KDBush(
+      points: markers,
+      getX: (m) => m.point.longitude,
+      getY: (m) => m.point.latitude,
+    );
   }
 
   @override
   Widget build(BuildContext context) {
+    final initialLatLng = LatLng(
+      (minLatLng.latitude + maxLatLng.latitude) / 2,
+      (minLatLng.longitude + maxLatLng.longitude) / 2,
+    );
     return Scaffold(
-      appBar: AppBar(title: const Text('Clustering Many Markers Page')),
-      drawer: buildDrawer(context, ClusteringManyMarkersPage.route),
+      appBar: AppBar(title: Text('$RadiusClusterManager Page')),
+      drawer: buildDrawer(context, RadiusClusterManagerPage.route),
       body: FlutterMap(
         options: MapOptions(
           center: LatLng((maxLatLng.latitude + minLatLng.latitude) / 2,
               (maxLatLng.longitude + minLatLng.longitude) / 2),
           zoom: 6,
           maxZoom: 15,
-          plugins: [
-            FastClusterPlugin(),
-          ],
+          plugins: [FastClusterPlugin()],
         ),
         children: <Widget>[
           TileLayerWidget(
@@ -78,10 +87,20 @@ class _ClusteringManyMarkersPageState extends State<ClusteringManyMarkersPage> {
           ),
           FastClusterLayerWidget(
             options: FastClusterLayerOptions(
-              createClusterManager: (_) => SuperclusterClusterManager(
-                maximumMarkerOrClusterSize: const Size(40, 40),
-                markers: markers,
-              ),
+              onMarkerTap: (m) => debugPrint('${m.point}'),
+              createClusterManager: (controller) {
+                debugPrint('initial: $initialLatLng');
+                return RadiusClusterManager(
+                  radiusInKm: 100.0,
+                  clusterLayerController: controller,
+                  search: _search,
+                  maximumMarkerOrClusterSize: const Size(40, 40),
+                  initialRadiusSearchResult: RadiusSearchResult(
+                    center: initialLatLng,
+                    supercluster: _search(initialLatLng, 200.0),
+                  ),
+                );
+              },
               clusterWidgetSize: const Size(40, 40),
               anchor: AnchorPos.align(AnchorAlign.center),
               builder: (context, clusterData) {
@@ -102,6 +121,22 @@ class _ClusteringManyMarkersPageState extends State<ClusteringManyMarkersPage> {
           ),
         ],
       ),
+    );
+  }
+
+  Future<Supercluster<Marker>> _search(LatLng center, double radiusInKm) async {
+    final points = <Marker>[];
+    for (final index in _kdbush.withinGeographicalRadius(
+        center.longitude, center.latitude, radiusInKm)) {
+      points.add(_kdbush.points[index]);
+    }
+
+    await (Future.delayed(const Duration(seconds: 2)));
+    return Supercluster<Marker>(
+      points: points,
+      getX: (m) => m.point.longitude,
+      getY: (m) => m.point.latitude,
+      extractClusterData: (marker) => ClusterDataWithCount(marker),
     );
   }
 }

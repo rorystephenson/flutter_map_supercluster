@@ -1,7 +1,7 @@
-
 import 'package:flutter/material.dart';
 import 'package:flutter_map_fast_cluster_example/clustering_many_markers_page.dart';
 import 'package:flutter_map_fast_cluster_example/clustering_page.dart';
+import 'package:flutter_map_fast_cluster_example/radius_cluster_manager_page.dart';
 
 void main() => runApp(const MyApp());
 
@@ -21,6 +21,8 @@ class MyApp extends StatelessWidget {
         ClusteringPage.route: (context) => const ClusteringPage(),
         ClusteringManyMarkersPage.route: (context) =>
             const ClusteringManyMarkersPage(),
+        RadiusClusterManagerPage.route: (context) =>
+            const RadiusClusterManagerPage(),
       },
     );
   }
