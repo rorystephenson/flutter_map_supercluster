@@ -26,9 +26,6 @@ class FastClusterLayer extends StatefulWidget {
 
 class _FastClusterLayerState extends State<FastClusterLayer>
     with TickerProviderStateMixin {
-  late final ClusterLayerController _controller;
-  late final StreamSubscription<ClusterLayerEvent> _controllerSubscription;
-  late final ClusterManager _clusterManager;
   late final MapCalculator _mapCalculator;
 
   late CenterZoomController _centerZoomController;
@@ -39,9 +36,6 @@ class _FastClusterLayerState extends State<FastClusterLayer>
 
   @override
   void initState() {
-    _controller = ClusterLayerController();
-    _controllerSubscription = _controller.stream.listen(_onControllerEvent);
-    _clusterManager = widget.options.createClusterManager(_controller);
     if (widget.options.popupOptions != null) {
       _movementStreamSubscription = widget.stream.listen(_onMove);
     }
@@ -73,8 +67,6 @@ class _FastClusterLayerState extends State<FastClusterLayer>
 
   @override
   void dispose() {
-    _controllerSubscription.cancel();
-    _controller.dispose();
     _movementStreamSubscription?.cancel();
     _centerZoomController.dispose();
     super.dispose();
