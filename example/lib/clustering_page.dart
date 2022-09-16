@@ -26,9 +26,7 @@ class _ClusteringPageState extends State<ClusteringPage> {
 
   @override
   void initState() {
-    _fastClusterLayerController = MutableFastClusterLayerController(
-      maxMarkers: 50,
-    );
+    _fastClusterLayerController = MutableFastClusterLayerController();
     pointIndex = 0;
     markers = [
       Marker(

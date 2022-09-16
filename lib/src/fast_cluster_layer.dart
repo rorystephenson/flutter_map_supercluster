@@ -108,7 +108,6 @@ class _FastClusterLayerState extends State<FastClusterLayer>
     final controller = widget.options.controller;
     if (controller is MutableFastClusterLayerController) {
       _supercluster = SuperclusterMutable<Marker>(
-        maxEntries: controller.maxMarkers,
         getX: (m) => m.point.longitude,
         getY: (m) => m.point.latitude,
         minZoom: widget.minZoom,

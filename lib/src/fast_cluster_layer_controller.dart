@@ -10,8 +10,9 @@ class FastClusterLayerController {
   FastClusterLayerController()
       : _markerEventController = StreamController.broadcast();
 
-  factory FastClusterLayerController.mutable({required int maxMarkers}) =
-      MutableFastClusterLayerController;
+  factory FastClusterLayerController.mutable({
+    Function(ClusterData? aggregatedClusterData)? onClusterDataChange,
+  }) = MutableFastClusterLayerController;
 
   Stream<MarkerEvent> get markerEventStream => _markerEventController.stream;
 
@@ -35,17 +36,12 @@ class FastClusterLayerController {
 }
 
 class MutableFastClusterLayerController extends FastClusterLayerController {
-  /// The maximum number of Markers. This must not be exceeded including when
-  /// inserting Markers.
-  final int maxMarkers;
-
   /// An optional function which will be called whenever the aggregated cluster
   /// data of all points changes. Note that this will only be calculated if the
   /// callback is provided.
   final void Function(ClusterData? aggregatedClusterData)? onClusterDataChange;
 
   MutableFastClusterLayerController({
-    required this.maxMarkers,
     this.onClusterDataChange,
   });
 
