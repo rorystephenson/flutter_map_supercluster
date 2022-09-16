@@ -1,20 +1,31 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:flutter_map/plugin_api.dart';
-import 'package:flutter_map_fast_cluster/flutter_map_fast_cluster.dart';
 import 'package:flutter_map_marker_popup/extension_api.dart';
 import 'package:flutter_map_marker_popup/flutter_map_marker_popup.dart';
 import 'package:supercluster/supercluster.dart';
+
+import 'fast_cluster_layer_controller.dart';
 
 typedef ClusterWidgetBuilder = Widget Function(
     BuildContext context, int markerCount, ClusterDataBase? extraClusterData);
 
 class FastClusterLayerOptions extends LayerOptions {
-  /// List of markers
-  final List<Marker> markers;
-
   /// Cluster builder
   final ClusterWidgetBuilder builder;
+
+  /// Initial list of markers, additions/removals must be made using the
+  /// [controller].
+  final List<Marker> initialMarkers;
+
+  /// The minimum number of points required to form a cluster, if there is less
+  /// than this number of points within the [maxClusterRadius] the markers will
+  /// be left unclustered. NOTE: This currently has no affect when using a
+  /// MutableFastClusterLayerController.
+  final int? minimumClusterSize;
+
+  /// Controller for adding/removing markers
+  final FastClusterLayerController? controller;
 
   /// The maximum radius in pixels that a cluster can cover.
   final int maxClusterRadius;
@@ -22,11 +33,6 @@ class FastClusterLayerOptions extends LayerOptions {
   /// Implement this function to extract extra data from Markers which can be
   /// used in the [builder] and [computeSize].
   final ClusterDataBase Function(Marker marker)? clusterDataExtractor;
-
-  /// The minimum number of points required to form a cluster, if there is less
-  /// than this number of points within the [maxClusterRadius] the markers will
-  /// be left unclustered.
-  final int? minimumClusterSize;
 
   /// Function to call when a Marker is tapped
   final void Function(Marker)? onMarkerTap;
@@ -70,11 +76,12 @@ class FastClusterLayerOptions extends LayerOptions {
   final AnimationOptions clusterZoomAnimation;
 
   FastClusterLayerOptions({
-    required this.markers,
     required this.builder,
+    this.initialMarkers = const [],
+    this.minimumClusterSize,
+    this.controller,
     this.maxClusterRadius = 80,
     this.clusterDataExtractor,
-    this.minimumClusterSize,
     this.onMarkerTap,
     this.popupOptions,
     this.rotate,
@@ -86,7 +93,11 @@ class FastClusterLayerOptions extends LayerOptions {
       curve: Curves.linear,
       velocity: 1,
     ),
-  });
+  }) : assert(
+          minimumClusterSize == null ||
+              controller is! MutableFastClusterLayerController,
+          'The minimumClusterSize is not currently supported when using a MutableFastClusterLayerController',
+        );
 }
 
 abstract class AnimationOptions {
@@ -135,6 +146,10 @@ class PopupOptions {
   /// animation.
   final PopupAnimation? popupAnimation;
 
+  /// An optional builder to use when a Marker is selected.
+  final Widget Function(BuildContext context, Marker marker)?
+      selectedMarkerBuilder;
+
   /// Whether or not the markers rotate counter clockwise to the map rotation,
   /// defaults to false.
   final bool markerRotate;
@@ -153,6 +168,7 @@ class PopupOptions {
     this.popupSnap = PopupSnap.markerTop,
     PopupController? popupController,
     this.popupAnimation,
+    this.selectedMarkerBuilder,
     this.markerRotate = false,
     MarkerTapBehavior? markerTapBehavior,
   })  : markerTapBehavior =

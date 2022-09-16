@@ -8,6 +8,7 @@ import 'rotate.dart';
 
 class MarkerWidget extends StatelessWidget {
   final Marker marker;
+  final WidgetBuilder markerBuilder;
   final Size size;
   final VoidCallback onTap;
   final Point<double> position;
@@ -17,6 +18,7 @@ class MarkerWidget extends StatelessWidget {
     Key? key,
     required MapCalculator mapCalculator,
     required this.marker,
+    required this.markerBuilder,
     required this.size,
     required this.onTap,
     required this.rotate,
@@ -28,7 +30,7 @@ class MarkerWidget extends StatelessWidget {
     final child = GestureDetector(
       behavior: HitTestBehavior.opaque,
       onTap: onTap,
-      child: marker.builder(context),
+      child: markerBuilder(context),
     );
 
     return Positioned(

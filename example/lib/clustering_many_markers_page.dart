@@ -78,10 +78,20 @@ class _ClusteringManyMarkersPageState extends State<ClusteringManyMarkersPage> {
           ),
           FastClusterLayerWidget(
             options: FastClusterLayerOptions(
-              //maxClusterRadius: 45,
+              initialMarkers: markers,
               clusterWidgetSize: const Size(40, 40),
               anchor: AnchorPos.align(AnchorAlign.center),
-              markers: markers,
+              popupOptions: PopupOptions(
+                selectedMarkerBuilder: (context, marker) => const Icon(
+                  Icons.pin_drop,
+                  color: Colors.red,
+                ),
+                popupBuilder: (BuildContext context, Marker marker) =>
+                    Container(
+                  color: Colors.white,
+                  child: Text(marker.point.toString()),
+                ),
+              ),
               builder: (context, markerCount, extraClusterData) {
                 return Container(
                   decoration: BoxDecoration(

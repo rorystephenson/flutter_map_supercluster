@@ -4,12 +4,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter_map/plugin_api.dart';
 import 'package:flutter_map_fast_cluster/flutter_map_fast_cluster.dart';
 import 'package:flutter_map_fast_cluster/src/map_calculator.dart';
-import 'package:supercluster/supercluster.dart';
 
 import 'cluster_data.dart';
 
 class ClusterWidget extends StatelessWidget {
-  final Cluster<Marker> cluster;
+  final LayerCluster<Marker> cluster;
   final ClusterWidgetBuilder builder;
   final VoidCallback onTap;
   final Size size;
@@ -23,7 +22,7 @@ class ClusterWidget extends StatelessWidget {
     required this.onTap,
     required this.size,
   })  : position = _getClusterPixel(mapCalculator, cluster),
-        super(key: ValueKey(cluster.id));
+        super(key: ValueKey(cluster.uuid));
 
   @override
   Widget build(BuildContext context) {
@@ -43,7 +42,7 @@ class ClusterWidget extends StatelessWidget {
 
   static Point<double> _getClusterPixel(
     MapCalculator mapCalculator,
-    Cluster<Marker> cluster,
+    LayerCluster<Marker> cluster,
   ) {
     final pos =
         mapCalculator.getPixelFromPoint(mapCalculator.clusterPoint(cluster));

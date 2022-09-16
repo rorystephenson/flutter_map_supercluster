@@ -11,9 +11,11 @@ dependencies:
   flutter:
     sdk: flutter
   flutter_map: ">=1.0.0 <2.0.0"
-  flutter_map_marker_popup: ^2.2.0
+  flutter_map_marker_popup: ^3.2.0
   latlong2: ^0.8.1
-  supercluster: ^0.1.0
+  provider: ^6.0.3
+  supercluster:
+    path: ../supercluster
 
 dev_dependencies:
   flutter_lints: ^2.0.1

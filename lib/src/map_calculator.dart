@@ -34,11 +34,12 @@ class MapCalculator {
     );
   }
 
-  LatLng clusterPoint(Cluster<Marker> cluster) {
+  LatLng clusterPoint(LayerCluster<Marker> cluster) {
     return LatLng(cluster.latitude, cluster.longitude);
   }
 
-  Point<double> removeClusterAnchor(CustomPoint pos, Cluster<Marker> cluster) {
+  Point<double> removeClusterAnchor(
+      CustomPoint pos, LayerCluster<Marker> cluster) {
     final anchor = Anchor.forPos(
       clusterAnchorPos,
       clusterWidgetSize.width,

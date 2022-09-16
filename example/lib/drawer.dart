@@ -30,13 +30,13 @@ Drawer buildDrawer(BuildContext context, String currentRoute) {
         ),
         _buildMenuItem(
           context,
-          const Text('Clustering'),
+          const Text('Clustering (mutable)'),
           ClusteringPage.route,
           currentRoute,
         ),
         _buildMenuItem(
           context,
-          const Text('Clustering Many Markers'),
+          const Text('Clustering Many Markers (immutable)'),
           ClusteringManyMarkersPage.route,
           currentRoute,
         ),

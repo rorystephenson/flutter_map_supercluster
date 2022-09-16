@@ -14,7 +14,7 @@ class ClusteringPage extends StatefulWidget {
 }
 
 class _ClusteringPageState extends State<ClusteringPage> {
-  final PopupController _popupController = PopupController();
+  late final MutableFastClusterLayerController _fastClusterLayerController;
 
   late List<Marker> markers;
   late int pointIndex;
@@ -22,9 +22,13 @@ class _ClusteringPageState extends State<ClusteringPage> {
     LatLng(51.5, -0.09),
     LatLng(49.8566, 3.3522),
   ];
+  int? tappedMarkerIndex;
 
   @override
   void initState() {
+    _fastClusterLayerController = MutableFastClusterLayerController(
+      maxMarkers: 50,
+    );
     pointIndex = 0;
     markers = [
       Marker(
@@ -48,114 +52,15 @@ class _ClusteringPageState extends State<ClusteringPage> {
         point: LatLng(53.3488, -6.2613),
         builder: (ctx) => const Icon(Icons.pin_drop),
       ),
-      Marker(
-        anchorPos: AnchorPos.align(AnchorAlign.center),
-        height: 30,
-        width: 30,
-        point: LatLng(53.3488, -6.2613),
-        builder: (ctx) => const Icon(Icons.pin_drop),
-      ),
-      Marker(
-        anchorPos: AnchorPos.align(AnchorAlign.center),
-        height: 30,
-        width: 30,
-        point: LatLng(48.8566, 2.3522),
-        builder: (ctx) => const Icon(Icons.pin_drop),
-      ),
-      Marker(
-        anchorPos: AnchorPos.align(AnchorAlign.center),
-        height: 30,
-        width: 30,
-        point: LatLng(49.8566, 3.3522),
-        builder: (ctx) => const Icon(Icons.pin_drop),
-      ),
-      Marker(
-        anchorPos: AnchorPos.align(AnchorAlign.center),
-        height: 30,
-        width: 30,
-        point: LatLng(49.8566, 3.3522),
-        builder: (ctx) => const Icon(Icons.pin_drop),
-      ),
-      Marker(
-        anchorPos: AnchorPos.align(AnchorAlign.center),
-        height: 30,
-        width: 30,
-        point: LatLng(49.8566, 3.3522),
-        builder: (ctx) => const Icon(Icons.pin_drop),
-      ),
-      Marker(
-        anchorPos: AnchorPos.align(AnchorAlign.center),
-        height: 30,
-        width: 30,
-        point: LatLng(49.8566, 3.3522),
-        builder: (ctx) => const Icon(Icons.pin_drop),
-      ),
-      Marker(
-        anchorPos: AnchorPos.align(AnchorAlign.center),
-        height: 30,
-        width: 30,
-        point: LatLng(49.8566, 3.3522),
-        builder: (ctx) => const Icon(Icons.pin_drop),
-      ),
-      Marker(
-        anchorPos: AnchorPos.align(AnchorAlign.center),
-        height: 30,
-        width: 30,
-        point: LatLng(49.8566, 3.3522),
-        builder: (ctx) => const Icon(Icons.pin_drop),
-      ),
-      Marker(
-        anchorPos: AnchorPos.align(AnchorAlign.center),
-        height: 30,
-        width: 30,
-        point: LatLng(49.8566, 3.3522),
-        builder: (ctx) => const Icon(Icons.pin_drop),
-      ),
-      Marker(
-        anchorPos: AnchorPos.align(AnchorAlign.center),
-        height: 30,
-        width: 30,
-        point: LatLng(49.8566, 3.3522),
-        builder: (ctx) => const Icon(Icons.pin_drop),
-      ),
-      Marker(
-        anchorPos: AnchorPos.align(AnchorAlign.center),
-        height: 30,
-        width: 30,
-        point: LatLng(49.8566, 3.3522),
-        builder: (ctx) => const Icon(Icons.pin_drop),
-      ),
-      Marker(
-        anchorPos: AnchorPos.align(AnchorAlign.center),
-        height: 30,
-        width: 30,
-        point: LatLng(49.8566, 3.3522),
-        builder: (ctx) => const Icon(Icons.pin_drop),
-      ),
-      Marker(
-        anchorPos: AnchorPos.align(AnchorAlign.center),
-        height: 30,
-        width: 30,
-        point: LatLng(49.8566, 3.3522),
-        builder: (ctx) => const Icon(Icons.pin_drop),
-      ),
-      Marker(
-        anchorPos: AnchorPos.align(AnchorAlign.center),
-        height: 30,
-        width: 30,
-        point: LatLng(49.8566, 3.3522),
-        builder: (ctx) => const Icon(Icons.pin_drop),
-      ),
-      Marker(
-        anchorPos: AnchorPos.align(AnchorAlign.center),
-        height: 30,
-        width: 30,
-        point: LatLng(49.8566, 3.3522),
-        builder: (ctx) => const Icon(Icons.pin_drop),
-      ),
     ];
 
     super.initState();
+  }
+
+  @override
+  void dispose() {
+    _fastClusterLayerController.dispose();
+    super.dispose();
   }
 
   @override
@@ -192,8 +97,17 @@ class _ClusteringPageState extends State<ClusteringPage> {
           plugins: [
             FastClusterPlugin(),
           ],
-          onTap: (_, __) => _popupController
-              .hideAllPopups(), // Hide popup when the map is tapped.
+          onTap: (_, latLng) {
+            _fastClusterLayerController.add(
+              Marker(
+                anchorPos: AnchorPos.align(AnchorAlign.center),
+                height: 30,
+                width: 30,
+                point: latLng,
+                builder: (ctx) => const Icon(Icons.pin_drop_outlined),
+              ),
+            );
+          }, // Hide popup when the map is tapped.
         ),
         children: <Widget>[
           TileLayerWidget(
@@ -204,25 +118,14 @@ class _ClusteringPageState extends State<ClusteringPage> {
           ),
           FastClusterLayerWidget(
             options: FastClusterLayerOptions(
+              initialMarkers: markers,
+              onMarkerTap: (marker) {
+                _fastClusterLayerController.remove(marker);
+              },
+              controller: _fastClusterLayerController,
               rotate: true,
               clusterWidgetSize: const Size(40, 40),
               anchor: AnchorPos.align(AnchorAlign.center),
-              markers: markers,
-              popupOptions: PopupOptions(
-                popupSnap: PopupSnap.markerTop,
-                popupController: _popupController,
-                popupBuilder: (_, marker) => Container(
-                  width: 200,
-                  height: 100,
-                  color: Colors.white,
-                  child: GestureDetector(
-                    onTap: () => debugPrint('Popup tap!'),
-                    child: Text(
-                      'Container popup for marker at ${marker.point}',
-                    ),
-                  ),
-                ),
-              ),
               clusterZoomAnimation: const AnimationOptions.animate(
                 curve: Curves.linear,
                 velocity: 1,
