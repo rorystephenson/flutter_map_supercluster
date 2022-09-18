@@ -1,7 +1,7 @@
 
 import 'package:flutter/material.dart';
-import 'package:flutter_map_fast_cluster_example/clustering_many_markers_page.dart';
-import 'package:flutter_map_fast_cluster_example/clustering_page.dart';
+import 'package:flutter_map_supercluster_example/clustering_many_markers_page.dart';
+import 'package:flutter_map_supercluster_example/clustering_page.dart';
 
 void main() => runApp(const MyApp());
 

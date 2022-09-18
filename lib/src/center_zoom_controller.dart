@@ -2,14 +2,14 @@ import 'dart:math';
 
 import 'package:flutter/widgets.dart';
 import 'package:flutter_map/plugin_api.dart';
-import 'package:flutter_map_fast_cluster/flutter_map_fast_cluster.dart';
 import 'package:latlong2/latlong.dart';
 
 import 'center_zoom_tween.dart';
+import 'supercluster_layer_options.dart';
 
 class CenterZoomController {
   final TickerProvider _vsync;
-  final MapState mapState;
+  final FlutterMapState _mapState;
   AnimationController? _zoomController;
   CurvedAnimation? _animation;
   double? _velocity;
@@ -17,9 +17,10 @@ class CenterZoomController {
 
   CenterZoomController({
     required TickerProvider vsync,
-    required this.mapState,
+    required FlutterMapState mapState,
     required AnimationOptions animationOptions,
-  }) : _vsync = vsync {
+  })  : _mapState = mapState,
+        _vsync = vsync {
     this.animationOptions = animationOptions;
   }
 
@@ -45,13 +46,14 @@ class CenterZoomController {
   }
 
   void dispose() {
+    _zoomController?.stop(canceled: false);
     _zoomController?.dispose();
     _zoomController = null;
   }
 
   void moveTo(CenterZoom centerZoom) {
     if (_zoomController == null) {
-      mapState.move(
+      _mapState.move(
         centerZoom.center,
         centerZoom.zoom,
         source: MapEventSource.custom,
@@ -63,8 +65,8 @@ class CenterZoomController {
 
   void _animateTo(CenterZoom centerZoom) {
     final begin = CenterZoom(
-      center: mapState.center,
-      zoom: mapState.zoom,
+      center: _mapState.center,
+      zoom: _mapState.zoom,
     );
     final end = CenterZoom(
       center: LatLng(centerZoom.center.latitude, centerZoom.center.longitude),
@@ -84,10 +86,11 @@ class CenterZoomController {
   }
 
   void _setDynamicDuration(double velocity, CenterZoom begin, CenterZoom end) {
-    final pixelsTranslated =
-        mapState.project(begin.center).distanceTo(mapState.project(end.center));
+    final pixelsTranslated = _mapState
+        .project(begin.center)
+        .distanceTo(_mapState.project(end.center));
     final portionOfScreenTranslated =
-        pixelsTranslated / ((mapState.size.x + mapState.size.y) / 2);
+        pixelsTranslated / ((_mapState.size.x + _mapState.size.y) / 2);
     final translateVelocity =
         ((portionOfScreenTranslated * 400) * velocity).round();
 
@@ -101,7 +104,7 @@ class CenterZoomController {
   VoidCallback _movementListener(Tween<CenterZoom> centerZoomTween) {
     return () {
       final centerZoom = centerZoomTween.evaluate(_animation!);
-      mapState.move(
+      _mapState.move(
         centerZoom.center,
         centerZoom.zoom,
         source: MapEventSource.custom,

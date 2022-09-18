@@ -6,31 +6,33 @@ import 'package:latlong2/latlong.dart';
 import 'package:supercluster/supercluster.dart';
 
 class MapCalculator {
-  final MapState mapState;
+  final FlutterMapState _mapState;
   final Size clusterWidgetSize;
   final AnchorPos? clusterAnchorPos;
   final CustomPoint _boundsPixelPadding;
 
   MapCalculator({
-    required this.mapState,
+    required FlutterMapState mapState,
     required this.clusterWidgetSize,
     required this.clusterAnchorPos,
-  }) : _boundsPixelPadding = CustomPoint(
+  })  : _mapState = mapState,
+        _boundsPixelPadding = CustomPoint(
           clusterWidgetSize.width / 2,
           clusterWidgetSize.height / 2,
         );
 
   CustomPoint<num> getPixelFromPoint(LatLng point) {
-    var pos = mapState.project(point);
-    return pos.multiplyBy(mapState.getZoomScale(mapState.zoom, mapState.zoom)) -
-        mapState.getPixelOrigin();
+    var pos = _mapState.project(point);
+    return pos.multiplyBy(
+            _mapState.getZoomScale(_mapState.zoom, _mapState.zoom)) -
+        _mapState.pixelOrigin;
   }
 
   LatLngBounds paddedMapBounds() {
-    final bounds = mapState.pixelBounds;
+    final bounds = _mapState.pixelBounds;
     return LatLngBounds(
-      mapState.unproject(bounds.topLeft - _boundsPixelPadding),
-      mapState.unproject(bounds.bottomRight + _boundsPixelPadding),
+      _mapState.unproject(bounds.topLeft - _boundsPixelPadding),
+      _mapState.unproject(bounds.bottomRight + _boundsPixelPadding),
     );
   }
 

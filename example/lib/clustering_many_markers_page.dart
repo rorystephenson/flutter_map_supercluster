@@ -2,8 +2,8 @@ import 'dart:math';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
-import 'package:flutter_map_fast_cluster/flutter_map_fast_cluster.dart';
-import 'package:flutter_map_fast_cluster_example/drawer.dart';
+import 'package:flutter_map_supercluster/flutter_map_supercluster.dart';
+import 'package:flutter_map_supercluster_example/drawer.dart';
 import 'package:latlong2/latlong.dart';
 
 class ClusteringManyMarkersPage extends StatefulWidget {
@@ -65,19 +65,14 @@ class _ClusteringManyMarkersPageState extends State<ClusteringManyMarkersPage> {
               (maxLatLng.longitude + minLatLng.longitude) / 2),
           zoom: 6,
           maxZoom: 15,
-          plugins: [
-            FastClusterPlugin(),
-          ],
         ),
         children: <Widget>[
-          TileLayerWidget(
-            options: TileLayerOptions(
-              urlTemplate: 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
-              subdomains: ['a', 'b', 'c'],
-            ),
+          TileLayer(
+            urlTemplate: 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
+            subdomains: const ['a', 'b', 'c'],
           ),
-          FastClusterLayerWidget(
-            options: FastClusterLayerOptions(
+          SuperclusterLayer(
+            options: SuperclusterLayerOptions(
               initialMarkers: markers,
               clusterWidgetSize: const Size(40, 40),
               anchor: AnchorPos.align(AnchorAlign.center),

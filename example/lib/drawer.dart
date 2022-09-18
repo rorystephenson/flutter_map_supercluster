@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_map_fast_cluster_example/clustering_many_markers_page.dart';
-import 'package:flutter_map_fast_cluster_example/clustering_page.dart';
+import 'package:flutter_map_supercluster_example/clustering_many_markers_page.dart';
+import 'package:flutter_map_supercluster_example/clustering_page.dart';
 
 Widget _buildMenuItem(
     BuildContext context, Widget title, String routeName, String currentRoute) {

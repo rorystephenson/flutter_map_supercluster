@@ -2,10 +2,11 @@ import 'dart:math';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_map/plugin_api.dart';
-import 'package:flutter_map_fast_cluster/flutter_map_fast_cluster.dart';
-import 'package:flutter_map_fast_cluster/src/map_calculator.dart';
+import 'package:supercluster/supercluster.dart';
 
 import 'cluster_data.dart';
+import 'map_calculator.dart';
+import 'supercluster_layer_options.dart';
 
 class ClusterWidget extends StatelessWidget {
   final LayerCluster<Marker> cluster;

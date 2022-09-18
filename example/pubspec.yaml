@@ -1,5 +1,5 @@
-name: flutter_map_fast_cluster_example
-description: Example for Flutter Map Marker cluster
+name: flutter_map_supercluster_example
+description: Example for Flutter Map Supercluster
 
 publish_to: "none"
 
@@ -9,8 +9,8 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
-  flutter_map: ">=1.0.0 <2.0.0"
-  flutter_map_fast_cluster:
+  flutter_map: ^3.0.0
+  flutter_map_supercluster:
     path: ../
   cupertino_icons: ^1.0.2
   latlong2: ^0.8.0

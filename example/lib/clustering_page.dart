@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
-import 'package:flutter_map_fast_cluster/flutter_map_fast_cluster.dart';
-import 'package:flutter_map_fast_cluster_example/drawer.dart';
+import 'package:flutter_map_supercluster/flutter_map_supercluster.dart';
+import 'package:flutter_map_supercluster_example/drawer.dart';
 import 'package:latlong2/latlong.dart';
 
 class ClusteringPage extends StatefulWidget {
@@ -14,7 +14,7 @@ class ClusteringPage extends StatefulWidget {
 }
 
 class _ClusteringPageState extends State<ClusteringPage> {
-  late final MutableFastClusterLayerController _fastClusterLayerController;
+  late final SuperclusterMutableController _superclusterMutableController;
 
   late List<Marker> markers;
   late int pointIndex;
@@ -26,7 +26,7 @@ class _ClusteringPageState extends State<ClusteringPage> {
 
   @override
   void initState() {
-    _fastClusterLayerController = MutableFastClusterLayerController();
+    _superclusterMutableController = SuperclusterMutableController();
     pointIndex = 0;
     markers = [
       Marker(
@@ -57,7 +57,7 @@ class _ClusteringPageState extends State<ClusteringPage> {
 
   @override
   void dispose() {
-    _fastClusterLayerController.dispose();
+    _superclusterMutableController.dispose();
     super.dispose();
   }
 
@@ -92,11 +92,8 @@ class _ClusteringPageState extends State<ClusteringPage> {
           center: points[0],
           zoom: 5,
           maxZoom: 15,
-          plugins: [
-            FastClusterPlugin(),
-          ],
           onTap: (_, latLng) {
-            _fastClusterLayerController.add(
+            _superclusterMutableController.add(
               Marker(
                 anchorPos: AnchorPos.align(AnchorAlign.center),
                 height: 30,
@@ -108,19 +105,17 @@ class _ClusteringPageState extends State<ClusteringPage> {
           }, // Hide popup when the map is tapped.
         ),
         children: <Widget>[
-          TileLayerWidget(
-            options: TileLayerOptions(
-              urlTemplate: 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
-              subdomains: ['a', 'b', 'c'],
-            ),
+          TileLayer(
+            urlTemplate: 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
+            subdomains: const ['a', 'b', 'c'],
           ),
-          FastClusterLayerWidget(
-            options: FastClusterLayerOptions(
+          SuperclusterMutableLayer(
+            controller: _superclusterMutableController,
+            options: SuperclusterLayerOptions(
               initialMarkers: markers,
               onMarkerTap: (marker) {
-                _fastClusterLayerController.remove(marker);
+                _superclusterMutableController.remove(marker);
               },
-              controller: _fastClusterLayerController,
               rotate: true,
               clusterWidgetSize: const Size(40, 40),
               anchor: AnchorPos.align(AnchorAlign.center),

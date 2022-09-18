@@ -5,12 +5,10 @@ import 'package:flutter_map_marker_popup/extension_api.dart';
 import 'package:flutter_map_marker_popup/flutter_map_marker_popup.dart';
 import 'package:supercluster/supercluster.dart';
 
-import 'fast_cluster_layer_controller.dart';
-
 typedef ClusterWidgetBuilder = Widget Function(
     BuildContext context, int markerCount, ClusterDataBase? extraClusterData);
 
-class FastClusterLayerOptions extends LayerOptions {
+class SuperclusterLayerOptions {
   /// Cluster builder
   final ClusterWidgetBuilder builder;
 
@@ -20,12 +18,8 @@ class FastClusterLayerOptions extends LayerOptions {
 
   /// The minimum number of points required to form a cluster, if there is less
   /// than this number of points within the [maxClusterRadius] the markers will
-  /// be left unclustered. NOTE: This currently has no affect when using a
-  /// MutableFastClusterLayerController.
+  /// be left unclustered.
   final int? minimumClusterSize;
-
-  /// Controller for adding/removing markers
-  final FastClusterLayerController? controller;
 
   /// The maximum radius in pixels that a cluster can cover.
   final int maxClusterRadius;
@@ -75,29 +69,24 @@ class FastClusterLayerOptions extends LayerOptions {
   ///  [AnimationOptions.animate] for more information on animation options.
   final AnimationOptions clusterZoomAnimation;
 
-  FastClusterLayerOptions({
+  SuperclusterLayerOptions({
     required this.builder,
     this.initialMarkers = const [],
+    this.onMarkerTap,
     this.minimumClusterSize,
-    this.controller,
     this.maxClusterRadius = 80,
     this.clusterDataExtractor,
-    this.onMarkerTap,
-    this.popupOptions,
-    this.rotate,
-    this.rotateOrigin,
-    this.rotateAlignment,
     this.clusterWidgetSize = const Size(30, 30),
-    this.anchor,
     this.clusterZoomAnimation = const AnimationOptions.animate(
       curve: Curves.linear,
       velocity: 1,
     ),
-  }) : assert(
-          minimumClusterSize == null ||
-              controller is! MutableFastClusterLayerController,
-          'The minimumClusterSize is not currently supported when using a MutableFastClusterLayerController',
-        );
+    this.popupOptions,
+    this.rotate,
+    this.rotateOrigin,
+    this.rotateAlignment,
+    this.anchor,
+  });
 }
 
 abstract class AnimationOptions {
