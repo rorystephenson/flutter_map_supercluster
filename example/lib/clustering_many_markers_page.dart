@@ -72,35 +72,32 @@ class _ClusteringManyMarkersPageState extends State<ClusteringManyMarkersPage> {
             subdomains: const ['a', 'b', 'c'],
           ),
           SuperclusterLayer(
-            options: SuperclusterLayerOptions(
-              initialMarkers: markers,
-              clusterWidgetSize: const Size(40, 40),
-              anchor: AnchorPos.align(AnchorAlign.center),
-              popupOptions: PopupOptions(
-                selectedMarkerBuilder: (context, marker) => const Icon(
-                  Icons.pin_drop,
-                  color: Colors.red,
-                ),
-                popupBuilder: (BuildContext context, Marker marker) =>
-                    Container(
-                  color: Colors.white,
-                  child: Text(marker.point.toString()),
-                ),
+            initialMarkers: markers,
+            clusterWidgetSize: const Size(40, 40),
+            anchor: AnchorPos.align(AnchorAlign.center),
+            popupOptions: PopupOptions(
+              selectedMarkerBuilder: (context, marker) => const Icon(
+                Icons.pin_drop,
+                color: Colors.red,
               ),
-              builder: (context, markerCount, extraClusterData) {
-                return Container(
-                  decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(20.0),
-                      color: Colors.blue),
-                  child: Center(
-                    child: Text(
-                      markerCount.toString(),
-                      style: const TextStyle(color: Colors.white),
-                    ),
-                  ),
-                );
-              },
+              popupBuilder: (BuildContext context, Marker marker) => Container(
+                color: Colors.white,
+                child: Text(marker.point.toString()),
+              ),
             ),
+            builder: (context, markerCount, extraClusterData) {
+              return Container(
+                decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(20.0),
+                    color: Colors.blue),
+                child: Center(
+                  child: Text(
+                    markerCount.toString(),
+                    style: const TextStyle(color: Colors.white),
+                  ),
+                ),
+              );
+            },
           ),
         ],
       ),

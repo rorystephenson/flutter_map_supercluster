@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_map_supercluster_example/clustering_many_markers_page.dart';
-import 'package:flutter_map_supercluster_example/clustering_page.dart';
+import 'package:flutter_map_supercluster_example/mutable_clustering_page.dart';
 
 Widget _buildMenuItem(
     BuildContext context, Widget title, String routeName, String currentRoute) {
@@ -25,13 +25,13 @@ Drawer buildDrawer(BuildContext context, String currentRoute) {
       children: <Widget>[
         const DrawerHeader(
           child: Center(
-            child: Text('Flutter Map Clustering Examples'),
+            child: Text('Flutter Map Supercluster Examples'),
           ),
         ),
         _buildMenuItem(
           context,
           const Text('Clustering (mutable)'),
-          ClusteringPage.route,
+          MutableClusteringPage.route,
           currentRoute,
         ),
         _buildMenuItem(

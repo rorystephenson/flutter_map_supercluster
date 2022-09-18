@@ -3,7 +3,7 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:flutter_map/plugin_api.dart';
 
-import 'map_calculator.dart';
+import '../layer/map_calculator.dart';
 import 'rotate.dart';
 
 class MarkerWidget extends StatelessWidget {

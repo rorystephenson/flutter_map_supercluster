@@ -1,12 +1,14 @@
 # Flutter Map Supercluster
 
-A very fast clustering plugin for [flutter_map](https://github.com/fleaflet/flutter_map) which uses
-the supercluster algorithm. Adding/removing markers is also supported
-with `SuperclusterMutableLayer`.
+Two different Marker clustering layers for [flutter_map](https://github.com/fleaflet/flutter_map):
+
+- `SuperclusterLayer`: An extremely fast Marker clustering layer, Markers may not be added/removed.
+- `SuperclusterMutableLayer`: An slightly slower (but still very fast) Marker clustering layer.
+  Markers can be added/removed.
 
 If you want beautiful clustering animations check out `flutter_map_marker_plugin`. It will perform
 well for quite a lot of Markers on most devices. If you are running in to performance issues and are
-happy to sacrifice animations then this plugin may be for you.
+happy to sacrifice animations then this package may be for you.
 
 ## Usage
 
@@ -28,30 +30,29 @@ Add it to FlutterMap:
       maxZoom: 15,
     ),
     children: <Widget>[
-      TileLayerWidget(
+      TileLayer(
         options: TileLayerOptions(
           urlTemplate: 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
           subdomains: ['a', 'b', 'c'],
         ),
       ),
       SuperclusterLayer(
-        options: FastClusterLayerOptions(
-          size: const Size(40, 40),
-          markers: markers, // Provide your own.
-          builder: (context, markerCount, extraClusterData) {
-            return Container(
-              decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(20.0),
-                  color: Colors.blue),
-              child: Center(
-                child: Text(
-                  markerCount.toString(),
-                  style: const TextStyle(color: Colors.white),
-                ),
+        initialMarkers: markers, // Provide your own
+        clusterWidgetSize: const Size(40, 40),
+        builder: (context, markerCount, extraClusterData) {
+          return Container(
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(20.0),
+              color: Colors.blue,
+            ),
+            child: Center(
+              child: Text(
+                markerCount.toString(),
+                style: const TextStyle(color: Colors.white),
               ),
-            );
-          },
-        ),
+            ),
+          );
+        },
       ),
     ],
   );

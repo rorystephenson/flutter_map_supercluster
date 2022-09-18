@@ -4,8 +4,8 @@ import 'package:flutter/widgets.dart';
 import 'package:flutter_map/plugin_api.dart';
 import 'package:latlong2/latlong.dart';
 
+import '../options/animation_options.dart';
 import 'center_zoom_tween.dart';
-import 'supercluster_layer_options.dart';
 
 class CenterZoomController {
   final TickerProvider _vsync;

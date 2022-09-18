@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_map/plugin_api.dart';
-import 'package:flutter_map_supercluster/src/supercluster_layer_base.dart';
+import 'package:flutter_map_supercluster/src/layer/supercluster_layer_base.dart';
 import 'package:supercluster/supercluster.dart';
 
+import '../controller/marker_event.dart';
+import '../controller/supercluster_controller.dart';
+import '../options/animation_options.dart';
 import 'cluster_data.dart';
-import 'marker_event.dart';
-import 'supercluster_controller.dart';
-import 'supercluster_layer_options.dart';
 
 class SuperclusterMutableLayer extends SuperclusterLayerBase {
   /// Controller for adding/removing/replacing [Marker]s.
@@ -19,11 +19,26 @@ class SuperclusterMutableLayer extends SuperclusterLayerBase {
   final void Function(ClusterData? aggregatedClusterData)? onClusterDataChange;
 
   const SuperclusterMutableLayer({
-    Key? key,
-    required SuperclusterLayerOptions options,
+    super.key,
+    required super.builder,
     this.controller,
     this.onClusterDataChange,
-  }) : super(key: key, options: options);
+    super.initialMarkers = const [],
+    super.onMarkerTap,
+    super.minimumClusterSize,
+    super.maxClusterRadius = 80,
+    super.clusterDataExtractor,
+    super.clusterWidgetSize = const Size(30, 30),
+    super.clusterZoomAnimation = const AnimationOptions.animate(
+      curve: Curves.linear,
+      velocity: 1,
+    ),
+    super.popupOptions,
+    super.rotate,
+    super.rotateOrigin,
+    super.rotateAlignment,
+    super.anchor,
+  });
 
   @override
   State<SuperclusterMutableLayer> createState() =>
@@ -41,12 +56,12 @@ class _SuperclusterMutableLayerState
       getY: (m) => m.point.latitude,
       minZoom: minZoom,
       maxZoom: maxZoom,
-      minPoints: widget.options.minimumClusterSize,
+      minPoints: widget.minimumClusterSize,
       extractClusterData: (marker) => ClusterData(
         marker,
-        innerExtractor: widget.options.clusterDataExtractor,
+        innerExtractor: widget.clusterDataExtractor,
       ),
-      radius: widget.options.maxClusterRadius,
+      radius: widget.maxClusterRadius,
       onClusterDataChange: widget.onClusterDataChange == null
           ? null
           : (clusterData) =>
@@ -55,10 +70,7 @@ class _SuperclusterMutableLayerState
   }
 
   @override
-  void onMarkerEvent(
-    FlutterMapState mapState,
-    MarkerEvent markerEvent,
-  ) {
+  void onMarkerEvent(MarkerEvent markerEvent) {
     if (markerEvent is AddMarkerEvent) {
       _supercluster.insert(markerEvent.marker);
     } else if (markerEvent is RemoveMarkerEvent) {
@@ -75,7 +87,7 @@ class _SuperclusterMutableLayerState
       throw 'Unknown $MarkerEvent type ${markerEvent.runtimeType}';
     }
 
-    mapState.mapController.move(mapState.center, mapState.zoom);
+    setState(() {});
   }
 
   @override

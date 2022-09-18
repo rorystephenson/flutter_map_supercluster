@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_map/plugin_api.dart';
-import 'package:flutter_map_supercluster/src/supercluster_layer_base.dart';
+import 'package:flutter_map_supercluster/src/layer/supercluster_layer_base.dart';
 import 'package:supercluster/supercluster.dart';
 
+import '../controller/marker_event.dart';
+import '../controller/supercluster_controller.dart';
+import '../options/animation_options.dart';
 import 'cluster_data.dart';
-import 'marker_event.dart';
-import 'supercluster_controller.dart';
-import 'supercluster_layer_options.dart';
 
 class SuperclusterLayer extends SuperclusterLayerBase {
   /// Controller for replacing the markers. Note that this requires rebuilding
@@ -17,10 +17,25 @@ class SuperclusterLayer extends SuperclusterLayerBase {
   final SuperclusterController? controller;
 
   const SuperclusterLayer({
-    Key? key,
-    required SuperclusterLayerOptions options,
+    super.key,
+    required super.builder,
     this.controller,
-  }) : super(key: key, options: options);
+    super.initialMarkers = const [],
+    super.onMarkerTap,
+    super.minimumClusterSize,
+    super.maxClusterRadius = 80,
+    super.clusterDataExtractor,
+    super.clusterWidgetSize = const Size(30, 30),
+    super.clusterZoomAnimation = const AnimationOptions.animate(
+      curve: Curves.linear,
+      velocity: 1,
+    ),
+    super.popupOptions,
+    super.rotate,
+    super.rotateOrigin,
+    super.rotateAlignment,
+    super.anchor,
+  });
 
   @override
   State<SuperclusterLayer> createState() => _SuperclusterLayerState();
@@ -40,25 +55,22 @@ class _SuperclusterLayerState
       maxZoom: maxZoom,
       extractClusterData: (marker) => ClusterData(
         marker,
-        innerExtractor: widget.options.clusterDataExtractor,
+        innerExtractor: widget.clusterDataExtractor,
       ),
-      radius: widget.options.maxClusterRadius,
-      minPoints: widget.options.minimumClusterSize,
+      radius: widget.maxClusterRadius,
+      minPoints: widget.minimumClusterSize,
     );
   }
 
   @override
-  void onMarkerEvent(
-    FlutterMapState mapState,
-    MarkerEvent markerEvent,
-  ) {
+  void onMarkerEvent(MarkerEvent markerEvent) {
     if (markerEvent is ReplaceAllMarkerEvent) {
       initializeClusterManager(markerEvent.markers);
     } else {
       throw 'Unsupported $MarkerEvent type: ${markerEvent.runtimeType}. Try using SuperclusterMutableLayer.';
     }
 
-    mapState.mapController.move(mapState.center, mapState.zoom);
+    setState(() {});
   }
 
   @override

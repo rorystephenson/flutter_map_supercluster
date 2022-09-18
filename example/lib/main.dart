@@ -1,7 +1,6 @@
-
 import 'package:flutter/material.dart';
 import 'package:flutter_map_supercluster_example/clustering_many_markers_page.dart';
-import 'package:flutter_map_supercluster_example/clustering_page.dart';
+import 'package:flutter_map_supercluster_example/mutable_clustering_page.dart';
 
 void main() => runApp(const MyApp());
 
@@ -16,9 +15,9 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
         primarySwatch: Colors.blue,
       ),
-      home: const ClusteringPage(),
+      home: const MutableClusteringPage(),
       routes: <String, WidgetBuilder>{
-        ClusteringPage.route: (context) => const ClusteringPage(),
+        MutableClusteringPage.route: (context) => const MutableClusteringPage(),
         ClusteringManyMarkersPage.route: (context) =>
             const ClusteringManyMarkersPage(),
       },

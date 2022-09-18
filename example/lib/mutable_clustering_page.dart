@@ -4,16 +4,16 @@ import 'package:flutter_map_supercluster/flutter_map_supercluster.dart';
 import 'package:flutter_map_supercluster_example/drawer.dart';
 import 'package:latlong2/latlong.dart';
 
-class ClusteringPage extends StatefulWidget {
+class MutableClusteringPage extends StatefulWidget {
   static const String route = 'clusteringPage';
 
-  const ClusteringPage({Key? key}) : super(key: key);
+  const MutableClusteringPage({Key? key}) : super(key: key);
 
   @override
-  _ClusteringPageState createState() => _ClusteringPageState();
+  _MutableClusteringPageState createState() => _MutableClusteringPageState();
 }
 
-class _ClusteringPageState extends State<ClusteringPage> {
+class _MutableClusteringPageState extends State<MutableClusteringPage> {
   late final SuperclusterMutableController _superclusterMutableController;
 
   late List<Marker> markers;
@@ -67,7 +67,7 @@ class _ClusteringPageState extends State<ClusteringPage> {
       appBar: AppBar(
         title: const Text('Clustering Page'),
       ),
-      drawer: buildDrawer(context, ClusteringPage.route),
+      drawer: buildDrawer(context, MutableClusteringPage.route),
       floatingActionButton: FloatingActionButton(
         onPressed: () {
           pointIndex++;
@@ -91,6 +91,7 @@ class _ClusteringPageState extends State<ClusteringPage> {
         options: MapOptions(
           center: points[0],
           zoom: 5,
+          minZoom: 7,
           maxZoom: 15,
           onTap: (_, latLng) {
             _superclusterMutableController.add(
@@ -111,32 +112,30 @@ class _ClusteringPageState extends State<ClusteringPage> {
           ),
           SuperclusterMutableLayer(
             controller: _superclusterMutableController,
-            options: SuperclusterLayerOptions(
-              initialMarkers: markers,
-              onMarkerTap: (marker) {
-                _superclusterMutableController.remove(marker);
-              },
-              rotate: true,
-              clusterWidgetSize: const Size(40, 40),
-              anchor: AnchorPos.align(AnchorAlign.center),
-              clusterZoomAnimation: const AnimationOptions.animate(
-                curve: Curves.linear,
-                velocity: 1,
-              ),
-              builder: (context, markerCount, extraClusterData) {
-                return Container(
-                  decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(20.0),
-                      color: Colors.blue),
-                  child: Center(
-                    child: Text(
-                      markerCount.toString(),
-                      style: const TextStyle(color: Colors.white),
-                    ),
-                  ),
-                );
-              },
+            initialMarkers: markers,
+            onMarkerTap: (marker) {
+              _superclusterMutableController.remove(marker);
+            },
+            rotate: true,
+            clusterWidgetSize: const Size(40, 40),
+            anchor: AnchorPos.align(AnchorAlign.center),
+            clusterZoomAnimation: const AnimationOptions.animate(
+              curve: Curves.linear,
+              velocity: 1,
             ),
+            builder: (context, markerCount, extraClusterData) {
+              return Container(
+                decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(20.0),
+                    color: Colors.blue),
+                child: Center(
+                  child: Text(
+                    markerCount.toString(),
+                    style: const TextStyle(color: Colors.white),
+                  ),
+                ),
+              );
+            },
           ),
         ],
       ),

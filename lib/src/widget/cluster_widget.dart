@@ -4,9 +4,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_map/plugin_api.dart';
 import 'package:supercluster/supercluster.dart';
 
-import 'cluster_data.dart';
-import 'map_calculator.dart';
-import 'supercluster_layer_options.dart';
+import '../layer/cluster_data.dart';
+import '../layer/map_calculator.dart';
+import '../layer/supercluster_layer_base.dart';
 
 class ClusterWidget extends StatelessWidget {
   final LayerCluster<Marker> cluster;
