@@ -14,7 +14,7 @@ class MutableClusteringPage extends StatefulWidget {
 }
 
 class _MutableClusteringPageState extends State<MutableClusteringPage> {
-  late final SuperclusterMutableController _superclusterMutableController;
+  late final SuperclusterMutableController _superclusterController;
 
   late List<Marker> markers;
   late int pointIndex;
@@ -26,7 +26,7 @@ class _MutableClusteringPageState extends State<MutableClusteringPage> {
 
   @override
   void initState() {
-    _superclusterMutableController = SuperclusterMutableController();
+    _superclusterController = SuperclusterMutableController();
     pointIndex = 0;
     markers = [
       Marker(
@@ -57,7 +57,7 @@ class _MutableClusteringPageState extends State<MutableClusteringPage> {
 
   @override
   void dispose() {
-    _superclusterMutableController.dispose();
+    _superclusterController.dispose();
     super.dispose();
   }
 
@@ -66,6 +66,18 @@ class _MutableClusteringPageState extends State<MutableClusteringPage> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Clustering Page'),
+        actions: [
+          StreamBuilder<ClusterData?>(
+              stream: _superclusterController.aggregatedClusterDataStream,
+              builder: (context, snapshot) {
+                return Center(
+                    child: Padding(
+                  padding: const EdgeInsets.only(right: 20),
+                  child:
+                      Text('Total markers: ${snapshot.data?.markerCount ?? 0}'),
+                ));
+              }),
+        ],
       ),
       drawer: buildDrawer(context, MutableClusteringPage.route),
       floatingActionButton: FloatingActionButton(
@@ -91,10 +103,9 @@ class _MutableClusteringPageState extends State<MutableClusteringPage> {
         options: MapOptions(
           center: points[0],
           zoom: 5,
-          minZoom: 7,
           maxZoom: 15,
           onTap: (_, latLng) {
-            _superclusterMutableController.add(
+            _superclusterController.add(
               Marker(
                 anchorPos: AnchorPos.align(AnchorAlign.center),
                 height: 30,
@@ -111,10 +122,10 @@ class _MutableClusteringPageState extends State<MutableClusteringPage> {
             subdomains: const ['a', 'b', 'c'],
           ),
           SuperclusterMutableLayer(
-            controller: _superclusterMutableController,
             initialMarkers: markers,
+            controller: _superclusterController,
             onMarkerTap: (marker) {
-              _superclusterMutableController.remove(marker);
+              _superclusterController.remove(marker);
             },
             rotate: true,
             clusterWidgetSize: const Size(40, 40),
@@ -123,6 +134,7 @@ class _MutableClusteringPageState extends State<MutableClusteringPage> {
               curve: Curves.linear,
               velocity: 1,
             ),
+            calculateAggregatedClusterData: true,
             builder: (context, markerCount, extraClusterData) {
               return Container(
                 decoration: BoxDecoration(

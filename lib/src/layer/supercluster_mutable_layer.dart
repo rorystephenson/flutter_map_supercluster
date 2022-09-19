@@ -5,24 +5,16 @@ import 'package:supercluster/supercluster.dart';
 
 import '../controller/marker_event.dart';
 import '../controller/supercluster_controller.dart';
+import '../controller/supercluster_controller_impl.dart';
 import '../options/animation_options.dart';
 import 'cluster_data.dart';
 
 class SuperclusterMutableLayer extends SuperclusterLayerBase {
-  /// Controller for adding/removing/replacing [Marker]s.
-  @override
-  final SuperclusterMutableController? controller;
-
-  /// An optional function which will be called whenever the aggregated cluster
-  /// data of all points changes. Note that this will only be calculated if the
-  /// callback is provided.
-  final void Function(ClusterData? aggregatedClusterData)? onClusterDataChange;
-
   const SuperclusterMutableLayer({
     super.key,
     required super.builder,
-    this.controller,
-    this.onClusterDataChange,
+    SuperclusterMutableController? super.controller,
+    super.calculateAggregatedClusterData,
     super.initialMarkers = const [],
     super.onMarkerTap,
     super.minimumClusterSize,
@@ -47,11 +39,12 @@ class SuperclusterMutableLayer extends SuperclusterLayerBase {
 
 class _SuperclusterMutableLayerState
     extends SuperclusterLayerStateBase<SuperclusterMutableLayer> {
-  late SuperclusterMutable<Marker> _supercluster;
+  @override
+  late SuperclusterMutable<Marker> supercluster;
 
   @override
   void initializeClusterManager(List<Marker> markers) {
-    _supercluster = SuperclusterMutable<Marker>(
+    supercluster = SuperclusterMutable<Marker>(
       getX: (m) => m.point.longitude,
       getY: (m) => m.point.latitude,
       minZoom: minZoom,
@@ -62,23 +55,25 @@ class _SuperclusterMutableLayerState
         innerExtractor: widget.clusterDataExtractor,
       ),
       radius: widget.maxClusterRadius,
-      onClusterDataChange: widget.onClusterDataChange == null
-          ? null
-          : (clusterData) =>
-              widget.onClusterDataChange!(clusterData as ClusterData?),
+      onClusterDataChange: onClusterDataChangeCallback(),
     )..load(markers);
+
+    if (widget.controller != null) {
+      (widget.controller as SuperclusterMutableControllerImpl)
+          .setSupercluster(supercluster);
+    }
   }
 
   @override
   void onMarkerEvent(MarkerEvent markerEvent) {
     if (markerEvent is AddMarkerEvent) {
-      _supercluster.insert(markerEvent.marker);
+      supercluster.insert(markerEvent.marker);
     } else if (markerEvent is RemoveMarkerEvent) {
-      _supercluster.remove(markerEvent.marker);
+      supercluster.remove(markerEvent.marker);
     } else if (markerEvent is ReplaceAllMarkerEvent) {
       initializeClusterManager(markerEvent.markers);
     } else if (markerEvent is ModifyMarkerEvent) {
-      _supercluster.modifyPointData(
+      supercluster.modifyPointData(
         markerEvent.oldMarker,
         markerEvent.newMarker,
         updateParentClusters: markerEvent.updateParentClusters,
@@ -91,10 +86,7 @@ class _SuperclusterMutableLayerState
   }
 
   @override
-  List<Marker> getAllMarkers() => _supercluster.getLeaves().toList();
-
-  @override
   List<LayerElement<Marker>> search(double westLng, double southLat,
           double eastLng, double northLat, int zoom) =>
-      _supercluster.search(westLng, southLat, eastLng, northLat, zoom);
+      supercluster.search(westLng, southLat, eastLng, northLat, zoom);
 }

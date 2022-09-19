@@ -1,6 +1,9 @@
 import 'dart:async';
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter_map/plugin_api.dart';
+import 'package:flutter_map_supercluster/src/layer/cluster_data.dart';
+import 'package:supercluster/supercluster.dart';
 
 import 'marker_event.dart';
 import 'supercluster_controller.dart';
@@ -13,52 +16,87 @@ abstract class SuperclusterControllerBase {
 
   Stream<MarkerEvent> get stream => _markerEventController.stream;
 
-  dispose() {
+  @mustCallSuper
+  void dispose() {
     _markerEventController.close();
   }
 }
 
-class SuperclusterControllerImpl extends SuperclusterControllerBase
-    implements SuperclusterController {
-  /// Remove all of the existing Markers and replace them with [markers]. Note
-  /// that this requires completely rebuilding the clusters and may be a slow
-  /// operation. If you want to add/remove some markers you should use
-  /// [SuperclusterMutableLayer] with [SuperclusterMutableControllerImpl] and use
-  /// the add/remove functions.
+abstract class SuperclusterControllerImplBase<T>
+    extends SuperclusterControllerBase {
+  final StreamController<ClusterData?> _clusterDataStreamController;
+
+  SuperclusterControllerImplBase()
+      : _clusterDataStreamController =
+            StreamController<ClusterData?>.broadcast();
+
+  Stream<ClusterData?> get aggregatedClusterDataStream =>
+      _clusterDataStreamController.stream;
+
+  void setSupercluster(T? supercluster);
+
+  void addAggregatedClusterData(ClusterData? aggregatedClusterData) {
+    _clusterDataStreamController.add(aggregatedClusterData);
+  }
+
+  @override
+  void dispose() {
+    _clusterDataStreamController.close();
+    super.dispose();
+  }
+}
+
+class SuperclusterImmutableControllerImpl
+    extends SuperclusterControllerImplBase<Supercluster<Marker>>
+    implements SuperclusterImmutableController {
+  Supercluster<Marker>? _supercluster;
+
+  @override
+  bool get isAssociated => _supercluster != null;
+
   @override
   void replaceAll(List<Marker> markers) {
     _markerEventController.add(ReplaceAllMarkerEvent(markers));
   }
 
-  /// Clear all of the existing Markers.
   @override
   void clear() {
     _markerEventController.add(ReplaceAllMarkerEvent([]));
   }
 
   @override
-  dispose() {
-    _markerEventController.close();
+  Iterable<Marker> all() {
+    if (_supercluster == null) {
+      throw 'No Supercluster associated the SuperclusterImmutableController.';
+    }
+
+    return _supercluster!.getLeaves();
+  }
+
+  @override
+  void setSupercluster(Supercluster<Marker>? supercluster) {
+    _supercluster = supercluster;
   }
 }
 
-class SuperclusterMutableControllerImpl extends SuperclusterControllerBase
+class SuperclusterMutableControllerImpl
+    extends SuperclusterControllerImplBase<SuperclusterMutable<Marker>>
     implements SuperclusterMutableController {
-  /// Add a single [Marker]. This [Marker] will be clustered if possible.
+  Supercluster<Marker>? _supercluster;
+
+  @override
+  bool get isAssociated => _supercluster != null;
+
   @override
   void add(Marker marker) {
     _markerEventController.add(AddMarkerEvent(marker));
   }
 
-  /// Remove a single [Marker]. This may cause some clusters to be split and
-  /// rebuilt.
   @override
   void remove(Marker marker) {
     _markerEventController.add(RemoveMarkerEvent(marker));
   }
 
-  /// Modify a Marker. Note that [oldMarker] must have the same [pos] as
-  /// [newMarker]. This is an optimised function that skips re-clustering.
   @override
   void modifyMarker(Marker oldMarker, Marker newMarker,
       {bool updateParentClusters = true}) {
@@ -70,18 +108,33 @@ class SuperclusterMutableControllerImpl extends SuperclusterControllerBase
     ));
   }
 
-  /// Remove all of the existing Markers and replace them with [markers]. Note
-  /// that this requires completely rebuilding the clusters and may be a slow
-  /// operation. If you want to add/remove some markers you should use the
-  /// [add]/[remove] functions.
   @override
   void replaceAll(List<Marker> markers) {
     _markerEventController.add(ReplaceAllMarkerEvent(markers));
   }
 
-  /// Clear all of the existing Markers.
   @override
   void clear() {
     _markerEventController.add(ReplaceAllMarkerEvent([]));
+  }
+
+  @override
+  Iterable<Marker> all() {
+    if (_supercluster == null) {
+      throw 'No Supercluster associated the SuperclusterMutableController.';
+    }
+
+    return _supercluster!.getLeaves();
+  }
+
+  @override
+  void setSupercluster(Supercluster<Marker>? supercluster) {
+    _supercluster = supercluster;
+  }
+
+  @override
+  dispose() {
+    _clusterDataStreamController.close();
+    return super.dispose();
   }
 }

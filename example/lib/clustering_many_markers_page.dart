@@ -21,10 +21,14 @@ class _ClusteringManyMarkersPageState extends State<ClusteringManyMarkersPage> {
   final minLatLng = LatLng(49.8566, 1.3522);
   final maxLatLng = LatLng(58.3498, -10.2603);
 
+  late final SuperclusterImmutableController _superclusterController;
+
   late List<Marker> markers;
 
   @override
   void initState() {
+    _superclusterController = SuperclusterImmutableController();
+
     final latitudeRange = maxLatLng.latitude - minLatLng.latitude;
     final longitudeRange = maxLatLng.longitude - minLatLng.longitude;
 
@@ -57,7 +61,21 @@ class _ClusteringManyMarkersPageState extends State<ClusteringManyMarkersPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Clustering Many Markers Page')),
+      appBar: AppBar(
+        title: const Text('Clustering Many Markers Page'),
+        actions: [
+          StreamBuilder<ClusterData?>(
+              stream: _superclusterController.aggregatedClusterDataStream,
+              builder: (context, snapshot) {
+                return Center(
+                    child: Padding(
+                  padding: const EdgeInsets.only(right: 20),
+                  child:
+                      Text('Total markers: ${snapshot.data?.markerCount ?? 0}'),
+                ));
+              }),
+        ],
+      ),
       drawer: buildDrawer(context, ClusteringManyMarkersPage.route),
       body: FlutterMap(
         options: MapOptions(
@@ -71,8 +89,10 @@ class _ClusteringManyMarkersPageState extends State<ClusteringManyMarkersPage> {
             urlTemplate: 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
             subdomains: const ['a', 'b', 'c'],
           ),
-          SuperclusterLayer(
+          SuperclusterImmutableLayer(
             initialMarkers: markers,
+            controller: _superclusterController,
+            calculateAggregatedClusterData: true,
             clusterWidgetSize: const Size(40, 40),
             anchor: AnchorPos.align(AnchorAlign.center),
             popupOptions: PopupOptions(

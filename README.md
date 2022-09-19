@@ -2,7 +2,8 @@
 
 Two different Marker clustering layers for [flutter_map](https://github.com/fleaflet/flutter_map):
 
-- `SuperclusterLayer`: An extremely fast Marker clustering layer, Markers may not be added/removed.
+- `SuperclusterImmutableLayer`: An extremely fast Marker clustering layer, Markers may not be
+  added/removed.
 - `SuperclusterMutableLayer`: An slightly slower (but still very fast) Marker clustering layer.
   Markers can be added/removed.
 
@@ -36,7 +37,7 @@ Add it to FlutterMap:
           subdomains: ['a', 'b', 'c'],
         ),
       ),
-      SuperclusterLayer(
+      SuperclusterImmutableLayer(
         initialMarkers: markers, // Provide your own
         clusterWidgetSize: const Size(40, 40),
         builder: (context, markerCount, extraClusterData) {

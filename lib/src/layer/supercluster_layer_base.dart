@@ -16,6 +16,7 @@ import '../widget/cluster_widget.dart';
 import '../widget/marker_widget.dart';
 import '../widget/rotate.dart';
 import 'center_zoom_controller.dart';
+import 'cluster_data.dart';
 import 'map_calculator.dart';
 
 typedef ClusterWidgetBuilder = Widget Function(
@@ -25,7 +26,8 @@ abstract class SuperclusterLayerBase extends StatefulWidget {
   /// Cluster builder
   final ClusterWidgetBuilder builder;
 
-  SuperclusterControllerBase? get controller;
+  /// Controller for managing [Marker]s and listening to changes.
+  final SuperclusterControllerBase? controller;
 
   /// Initial list of markers, additions/removals must be made using the
   /// [controller].
@@ -84,14 +86,22 @@ abstract class SuperclusterLayerBase extends StatefulWidget {
   ///  [AnimationOptions.animate] for more information on animation options.
   final AnimationOptions clusterZoomAnimation;
 
+  /// If true then whenever the aggregated cluster data changes (that is, the
+  /// combined cluster data of all Markers as calculated by
+  /// [clusterDataExtractor]) then the new value will be added to the
+  /// [controller]'s [aggregatedClusterDataStream].
+  final bool calculateAggregatedClusterData;
+
   const SuperclusterLayerBase({
     Key? key,
+    this.controller,
     required this.builder,
     this.initialMarkers = const [],
     this.onMarkerTap,
     this.minimumClusterSize,
     this.maxClusterRadius = 80,
     this.clusterDataExtractor,
+    this.calculateAggregatedClusterData = false,
     this.clusterWidgetSize = const Size(30, 30),
     this.clusterZoomAnimation = const AnimationOptions.animate(
       curve: Curves.linear,
@@ -126,11 +136,11 @@ abstract class SuperclusterLayerStateBase<T extends SuperclusterLayerBase>
 
   PopupState? _popupState;
 
+  Supercluster<Marker> get supercluster;
+
   void onMarkerEvent(MarkerEvent markerEvent);
 
   void initializeClusterManager(List<Marker> markers);
-
-  List<Marker> getAllMarkers();
 
   List<LayerElement<Marker>> search(
     double westLng,
@@ -191,7 +201,9 @@ abstract class SuperclusterLayerStateBase<T extends SuperclusterLayerBase>
             'should be avoided whenever possible.');
       }
       initializeClusterManager(
-        firstInitialization ? widget.initialMarkers : getAllMarkers().toList(),
+        firstInitialization
+            ? widget.initialMarkers
+            : supercluster.getLeaves().toList(),
       );
     }
   }
@@ -200,27 +212,29 @@ abstract class SuperclusterLayerStateBase<T extends SuperclusterLayerBase>
   void didUpdateWidget(T oldWidget) {
     super.didUpdateWidget(oldWidget);
 
-    final oldOptions = oldWidget;
-    final newOptions = widget;
-
     final mapState = _mapState!;
 
-    if (oldOptions.maxClusterRadius != newOptions.maxClusterRadius ||
-        oldOptions.minimumClusterSize != newOptions.minimumClusterSize) {
+    if (oldWidget.controller != widget.controller) {
+      onControllerChange(
+        oldWidget.controller as SuperclusterControllerImplBase?,
+        widget.controller as SuperclusterControllerImplBase?,
+      );
+    }
+
+    if (oldWidget.maxClusterRadius != widget.maxClusterRadius ||
+        oldWidget.minimumClusterSize != widget.minimumClusterSize ||
+        oldWidget.clusterDataExtractor != widget.clusterDataExtractor ||
+        oldWidget.calculateAggregatedClusterData !=
+            widget.calculateAggregatedClusterData) {
       debugPrint(
           'WARNING: Changes to the Supercluster options have caused a rebuild '
           'of the Supercluster clusters. This can be a slow operation and '
           'should be avoided whenever possible.');
-      initializeClusterManager(getAllMarkers().toList());
+      initializeClusterManager(supercluster.getLeaves().toList());
     }
 
-    if (oldOptions.clusterZoomAnimation != newOptions.clusterZoomAnimation) {
-      _centerZoomController.animationOptions = newOptions.clusterZoomAnimation;
-    }
-    if (oldWidget.controller != widget.controller) {
-      _controllerSubscription?.cancel();
-      _controllerSubscription = widget.controller?.stream
-          .listen((markerEvent) => onMarkerEvent(markerEvent));
+    if (oldWidget.clusterZoomAnimation != widget.clusterZoomAnimation) {
+      _centerZoomController.animationOptions = widget.clusterZoomAnimation;
     }
 
     if (widget.popupOptions != oldWidget.popupOptions) {
@@ -374,6 +388,36 @@ abstract class SuperclusterLayerStateBase<T extends SuperclusterLayerBase>
         mapState.zoom < _hidePopupIfZoomLessThan!) {
       widget.popupOptions?.popupController.hideAllPopups();
       _hidePopupIfZoomLessThan = null;
+    }
+  }
+
+  void Function(ClusterDataBase?)? onClusterDataChangeCallback() {
+    if (!widget.calculateAggregatedClusterData || widget.controller == null) {
+      return null;
+    }
+
+    return (aggregatedClusterData) {
+      final clusterData = aggregatedClusterData == null
+          ? null
+          : (aggregatedClusterData as ClusterData);
+      debugPrint('Sending to stream: ${clusterData?.markerCount}');
+      (widget.controller as SuperclusterControllerImplBase)
+          .addAggregatedClusterData(clusterData);
+    };
+  }
+
+  void onControllerChange(SuperclusterControllerImplBase? oldController,
+      SuperclusterControllerImplBase? newController) {
+    _controllerSubscription?.cancel();
+    _controllerSubscription = newController?.stream
+        .listen((markerEvent) => onMarkerEvent(markerEvent));
+
+    if (oldController != null) {
+      oldController.setSupercluster(null);
+    }
+    if (newController != null) {
+      (newController as SuperclusterMutableControllerImpl)
+          .setSupercluster(supercluster);
     }
   }
 }

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_map/plugin_api.dart';
+import 'package:flutter_map_supercluster/src/controller/supercluster_controller_impl.dart';
 import 'package:flutter_map_supercluster/src/layer/supercluster_layer_base.dart';
 import 'package:supercluster/supercluster.dart';
 
@@ -8,18 +9,17 @@ import '../controller/supercluster_controller.dart';
 import '../options/animation_options.dart';
 import 'cluster_data.dart';
 
-class SuperclusterLayer extends SuperclusterLayerBase {
+class SuperclusterImmutableLayer extends SuperclusterLayerBase {
   /// Controller for replacing the markers. Note that this requires rebuilding
   /// the clusters and may take a second if you have many (~10000) markers.
   /// Consider using [SuperclusterMutableLayer] if you want to be able to
   /// add/remove [Marker]s quickly.
   @override
-  final SuperclusterController? controller;
-
-  const SuperclusterLayer({
+  const SuperclusterImmutableLayer({
     super.key,
     required super.builder,
-    this.controller,
+    SuperclusterImmutableController? super.controller,
+    super.calculateAggregatedClusterData,
     super.initialMarkers = const [],
     super.onMarkerTap,
     super.minimumClusterSize,
@@ -38,28 +38,35 @@ class SuperclusterLayer extends SuperclusterLayerBase {
   });
 
   @override
-  State<SuperclusterLayer> createState() => _SuperclusterLayerState();
+  State<SuperclusterImmutableLayer> createState() =>
+      _SuperclusterImmutableLayerState();
 }
 
-class _SuperclusterLayerState
-    extends SuperclusterLayerStateBase<SuperclusterLayer> {
-  late Supercluster<Marker> _supercluster;
+class _SuperclusterImmutableLayerState
+    extends SuperclusterLayerStateBase<SuperclusterImmutableLayer> {
+  @override
+  late Supercluster<Marker> supercluster;
 
   @override
   void initializeClusterManager(List<Marker> markers) {
-    _supercluster = Supercluster<Marker>(
-      points: markers,
-      getX: (m) => m.point.longitude,
-      getY: (m) => m.point.latitude,
-      minZoom: minZoom,
-      maxZoom: maxZoom,
-      extractClusterData: (marker) => ClusterData(
-        marker,
-        innerExtractor: widget.clusterDataExtractor,
-      ),
-      radius: widget.maxClusterRadius,
-      minPoints: widget.minimumClusterSize,
-    );
+    supercluster = SuperclusterImmutable<Marker>(
+        points: markers,
+        getX: (m) => m.point.longitude,
+        getY: (m) => m.point.latitude,
+        minZoom: minZoom,
+        maxZoom: maxZoom,
+        extractClusterData: (marker) => ClusterData(
+              marker,
+              innerExtractor: widget.clusterDataExtractor,
+            ),
+        radius: widget.maxClusterRadius,
+        minPoints: widget.minimumClusterSize,
+        onClusterDataChange: onClusterDataChangeCallback());
+
+    if (widget.controller != null) {
+      (widget.controller as SuperclusterImmutableControllerImpl)
+          .setSupercluster(supercluster);
+    }
   }
 
   @override
@@ -74,11 +81,6 @@ class _SuperclusterLayerState
   }
 
   @override
-  List<Marker> getAllMarkers() {
-    return _supercluster.getLeaves().toList();
-  }
-
-  @override
   List<LayerElement<Marker>> search(
     double westLng,
     double southLat,
@@ -86,5 +88,5 @@ class _SuperclusterLayerState
     double northLat,
     int zoom,
   ) =>
-      _supercluster.search(westLng, southLat, eastLng, northLat, zoom);
+      supercluster.search(westLng, southLat, eastLng, northLat, zoom);
 }
