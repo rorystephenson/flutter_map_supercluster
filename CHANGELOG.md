@@ -1,3 +1,7 @@
+## [0.0.2+1]
+
+- RENAMED: See flutter_map_supercluster package
+
 ## [0.0.2]
 
 - Increase cluster/point search bounds to accomodate the cluster width/height so

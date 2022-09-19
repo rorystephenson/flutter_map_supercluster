@@ -1,6 +1,6 @@
 name: flutter_map_fast_cluster
 description: A more basic and faster alternative to flutter_map_marker_cluster for clustering Markers in flutter_map.
-version: 0.0.2
+version: 0.0.2+1
 
 homepage: https://github.com/rorystephenson/flutter_map_fast_cluster
 
