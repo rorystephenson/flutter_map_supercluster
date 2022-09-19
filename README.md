@@ -1,4 +1,4 @@
-# Flutter Map Supercluster
+# Flutter Map Supercluster (previously `flutter_map_fast_cluster`)
 
 Two different Marker clustering layers for [flutter_map](https://github.com/fleaflet/flutter_map):
 
