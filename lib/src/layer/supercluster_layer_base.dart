@@ -223,7 +223,6 @@ abstract class SuperclusterLayerStateBase<T extends SuperclusterLayerBase>
 
     if (oldWidget.maxClusterRadius != widget.maxClusterRadius ||
         oldWidget.minimumClusterSize != widget.minimumClusterSize ||
-        oldWidget.clusterDataExtractor != widget.clusterDataExtractor ||
         oldWidget.calculateAggregatedClusterData !=
             widget.calculateAggregatedClusterData) {
       debugPrint(
@@ -400,7 +399,6 @@ abstract class SuperclusterLayerStateBase<T extends SuperclusterLayerBase>
       final clusterData = aggregatedClusterData == null
           ? null
           : (aggregatedClusterData as ClusterData);
-      debugPrint('Sending to stream: ${clusterData?.markerCount}');
       (widget.controller as SuperclusterControllerImplBase)
           .addAggregatedClusterData(clusterData);
     };
