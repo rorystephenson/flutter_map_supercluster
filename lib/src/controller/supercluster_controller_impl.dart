@@ -1,91 +1,32 @@
 import 'dart:async';
 
-import 'package:flutter/foundation.dart';
 import 'package:flutter_map/plugin_api.dart';
-import 'package:flutter_map_supercluster/src/layer/cluster_data.dart';
 import 'package:supercluster/supercluster.dart';
 
 import 'marker_event.dart';
 import 'supercluster_controller.dart';
+import 'supercluster_state.dart';
 
-abstract class SuperclusterControllerBase {
+class SuperclusterControllerImpl
+    implements SuperclusterImmutableController, SuperclusterMutableController {
   final StreamController<MarkerEvent> _markerEventController;
+  final StreamController<SuperclusterState> _stateStreamController;
+  Future<Supercluster<Marker>> _supercluster = Future.any([]);
 
-  SuperclusterControllerBase()
-      : _markerEventController = StreamController.broadcast();
+  SuperclusterControllerImpl()
+      : _markerEventController = StreamController.broadcast(),
+        _stateStreamController =
+            StreamController<SuperclusterState>.broadcast();
 
   Stream<MarkerEvent> get stream => _markerEventController.stream;
 
-  @mustCallSuper
-  void dispose() {
-    _markerEventController.close();
-  }
-}
-
-abstract class SuperclusterControllerImplBase<T>
-    extends SuperclusterControllerBase {
-  final StreamController<ClusterData?> _clusterDataStreamController;
-
-  SuperclusterControllerImplBase()
-      : _clusterDataStreamController =
-            StreamController<ClusterData?>.broadcast();
-
-  Stream<ClusterData?> get aggregatedClusterDataStream =>
-      _clusterDataStreamController.stream;
-
-  void setSupercluster(T? supercluster);
-
-  void addAggregatedClusterData(ClusterData? aggregatedClusterData) {
-    _clusterDataStreamController.add(aggregatedClusterData);
-  }
-
   @override
-  void dispose() {
-    _clusterDataStreamController.close();
-    super.dispose();
-  }
-}
+  Stream<SuperclusterState> get stateStream =>
+      _stateStreamController.stream.distinct();
 
-class SuperclusterImmutableControllerImpl
-    extends SuperclusterControllerImplBase<Supercluster<Marker>>
-    implements SuperclusterImmutableController {
-  Supercluster<Marker>? _supercluster;
-
-  @override
-  bool get isAssociated => _supercluster != null;
-
-  @override
-  void replaceAll(List<Marker> markers) {
-    _markerEventController.add(ReplaceAllMarkerEvent(markers));
-  }
-
-  @override
-  void clear() {
-    _markerEventController.add(ReplaceAllMarkerEvent([]));
-  }
-
-  @override
-  Iterable<Marker> all() {
-    if (_supercluster == null) {
-      throw 'No Supercluster associated the SuperclusterImmutableController.';
-    }
-
-    return _supercluster!.getLeaves();
-  }
-
-  @override
-  void setSupercluster(Supercluster<Marker>? supercluster) {
+  void setSupercluster(Future<Supercluster<Marker>> supercluster) {
     _supercluster = supercluster;
   }
-}
-
-class SuperclusterMutableControllerImpl
-    extends SuperclusterControllerImplBase<SuperclusterMutable<Marker>>
-    implements SuperclusterMutableController {
-  Supercluster<Marker>? _supercluster;
-
-  @override
-  bool get isAssociated => _supercluster != null;
 
   @override
   void add(Marker marker) {
@@ -108,6 +49,10 @@ class SuperclusterMutableControllerImpl
     ));
   }
 
+  void removeSupercluster() {
+    _supercluster = Future.any([]);
+  }
+
   @override
   void replaceAll(List<Marker> markers) {
     _markerEventController.add(ReplaceAllMarkerEvent(markers));
@@ -119,22 +64,17 @@ class SuperclusterMutableControllerImpl
   }
 
   @override
-  Iterable<Marker> all() {
-    if (_supercluster == null) {
-      throw 'No Supercluster associated the SuperclusterMutableController.';
-    }
+  Future<Iterable<Marker>> all() {
+    return _supercluster.then((supercluster) => supercluster.getLeaves());
+  }
 
-    return _supercluster!.getLeaves();
+  void updateState(SuperclusterState newState) {
+    _stateStreamController.add(newState);
   }
 
   @override
-  void setSupercluster(Supercluster<Marker>? supercluster) {
-    _supercluster = supercluster;
-  }
-
-  @override
-  dispose() {
-    _clusterDataStreamController.close();
-    return super.dispose();
+  void dispose() {
+    _markerEventController.close();
+    _stateStreamController.close();
   }
 }

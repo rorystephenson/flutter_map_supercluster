@@ -6,7 +6,7 @@ import 'package:supercluster/supercluster.dart';
 
 import '../layer/cluster_data.dart';
 import '../layer/map_calculator.dart';
-import '../layer/supercluster_layer_base.dart';
+import '../layer/supercluster_layer.dart';
 
 class ClusterWidget extends StatelessWidget {
   final LayerCluster<Marker> cluster;

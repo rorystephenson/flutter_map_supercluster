@@ -67,15 +67,26 @@ class _MutableClusteringPageState extends State<MutableClusteringPage> {
       appBar: AppBar(
         title: const Text('Clustering Page'),
         actions: [
-          StreamBuilder<ClusterData?>(
-              stream: _superclusterController.aggregatedClusterDataStream,
+          StreamBuilder<SuperclusterState>(
+              stream: _superclusterController.stateStream,
               builder: (context, snapshot) {
+                final data = snapshot.data;
+                final String markerCountLabel;
+                if (data == null ||
+                    data.loading ||
+                    data.aggregatedClusterData == null) {
+                  markerCountLabel = '...';
+                } else {
+                  markerCountLabel =
+                      data.aggregatedClusterData!.markerCount.toString();
+                }
+
                 return Center(
-                    child: Padding(
-                  padding: const EdgeInsets.only(right: 20),
-                  child:
-                      Text('Total markers: ${snapshot.data?.markerCount ?? 0}'),
-                ));
+                  child: Padding(
+                    padding: const EdgeInsets.only(right: 20),
+                    child: Text('Total markers: $markerCountLabel'),
+                  ),
+                );
               }),
         ],
       ),
@@ -121,7 +132,7 @@ class _MutableClusteringPageState extends State<MutableClusteringPage> {
             urlTemplate: 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
             subdomains: const ['a', 'b', 'c'],
           ),
-          SuperclusterMutableLayer(
+          SuperclusterLayer.mutable(
             initialMarkers: markers,
             controller: _superclusterController,
             onMarkerTap: (marker) {

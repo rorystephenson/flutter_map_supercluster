@@ -23,7 +23,7 @@ class _ClusteringManyMarkersPageState extends State<ClusteringManyMarkersPage> {
 
   late final SuperclusterImmutableController _superclusterController;
 
-  late List<Marker> markers;
+  late final List<Marker> markers;
 
   @override
   void initState() {
@@ -64,15 +64,26 @@ class _ClusteringManyMarkersPageState extends State<ClusteringManyMarkersPage> {
       appBar: AppBar(
         title: const Text('Clustering Many Markers Page'),
         actions: [
-          StreamBuilder<ClusterData?>(
-              stream: _superclusterController.aggregatedClusterDataStream,
+          StreamBuilder<SuperclusterState>(
+              stream: _superclusterController.stateStream,
               builder: (context, snapshot) {
+                final data = snapshot.data;
+                final String markerCountLabel;
+                if (data == null ||
+                    data.loading ||
+                    data.aggregatedClusterData == null) {
+                  markerCountLabel = '...';
+                } else {
+                  markerCountLabel =
+                      data.aggregatedClusterData!.markerCount.toString();
+                }
+
                 return Center(
-                    child: Padding(
-                  padding: const EdgeInsets.only(right: 20),
-                  child:
-                      Text('Total markers: ${snapshot.data?.markerCount ?? 0}'),
-                ));
+                  child: Padding(
+                    padding: const EdgeInsets.only(right: 20),
+                    child: Text('Total markers: $markerCountLabel'),
+                  ),
+                );
               }),
         ],
       ),
@@ -89,7 +100,7 @@ class _ClusteringManyMarkersPageState extends State<ClusteringManyMarkersPage> {
             urlTemplate: 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
             subdomains: const ['a', 'b', 'c'],
           ),
-          SuperclusterImmutableLayer(
+          SuperclusterLayer.immutable(
             initialMarkers: markers,
             controller: _superclusterController,
             calculateAggregatedClusterData: true,

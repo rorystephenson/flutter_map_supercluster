@@ -1,20 +1,19 @@
 import 'package:flutter_map/plugin_api.dart';
 
-import '../layer/cluster_data.dart';
 import 'supercluster_controller_impl.dart';
+import 'supercluster_state.dart';
 
-abstract class SuperclusterImmutableController
-    extends SuperclusterControllerBase {
-  factory SuperclusterImmutableController() =>
-      SuperclusterImmutableControllerImpl();
+abstract class SuperclusterController {
+  void dispose();
+}
 
-  /// Indicates whether this controller is associated with the
-  /// SuperclusterImmutableLayer.
-  bool get isAssociated;
+abstract class SuperclusterImmutableController extends SuperclusterController {
+  factory SuperclusterImmutableController() => SuperclusterControllerImpl();
 
-  /// An Stream of the aggregated cluster data of all points. Note that this
-  /// will only be calculated if the stream is being listened to.
-  Stream<ClusterData?> get aggregatedClusterDataStream;
+  /// A Stream of the [SuperclusterState]. Note that the [SuperclusterState]'s
+  /// aggregatedClusterData will not be calculated unless [SuperclusterLayer]'s
+  /// [calculateAggregatedClusterData] is true.
+  Stream<SuperclusterState> get stateStream;
 
   /// Remove all of the existing Markers and replace them with [markers]. Note
   /// that this requires completely rebuilding the clusters and may be a slow
@@ -26,24 +25,21 @@ abstract class SuperclusterImmutableController
   /// Clear all of the existing Markers.
   void clear();
 
-  /// An Iterable of all Markers in the order that the inner cluster store holds
-  /// them. Note that this will throw an exception if the controller is not yet
-  /// associated with the layer, check [isAssociated] first.
-  Iterable<Marker> all();
+  /// A Future that completes with an Iterable of all Markers in the order that
+  /// the inner cluster store holds them. The Future will complete when the
+  /// controller is associated with a layer and the loading of the supercluster
+  /// finishes.
+  Future<Iterable<Marker>> all();
 }
 
-abstract class SuperclusterMutableController
-    extends SuperclusterControllerBase {
-  factory SuperclusterMutableController() =>
-      SuperclusterMutableControllerImpl();
+abstract class SuperclusterMutableController extends SuperclusterController {
+  factory SuperclusterMutableController() => SuperclusterControllerImpl();
 
-  /// Indicates whether this controller is associated with the
-  /// SuperlclusterMutableLayer.
-  bool get isAssociated;
-
-  /// An Stream of the aggregated cluster data of all points. Note that this
-  /// will only be calculated if the stream is being listened to.
-  Stream<ClusterData?> get aggregatedClusterDataStream;
+  /// A Stream of the [SuperclusterState]. Note that the [SuperclusterState]'s
+  /// aggregatedClusterData will not be calculated unless [SuperclusterLayer]'s
+  /// [calculateAggregatedClusterData] is true. A new state is emitted only if
+  /// it is different from the previous state.
+  Stream<SuperclusterState> get stateStream;
 
   /// Add a single [Marker]. This [Marker] will be clustered if possible.
   void add(Marker marker);
@@ -69,5 +65,5 @@ abstract class SuperclusterMutableController
   /// An Iterable of all Markers in the order that the inner cluster store holds
   /// them. Note that this will throw an exception if the controller is not yet
   /// associated with the layer, check [isAssociated] first.
-  Iterable<Marker> all();
+  Future<Iterable<Marker>> all();
 }

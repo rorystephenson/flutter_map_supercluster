@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_map_supercluster_example/clustering_many_markers_page.dart';
+import 'package:flutter_map_supercluster_example/immutable_clustering_page.dart';
 import 'package:flutter_map_supercluster_example/mutable_clustering_page.dart';
 
 Widget _buildMenuItem(

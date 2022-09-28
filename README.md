@@ -37,7 +37,7 @@ Add it to FlutterMap:
           subdomains: ['a', 'b', 'c'],
         ),
       ),
-      SuperclusterImmutableLayer(
+      SuperclusterLayer.immutable(
         initialMarkers: markers, // Provide your own
         clusterWidgetSize: const Size(40, 40),
         builder: (context, markerCount, extraClusterData) {
@@ -62,4 +62,5 @@ Add it to FlutterMap:
 
 ### Run the example
 
-See the `example/` folder for a working example app.
+See the `example/` folder for a working example app which demonstrates both immutable and mutable
+cluster layers.

@@ -1,14 +1,20 @@
 import 'dart:async';
 
+import 'package:async/async.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_map/plugin_api.dart';
 import 'package:flutter_map_marker_popup/extension_api.dart';
 import 'package:flutter_map_marker_popup/flutter_map_marker_popup.dart';
+import 'package:flutter_map_supercluster/src/controller/supercluster_state.dart';
+import 'package:flutter_map_supercluster/src/layer/loading_overlay.dart';
+import 'package:flutter_map_supercluster/src/layer/supercluster_config.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:provider/provider.dart';
 import 'package:supercluster/supercluster.dart';
 
 import '../controller/marker_event.dart';
+import '../controller/supercluster_controller.dart';
 import '../controller/supercluster_controller_impl.dart';
 import '../options/animation_options.dart';
 import '../options/popup_options.dart';
@@ -22,16 +28,35 @@ import 'map_calculator.dart';
 typedef ClusterWidgetBuilder = Widget Function(
     BuildContext context, int markerCount, ClusterDataBase? extraClusterData);
 
-abstract class SuperclusterLayerBase extends StatefulWidget {
+class SuperclusterLayer extends StatefulWidget {
+  final bool _isMutableSupercluster;
+
   /// Cluster builder
   final ClusterWidgetBuilder builder;
 
   /// Controller for managing [Marker]s and listening to changes.
-  final SuperclusterControllerBase? controller;
+  final SuperclusterController? controller;
 
   /// Initial list of markers, additions/removals must be made using the
   /// [controller].
   final List<Marker> initialMarkers;
+
+  /// An optional callback which allows you to perform the creation of the
+  /// supercluster index in a separate isolate. The default behaviour is to run
+  /// the creation in another isolate using Flutter's `compute`.
+  ///
+  /// Using `compute` incurs a slight delay as it creates a new isolate. If you
+  /// don't mind the index loading happening on the main isolate (which can
+  /// block the UI) then set this callback to:
+  ///
+  /// (superclusterConfig) async => createSupercluster(superclusterConfig)
+  ///
+  /// Similarly you can maintain an isolate to be used for index creation or
+  /// use a package which does this for you to avoid waiting for the isolate to
+  /// be created every time a load occurs. In that case pass them the
+  /// [superclusterConfig] and the [createSupercluster] functions.
+  final Future<Supercluster<Marker>> Function(
+      SuperclusterConfig superclusterConfig)? wrapIndexCreation;
 
   /// The minimum number of points required to form a cluster, if there is less
   /// than this number of points within the [maxClusterRadius] the markers will
@@ -47,6 +72,10 @@ abstract class SuperclusterLayerBase extends StatefulWidget {
 
   /// Function to call when a Marker is tapped
   final void Function(Marker)? onMarkerTap;
+
+  /// A builder used to override the override which is displayed whilst the
+  /// supercluster index is being built.
+  final WidgetBuilder? loadingOverlayBuilder;
 
   /// Popup's options that show when tapping markers or via the PopupController.
   final PopupOptions? popupOptions;
@@ -92,9 +121,9 @@ abstract class SuperclusterLayerBase extends StatefulWidget {
   /// [controller]'s [aggregatedClusterDataStream].
   final bool calculateAggregatedClusterData;
 
-  const SuperclusterLayerBase({
+  const SuperclusterLayer.immutable({
     Key? key,
-    this.controller,
+    SuperclusterImmutableController? this.controller,
     required this.builder,
     this.initialMarkers = const [],
     this.onMarkerTap,
@@ -107,19 +136,47 @@ abstract class SuperclusterLayerBase extends StatefulWidget {
       curve: Curves.linear,
       velocity: 1,
     ),
+    this.loadingOverlayBuilder,
+    this.wrapIndexCreation,
     this.popupOptions,
     this.rotate,
     this.rotateOrigin,
     this.rotateAlignment,
     this.anchor,
-  }) : super(key: key);
+  })  : _isMutableSupercluster = false,
+        super(key: key);
+
+  const SuperclusterLayer.mutable({
+    Key? key,
+    SuperclusterMutableController? this.controller,
+    required this.builder,
+    this.initialMarkers = const [],
+    this.onMarkerTap,
+    this.minimumClusterSize,
+    this.maxClusterRadius = 80,
+    this.clusterDataExtractor,
+    this.calculateAggregatedClusterData = false,
+    this.clusterWidgetSize = const Size(30, 30),
+    this.clusterZoomAnimation = const AnimationOptions.animate(
+      curve: Curves.linear,
+      velocity: 1,
+    ),
+    this.loadingOverlayBuilder,
+    this.wrapIndexCreation,
+    this.popupOptions,
+    this.rotate,
+    this.rotateOrigin,
+    this.rotateAlignment,
+    this.anchor,
+  })  : _isMutableSupercluster = true,
+        super(key: key);
 
   @override
-  State<SuperclusterLayerBase> createState();
+  State<SuperclusterLayer> createState() => _SuperclusterLayerState();
 }
 
-abstract class SuperclusterLayerStateBase<T extends SuperclusterLayerBase>
-    extends State<T> with TickerProviderStateMixin {
+class _SuperclusterLayerState extends State<SuperclusterLayer>
+    with TickerProviderStateMixin {
   static const defaultMinZoom = 1;
   static const defaultMaxZoom = 20;
 
@@ -136,19 +193,8 @@ abstract class SuperclusterLayerStateBase<T extends SuperclusterLayerBase>
 
   PopupState? _popupState;
 
-  Supercluster<Marker> get supercluster;
-
-  void onMarkerEvent(MarkerEvent markerEvent);
-
-  void initializeClusterManager(List<Marker> markers);
-
-  List<LayerElement<Marker>> search(
-    double westLng,
-    double southLat,
-    double eastLng,
-    double northLat,
-    int zoom,
-  );
+  CancelableCompleter<Supercluster<Marker>> _superclusterCompleter =
+      CancelableCompleter();
 
   @override
   void didChangeDependencies() {
@@ -183,8 +229,11 @@ abstract class SuperclusterLayerStateBase<T extends SuperclusterLayerBase>
         animationOptions: widget.clusterZoomAnimation,
       );
       _controllerSubscription?.cancel();
-      _controllerSubscription = widget.controller?.stream
-          .listen((markerEvent) => onMarkerEvent(markerEvent));
+      _controllerSubscription = widget.controller == null
+          ? null
+          : (widget.controller! as SuperclusterControllerImpl)
+              .stream
+              .listen((markerEvent) => _onMarkerEvent(markerEvent));
 
       _movementStreamSubscription?.cancel();
       if (widget.popupOptions != null) {
@@ -200,28 +249,31 @@ abstract class SuperclusterLayerStateBase<T extends SuperclusterLayerBase>
             'the Supercluster clusters. This can be a slow operation and '
             'should be avoided whenever possible.');
       }
-      initializeClusterManager(
+      _initializeClusterManager(
         firstInitialization
-            ? widget.initialMarkers
-            : supercluster.getLeaves().toList(),
+            ? Future.value(widget.initialMarkers)
+            : _superclusterCompleter.operation.value
+                .then((supercluster) => supercluster.getLeaves().toList()),
       );
     }
   }
 
   @override
-  void didUpdateWidget(T oldWidget) {
+  void didUpdateWidget(SuperclusterLayer oldWidget) {
     super.didUpdateWidget(oldWidget);
 
     final mapState = _mapState!;
 
-    if (oldWidget.controller != widget.controller) {
-      onControllerChange(
-        oldWidget.controller as SuperclusterControllerImplBase?,
-        widget.controller as SuperclusterControllerImplBase?,
+    if (oldWidget._isMutableSupercluster != widget._isMutableSupercluster ||
+        oldWidget.controller != widget.controller) {
+      _onControllerChange(
+        oldWidget.controller as SuperclusterControllerImpl?,
+        widget.controller as SuperclusterControllerImpl?,
       );
     }
 
-    if (oldWidget.maxClusterRadius != widget.maxClusterRadius ||
+    if (oldWidget._isMutableSupercluster != widget._isMutableSupercluster ||
+        oldWidget.maxClusterRadius != widget.maxClusterRadius ||
         oldWidget.minimumClusterSize != widget.minimumClusterSize ||
         oldWidget.calculateAggregatedClusterData !=
             widget.calculateAggregatedClusterData) {
@@ -229,7 +281,9 @@ abstract class SuperclusterLayerStateBase<T extends SuperclusterLayerBase>
           'WARNING: Changes to the Supercluster options have caused a rebuild '
           'of the Supercluster clusters. This can be a slow operation and '
           'should be avoided whenever possible.');
-      initializeClusterManager(supercluster.getLeaves().toList());
+      _initializeClusterManager(_superclusterCompleter.operation
+          .valueOrCancellation()
+          .then((supercluster) => supercluster?.getLeaves().toList() ?? []));
     }
 
     if (oldWidget.clusterZoomAnimation != widget.clusterZoomAnimation) {
@@ -253,25 +307,69 @@ abstract class SuperclusterLayerStateBase<T extends SuperclusterLayerBase>
     super.dispose();
   }
 
+  void _initializeClusterManager(Future<List<Marker>> markersFuture) {
+    (widget.controller as SuperclusterControllerImpl).updateState(
+        const SuperclusterState(loading: true, aggregatedClusterData: null));
+
+    final supercluster =
+        markersFuture.catchError((_) => <Marker>[]).then((markers) {
+      final superclusterConfig = SuperclusterConfig(
+        isMutableSupercluster: widget._isMutableSupercluster,
+        markers: markers,
+        minZoom: minZoom,
+        maxZoom: maxZoom,
+        maxClusterRadius: widget.maxClusterRadius,
+        minimumClusterSize: widget.minimumClusterSize,
+        innerClusterDataExtractor: widget.clusterDataExtractor,
+      );
+
+      if (_superclusterCompleter.isCompleted ||
+          _superclusterCompleter.isCanceled) {
+        setState(() {
+          _superclusterCompleter = CancelableCompleter();
+        });
+      }
+
+      final newSupercluster =
+          widget.wrapIndexCreation?.call(superclusterConfig) ??
+              compute(createSupercluster, superclusterConfig);
+
+      _superclusterCompleter.complete(newSupercluster);
+      _superclusterCompleter.operation.value.then((supercluster) {
+        _onMarkersChange();
+        widget.popupOptions?.popupController.hideAllPopups();
+      });
+
+      return newSupercluster;
+    });
+
+    if (widget.controller != null) {
+      (widget.controller as SuperclusterControllerImpl)
+          .setSupercluster(supercluster);
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final mapState = FlutterMapState.maybeOf(context)!;
 
-    final popupOptions = widget.popupOptions;
-
     return _wrapWithPopupStateIfPopupsEnabled(
       (popupState) => Stack(
         children: [
-          ..._buildClustersAndMarkers(mapState),
-          if (popupOptions != null)
+          _buildClustersAndMarkers(mapState),
+          if (widget.popupOptions != null)
             PopupLayer(
               popupState: _popupState!,
-              popupBuilder: popupOptions.popupBuilder,
-              popupSnap: popupOptions.popupSnap,
-              popupController: popupOptions.popupController,
-              popupAnimation: popupOptions.popupAnimation,
-              markerRotate: popupOptions.markerRotate,
-            )
+              popupBuilder: widget.popupOptions!.popupBuilder,
+              popupSnap: widget.popupOptions!.popupSnap,
+              popupController: widget.popupOptions!.popupController,
+              popupAnimation: widget.popupOptions!.popupAnimation,
+              markerRotate: widget.popupOptions!.markerRotate,
+            ),
+          LoadingOverlay(
+            superclusterFuture: _superclusterCompleter.operation.value,
+            loadingOverlayBuilder: widget.loadingOverlayBuilder,
+          ),
         ],
       ),
     );
@@ -290,15 +388,28 @@ abstract class SuperclusterLayerStateBase<T extends SuperclusterLayerBase>
     });
   }
 
-  Iterable<Widget> _buildClustersAndMarkers(FlutterMapState mapState) {
+  Widget _buildClustersAndMarkers(FlutterMapState mapState) {
     final paddedBounds = _mapCalculator.paddedMapBounds();
-    return search(
-      paddedBounds.west,
-      paddedBounds.south,
-      paddedBounds.east,
-      paddedBounds.north,
-      mapState.zoom.ceil(),
-    ).map((layerElement) => _buildMarkerOrCluster(mapState, layerElement));
+    return FutureBuilder<Supercluster<Marker>>(
+      future: _superclusterCompleter.operation.value,
+      builder: (context, snapshot) {
+        final supercluster = snapshot.data;
+        if (supercluster == null) return const SizedBox.shrink();
+
+        return Stack(children: [
+          ...supercluster
+              .search(
+                paddedBounds.west,
+                paddedBounds.south,
+                paddedBounds.east,
+                paddedBounds.north,
+                mapState.zoom.ceil(),
+              )
+              .map((layerElement) =>
+                  _buildMarkerOrCluster(mapState, layerElement)),
+        ]);
+      },
+    );
   }
 
   Widget _buildMarkerOrCluster(
@@ -367,6 +478,8 @@ abstract class SuperclusterLayerStateBase<T extends SuperclusterLayerBase>
       if (widget.popupOptions != null) {
         assert(_popupState != null);
 
+        debugPrint(
+            'Tapped (${mapPoint.originalPoint.point}): ${identityHashCode(mapPoint.originalPoint)}');
         final popupOptions = widget.popupOptions!;
         popupOptions.markerTapBehavior.apply(
           mapPoint.originalPoint,
@@ -390,32 +503,69 @@ abstract class SuperclusterLayerStateBase<T extends SuperclusterLayerBase>
     }
   }
 
-  void Function(ClusterDataBase?)? onClusterDataChangeCallback() {
-    if (!widget.calculateAggregatedClusterData || widget.controller == null) {
-      return null;
-    }
+  void _onMarkersChange() {
+    if (widget.controller == null) return;
 
-    return (aggregatedClusterData) {
+    _superclusterCompleter.operation.value.then((supercluster) {
+      final aggregatedClusterData = widget.calculateAggregatedClusterData
+          ? supercluster.aggregatedClusterData()
+          : null;
       final clusterData = aggregatedClusterData == null
           ? null
           : (aggregatedClusterData as ClusterData);
-      (widget.controller as SuperclusterControllerImplBase)
-          .addAggregatedClusterData(clusterData);
-    };
+      (widget.controller as SuperclusterControllerImpl).updateState(
+        SuperclusterState(
+          loading: false,
+          aggregatedClusterData: clusterData,
+        ),
+      );
+    });
   }
 
-  void onControllerChange(SuperclusterControllerImplBase? oldController,
-      SuperclusterControllerImplBase? newController) {
+  void _onControllerChange(SuperclusterControllerImpl? oldController,
+      SuperclusterControllerImpl? newController) {
     _controllerSubscription?.cancel();
     _controllerSubscription = newController?.stream
-        .listen((markerEvent) => onMarkerEvent(markerEvent));
+        .listen((markerEvent) => _onMarkerEvent(markerEvent));
 
     if (oldController != null) {
-      oldController.setSupercluster(null);
+      oldController.removeSupercluster();
     }
     if (newController != null) {
-      (newController as SuperclusterMutableControllerImpl)
-          .setSupercluster(supercluster);
+      newController.setSupercluster(_superclusterCompleter.operation.value);
     }
+  }
+
+  void _onMarkerEvent(MarkerEvent markerEvent) {
+    if (markerEvent is AddMarkerEvent) {
+      _superclusterCompleter.operation.then((supercluster) {
+        (supercluster as SuperclusterMutable<Marker>)
+            .insert(markerEvent.marker);
+        _onMarkersChange();
+      });
+    } else if (markerEvent is RemoveMarkerEvent) {
+      _superclusterCompleter.operation.then((supercluster) {
+        final removed = (supercluster as SuperclusterMutable<Marker>)
+            .remove(markerEvent.marker);
+        if (removed) _onMarkersChange();
+      });
+    } else if (markerEvent is ReplaceAllMarkerEvent) {
+      _initializeClusterManager(Future.value(markerEvent.markers));
+    } else if (markerEvent is ModifyMarkerEvent) {
+      _superclusterCompleter.operation.then((supercluster) {
+        final modified =
+            (supercluster as SuperclusterMutable<Marker>).modifyPointData(
+          markerEvent.oldMarker,
+          markerEvent.newMarker,
+          updateParentClusters: markerEvent.updateParentClusters,
+        );
+
+        if (modified) _onMarkersChange();
+      });
+    } else {
+      throw 'Unknown $MarkerEvent type ${markerEvent.runtimeType}';
+    }
+
+    setState(() {});
   }
 }

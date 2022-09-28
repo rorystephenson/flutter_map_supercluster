@@ -5,8 +5,9 @@ export 'package:supercluster/supercluster.dart';
 
 export 'src/controller/marker_event.dart';
 export 'src/controller/supercluster_controller.dart';
+export 'src/controller/supercluster_state.dart';
 export 'src/layer/cluster_data.dart';
-export 'src/layer/supercluster_immutable_layer.dart';
-export 'src/layer/supercluster_mutable_layer.dart';
+export 'src/layer/supercluster_config.dart';
+export 'src/layer/supercluster_layer.dart';
 export 'src/options/animation_options.dart';
 export 'src/options/popup_options.dart';
