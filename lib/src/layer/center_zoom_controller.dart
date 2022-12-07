@@ -5,6 +5,7 @@ import 'package:flutter_map/plugin_api.dart';
 import 'package:latlong2/latlong.dart';
 
 import '../options/animation_options.dart';
+import 'center_zoom_animation.dart';
 import 'center_zoom_tween.dart';
 
 class CenterZoomController {
@@ -13,6 +14,7 @@ class CenterZoomController {
   AnimationController? _zoomController;
   CurvedAnimation? _animation;
   double? _velocity;
+  CenterZoomTween? _centerZoomTween;
   static const distanceCalculator = Distance();
 
   CenterZoomController({
@@ -32,7 +34,7 @@ class CenterZoomController {
       _zoomController = AnimationController(
         vsync: _vsync,
         duration: animationOptions.duration,
-      );
+      )..addListener(_move);
       _animation = CurvedAnimation(
         parent: _zoomController!,
         curve: animationOptions.curve,
@@ -63,25 +65,37 @@ class CenterZoomController {
     }
   }
 
-  void _animateTo(CenterZoom centerZoom) {
-    final begin = CenterZoom(
-      center: _mapState.center,
-      zoom: _mapState.zoom,
-    );
-    final end = CenterZoom(
-      center: LatLng(centerZoom.center.latitude, centerZoom.center.longitude),
-      zoom: centerZoom.zoom,
-    );
-    final centerZoomTween = CenterZoomTween(begin: begin, end: end);
+  void _animateTo(CenterZoom centerZoom) async {
+    final startCenter = _mapState.center;
+    final startZoom = _mapState.zoom;
+    final begin = CenterZoom(center: startCenter, zoom: startZoom);
+    final end = CenterZoom(center: centerZoom.center, zoom: centerZoom.zoom);
+    _centerZoomTween = CenterZoomTween(begin: begin, end: end);
+    _zoomController!.reset();
 
     if (_velocity != null) _setDynamicDuration(_velocity!, begin, end);
 
-    final listener = _movementListener(centerZoomTween);
-    _zoomController!.addListener(listener);
+    _mapState.mapController.mapEventSink.add(
+      MapEventMove(
+        id: CenterZoomAnimation.started,
+        source: MapEventSource.custom,
+        center: startCenter,
+        zoom: startZoom,
+        targetCenter: centerZoom.center,
+        targetZoom: centerZoom.zoom,
+      ),
+    );
     _zoomController!.forward().then((_) {
-      _zoomController!
-        ..removeListener(listener)
-        ..reset();
+      _mapState.mapController.mapEventSink.add(
+        MapEventMove(
+          id: CenterZoomAnimation.finished,
+          source: MapEventSource.custom,
+          center: startCenter,
+          zoom: startZoom,
+          targetCenter: centerZoom.center,
+          targetZoom: centerZoom.zoom,
+        ),
+      );
     });
   }
 
@@ -101,14 +115,13 @@ class CenterZoomController {
         Duration(milliseconds: min(max(translateVelocity, zoomVelocity), 2000));
   }
 
-  VoidCallback _movementListener(Tween<CenterZoom> centerZoomTween) {
-    return () {
-      final centerZoom = centerZoomTween.evaluate(_animation!);
-      _mapState.move(
-        centerZoom.center,
-        centerZoom.zoom,
-        source: MapEventSource.custom,
-      );
-    };
+  void _move() {
+    final centerZoom = _centerZoomTween!.evaluate(_animation!);
+    _mapState.move(
+      centerZoom.center,
+      centerZoom.zoom,
+      source: MapEventSource.custom,
+      id: CenterZoomAnimation.inProgress,
+    );
   }
 }

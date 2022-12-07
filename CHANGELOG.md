@@ -1,3 +1,13 @@
+## [2.1.0]
+
+- BUGFIX: Prevent animated zooming from breaking when starting an animation
+  before the last one finished.
+- FEATURE: Emit MapEventMove events with an id which indicates the movement
+  state:
+    - CenterZoomAnimation.started
+    - CenterZoomAnimation.inProgress
+    - CenterZoomAnimation.finished
+
 ## [2.0.1]
 
 - BUGFIX: Remove existing points when re-creating the index for
