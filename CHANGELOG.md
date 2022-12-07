@@ -1,3 +1,7 @@
+## [2.1.1]
+
+- FEATURE: Make clusters always appear above markers.
+
 ## [2.1.0]
 
 - BUGFIX: Prevent animated zooming from breaking when starting an animation

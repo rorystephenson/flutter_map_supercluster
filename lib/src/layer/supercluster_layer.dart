@@ -397,14 +397,13 @@ class _SuperclusterLayerState extends State<SuperclusterLayer>
         if (supercluster == null) return const SizedBox.shrink();
 
         return Stack(children: [
-          ...supercluster
-              .search(
-                paddedBounds.west,
-                paddedBounds.south,
-                paddedBounds.east,
-                paddedBounds.north,
-                mapState.zoom.ceil(),
-              )
+          ...(supercluster.search(
+            paddedBounds.west,
+            paddedBounds.south,
+            paddedBounds.east,
+            paddedBounds.north,
+            mapState.zoom.ceil(),
+          )..sort(_clustersLast))
               .map((layerElement) =>
                   _buildMarkerOrCluster(mapState, layerElement)),
         ]);
@@ -567,5 +566,18 @@ class _SuperclusterLayerState extends State<SuperclusterLayer>
     }
 
     setState(() {});
+  }
+
+  int _clustersLast(LayerElement<Marker> a, LayerElement<Marker> b) {
+    return a.handle(
+      cluster: (_) => b.handle(
+        cluster: (_) => 0,
+        point: (_) => 1,
+      ),
+      point: (pA) => b.handle(
+        cluster: (_) => -1,
+        point: (_) => 0,
+      ),
+    );
   }
 }
