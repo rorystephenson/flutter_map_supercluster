@@ -2,6 +2,7 @@ import 'dart:math';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_map/plugin_api.dart';
+import 'package:latlong2/latlong.dart';
 import 'package:supercluster/supercluster.dart';
 
 import '../layer/cluster_data.dart';
@@ -36,7 +37,12 @@ class ClusterWidget extends StatelessWidget {
       child: GestureDetector(
         behavior: HitTestBehavior.opaque,
         onTap: onTap,
-        child: builder(context, clusterData.markerCount, clusterData.innerData),
+        child: builder(
+          context,
+          LatLng(cluster.latitude, cluster.longitude),
+          clusterData.markerCount,
+          clusterData.innerData,
+        ),
       ),
     );
   }

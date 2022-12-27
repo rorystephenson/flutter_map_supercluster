@@ -146,7 +146,7 @@ class _MutableClusteringPageState extends State<MutableClusteringPage> {
               velocity: 1,
             ),
             calculateAggregatedClusterData: true,
-            builder: (context, markerCount, extraClusterData) {
+            builder: (context, position, markerCount, extraClusterData) {
               return Container(
                 decoration: BoxDecoration(
                     borderRadius: BorderRadius.circular(20.0),

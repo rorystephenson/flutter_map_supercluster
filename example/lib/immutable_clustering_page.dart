@@ -116,7 +116,7 @@ class _ClusteringManyMarkersPageState extends State<ClusteringManyMarkersPage> {
                 child: Text(marker.point.toString()),
               ),
             ),
-            builder: (context, markerCount, extraClusterData) {
+            builder: (context, position, markerCount, extraClusterData) {
               return Container(
                 decoration: BoxDecoration(
                     borderRadius: BorderRadius.circular(20.0),

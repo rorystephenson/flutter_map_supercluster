@@ -26,7 +26,11 @@ import 'cluster_data.dart';
 import 'map_calculator.dart';
 
 typedef ClusterWidgetBuilder = Widget Function(
-    BuildContext context, int markerCount, ClusterDataBase? extraClusterData);
+  BuildContext context,
+  LatLng position,
+  int markerCount,
+  ClusterDataBase? extraClusterData,
+);
 
 class SuperclusterLayer extends StatefulWidget {
   final bool _isMutableSupercluster;

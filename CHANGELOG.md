@@ -1,3 +1,7 @@
+## [2.2.0]
+
+- BREAKING: Cluster builder now includes the cluster position as a parameter.
+
 ## [2.1.1]
 
 - FEATURE: Make clusters always appear above markers.
