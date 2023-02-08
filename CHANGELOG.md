@@ -1,3 +1,7 @@
+## [2.2.1]
+
+- BUGFIX: Don't hide popups too early when zooming out.
+
 ## [2.2.0]
 
 - BREAKING: Cluster builder now includes the cluster position as a parameter.

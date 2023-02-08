@@ -500,7 +500,7 @@ class _SuperclusterLayerState extends State<SuperclusterLayer>
 
   void _onMove(FlutterMapState mapState) {
     if (_hidePopupIfZoomLessThan != null &&
-        mapState.zoom < _hidePopupIfZoomLessThan!) {
+        mapState.zoom.ceil() < _hidePopupIfZoomLessThan!) {
       widget.popupOptions?.popupController.hideAllPopups();
       _hidePopupIfZoomLessThan = null;
     }
