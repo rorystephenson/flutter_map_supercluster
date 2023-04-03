@@ -70,8 +70,12 @@ class SuperclusterLayer extends StatefulWidget {
   /// The maximum radius in pixels that a cluster can cover.
   final int maxClusterRadius;
 
+  /// The maximum zoom at which clusters will be formed. Defaults to the
+  /// FlutterMapState maxZoom or, if none is set, 20.
+  final int? maxClusterZoom;
+
   /// Implement this function to extract extra data from Markers which can be
-  /// used in the [builder] and [computeSize].
+  /// used in the [builder].
   final ClusterDataBase Function(Marker marker)? clusterDataExtractor;
 
   /// Function to call when a Marker is tapped
@@ -133,6 +137,7 @@ class SuperclusterLayer extends StatefulWidget {
     this.onMarkerTap,
     this.minimumClusterSize,
     this.maxClusterRadius = 80,
+    this.maxClusterZoom,
     this.clusterDataExtractor,
     this.calculateAggregatedClusterData = false,
     this.clusterWidgetSize = const Size(30, 30),
@@ -158,6 +163,7 @@ class SuperclusterLayer extends StatefulWidget {
     this.onMarkerTap,
     this.minimumClusterSize,
     this.maxClusterRadius = 80,
+    this.maxClusterZoom,
     this.clusterDataExtractor,
     this.calculateAggregatedClusterData = false,
     this.clusterWidgetSize = const Size(30, 30),
@@ -215,7 +221,9 @@ class _SuperclusterLayerState extends State<SuperclusterLayer>
     final oldMinZoom = firstInitialization ? null : minZoom;
     final oldMaxZoom = firstInitialization ? null : maxZoom;
     minZoom = mapState.options.minZoom?.ceil() ?? defaultMinZoom;
-    maxZoom = mapState.options.maxZoom?.ceil() ?? defaultMaxZoom;
+    maxZoom = widget.maxClusterZoom ??
+        mapState.options.maxZoom?.ceil() ??
+        defaultMaxZoom;
 
     bool zoomsChanged =
         !firstInitialization && oldMinZoom != minZoom || oldMaxZoom != maxZoom;
@@ -279,6 +287,7 @@ class _SuperclusterLayerState extends State<SuperclusterLayer>
     if (oldWidget._isMutableSupercluster != widget._isMutableSupercluster ||
         oldWidget.maxClusterRadius != widget.maxClusterRadius ||
         oldWidget.minimumClusterSize != widget.minimumClusterSize ||
+        oldWidget.maxClusterZoom != widget.maxClusterZoom ||
         oldWidget.calculateAggregatedClusterData !=
             widget.calculateAggregatedClusterData) {
       debugPrint(

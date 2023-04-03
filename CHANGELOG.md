@@ -1,3 +1,8 @@
+## [2.3.0]
+
+- FEATURE: Add maxClusterZoom to control the maximum zoom at which clustering
+  will occur.
+
 ## [2.2.1]
 
 - BUGFIX: Don't hide popups too early when zooming out.

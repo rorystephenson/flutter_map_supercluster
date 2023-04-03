@@ -1,7 +1,7 @@
 import 'dart:math';
 
 import 'package:flutter/material.dart';
-import 'package:flutter_map/flutter_map.dart';
+import 'package:flutter_map/plugin_api.dart';
 import 'package:flutter_map_supercluster/flutter_map_supercluster.dart';
 import 'package:flutter_map_supercluster_example/drawer.dart';
 import 'package:latlong2/latlong.dart';
@@ -95,6 +95,12 @@ class _ClusteringManyMarkersPageState extends State<ClusteringManyMarkersPage> {
           zoom: 6,
           maxZoom: 15,
         ),
+        nonRotatedChildren: [
+          Builder(
+            builder: (context) =>
+                Text(FlutterMapState.maybeOf(context)!.zoom.toString()),
+          )
+        ],
         children: <Widget>[
           TileLayer(
             urlTemplate: 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
