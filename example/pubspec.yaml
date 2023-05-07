@@ -4,12 +4,12 @@ description: Example for Flutter Map Supercluster
 publish_to: "none"
 
 environment:
-  sdk: ">=2.12.0 <3.0.0"
+  sdk: ">=2.17.1 <3.0.0"
 
 dependencies:
   flutter:
     sdk: flutter
-  flutter_map: ^3.0.0
+  flutter_map: ^4.0.0
   flutter_map_supercluster:
     path: ../
   cupertino_icons: ^1.0.2

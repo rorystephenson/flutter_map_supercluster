@@ -125,7 +125,7 @@ class _MutableClusteringPageState extends State<MutableClusteringPage> {
                 builder: (ctx) => const Icon(Icons.pin_drop_outlined),
               ),
             );
-          }, // Hide popup when the map is tapped.
+          },
         ),
         children: <Widget>[
           TileLayer(

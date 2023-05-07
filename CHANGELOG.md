@@ -1,3 +1,11 @@
+## [3.0.0]
+
+- FEATURE: flutter_map 4.0.0
+- FEATURE: Added cluster 'splaying' for clusters whose markers are too close to
+           uncluster at the maxZoom. See clusterSplayDelegate option for more
+           information. The example app has a new page to demonstrate splaying.
+- FEATURE: Added collapseSplayedClusters() to SuperclusterController. 
+
 ## [2.3.0]
 
 - FEATURE: Add maxClusterZoom to control the maximum zoom at which clustering

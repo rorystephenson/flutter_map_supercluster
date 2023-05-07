@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_map_supercluster_example/immutable_clustering_page.dart';
 import 'package:flutter_map_supercluster_example/mutable_clustering_page.dart';
+import 'package:flutter_map_supercluster_example/too_close_to_uncluster_page.dart';
 
 Widget _buildMenuItem(
     BuildContext context, Widget title, String routeName, String currentRoute) {
@@ -38,6 +39,12 @@ Drawer buildDrawer(BuildContext context, String currentRoute) {
           context,
           const Text('Clustering Many Markers (immutable)'),
           ClusteringManyMarkersPage.route,
+          currentRoute,
+        ),
+        _buildMenuItem(
+          context,
+          const Text('Too close to uncluster'),
+          TooCloseToUnclusterPage.route,
           currentRoute,
         ),
       ],

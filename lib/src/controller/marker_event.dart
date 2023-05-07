@@ -31,3 +31,5 @@ class ModifyMarkerEvent extends MarkerEvent {
     required this.updateParentClusters,
   });
 }
+
+class CollapseSplayedClustersEvent extends MarkerEvent {}

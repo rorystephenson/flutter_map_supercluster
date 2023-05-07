@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_map_supercluster_example/immutable_clustering_page.dart';
 import 'package:flutter_map_supercluster_example/mutable_clustering_page.dart';
+import 'package:flutter_map_supercluster_example/too_close_to_uncluster_page.dart';
 
 void main() => runApp(const MyApp());
 
@@ -19,6 +20,8 @@ class MyApp extends StatelessWidget {
         MutableClusteringPage.route: (context) => const MutableClusteringPage(),
         ClusteringManyMarkersPage.route: (context) =>
             const ClusteringManyMarkersPage(),
+        TooCloseToUnclusterPage.route: (context) =>
+            const TooCloseToUnclusterPage(),
       },
     );
   }

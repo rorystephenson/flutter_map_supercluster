@@ -12,3 +12,7 @@ export 'src/layer/supercluster_config.dart';
 export 'src/layer/supercluster_layer.dart';
 export 'src/options/animation_options.dart';
 export 'src/options/popup_options.dart';
+export 'src/splay/cluster_splay_delegate.dart';
+export 'src/splay/displaced_marker.dart';
+export 'src/splay/displaced_marker_offset.dart';
+export 'src/splay/spread_cluster_splay_delegate.dart';

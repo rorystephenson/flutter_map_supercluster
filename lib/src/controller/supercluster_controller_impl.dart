@@ -68,6 +68,11 @@ class SuperclusterControllerImpl
     return _supercluster.then((supercluster) => supercluster.getLeaves());
   }
 
+  @override
+  void collapseSplayedClusters() {
+    return _markerEventController.add(CollapseSplayedClustersEvent());
+  }
+
   void updateState(SuperclusterState newState) {
     _stateStreamController.add(newState);
   }
