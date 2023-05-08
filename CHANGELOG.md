@@ -1,3 +1,8 @@
+## [3.0.0+1]
+
+- DOCS: Improved the SuperclusterLayer clusterDataExtractor documentation to
+        warn about code which cannot be run in a separate isolate.
+
 ## [3.0.0]
 
 - FEATURE: flutter_map 4.0.0

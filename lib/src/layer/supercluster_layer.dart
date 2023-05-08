@@ -84,6 +84,12 @@ class SuperclusterLayer extends StatefulWidget {
 
   /// Implement this function to extract extra data from Markers which can be
   /// used in the [builder].
+  ///
+  /// Note that if index creation happens in an isolate code which does not
+  /// work on a separate isolate (e.g. riverpod) will fail. In this case either
+  /// refactor your clusterDataExtractor to stop using code which does not work
+  /// in a separate isolate or see [wrapIndexCreation] for how to prevent index
+  /// creation from occuring in a separate isolate.
   final ClusterDataBase Function(Marker marker)? clusterDataExtractor;
 
   /// Function to call when a Marker is tapped
