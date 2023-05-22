@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_map_supercluster_example/immutable_clustering_page.dart';
 import 'package:flutter_map_supercluster_example/mutable_clustering_page.dart';
+import 'package:flutter_map_supercluster_example/normal_and_clustered_markers_with_popups_page.dart';
 import 'package:flutter_map_supercluster_example/too_close_to_uncluster_page.dart';
 
 Widget _buildMenuItem(
@@ -37,7 +38,7 @@ Drawer buildDrawer(BuildContext context, String currentRoute) {
         ),
         _buildMenuItem(
           context,
-          const Text('Clustering Many Markers (immutable)'),
+          const Text('Clustering Many Markers (Immutable)'),
           ClusteringManyMarkersPage.route,
           currentRoute,
         ),
@@ -45,6 +46,12 @@ Drawer buildDrawer(BuildContext context, String currentRoute) {
           context,
           const Text('Too close to uncluster'),
           TooCloseToUnclusterPage.route,
+          currentRoute,
+        ),
+        _buildMenuItem(
+          context,
+          const Text('Normal and Clustered Markers With Popups'),
+          NormalAndClusteredMarkersWithPopups.route,
           currentRoute,
         ),
       ],

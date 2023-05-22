@@ -4,8 +4,6 @@ import 'supercluster_controller_impl.dart';
 import 'supercluster_state.dart';
 
 abstract class SuperclusterController {
-  void dispose();
-
   /// Clear all of the existing Markers.
   void clear();
 
@@ -23,6 +21,70 @@ abstract class SuperclusterController {
   /// Collapses any splayed clusters. See SuperclusterLayer's
   /// [clusterSplayDelegate] for more information on splaying.
   void collapseSplayedClusters();
+
+  /// Show popups for the given [markers]. If a popup is already showing for a
+  /// given marker it remains visible.
+  ///
+  /// If [disableAnimation] is true and a popup animation is enabled then the
+  /// animation will not be used when showing the popups.
+  ///
+  /// Do not use PopupController for controlling Supercluster marker popups,
+  /// see [SuperclusterController] documentation above for more info.
+  void showPopupsAlsoFor(List<Marker> markers, {bool disableAnimation = false});
+
+  /// Show popups only for the given [markers]. All other popups will be
+  /// hidden. If a popup is already showing for a given marker it remains
+  /// visible.
+  ///
+  /// If [disableAnimation] is true and a popup animation is enabled then the
+  /// animation will not be used when showing/hiding the popups.
+  ///
+  /// Do not use PopupController for controlling Supercluster marker popups,
+  /// see [SuperclusterController] documentation above for more info.
+  void showPopupsOnlyFor(List<Marker> markers, {bool disableAnimation = false});
+
+  /// Hide all popups that are showing.
+  ///
+  /// If [disableAnimation] is true and a popup animation is enabled then the
+  /// animation will not be used when hiding the popups.
+  ///
+  /// Do not use PopupController for controlling Supercluster marker popups,
+  /// see [SuperclusterController] documentation above for more info.
+  void hideAllPopups({bool disableAnimation = false});
+
+  /// Hide popups for which the provided [test] return true.
+  ///
+  /// If [disableAnimation] is true and a popup animation is enabled then the
+  /// animation will not be used when hiding the popups.
+  ///
+  /// Do not use PopupController for controlling Supercluster marker popups,
+  /// see [SuperclusterController] documentation above for more info.
+  void hidePopupsWhere(
+    bool Function(Marker marker) test, {
+    bool disableAnimation = false,
+  });
+
+  /// Hide popups showing for any of the given markers.
+  ///
+  /// If [disableAnimation] is true and a popup animation is enabled then the
+  /// animation will not be used when hiding the popups.
+  ///
+  /// Do not use PopupController for controlling Supercluster marker popups,
+  /// see [SuperclusterController] documentation above for more info.
+  void hidePopupsOnlyFor(List<Marker> markers, {bool disableAnimation = false});
+
+  /// Hide the popup if it is showing for the given [marker], otherwise show it
+  /// for that [marker].
+  ///
+  /// If [disableAnimation] is true and a popup animation is enabled then the
+  /// animation will not be used when showing/hiding the popup.
+  ///
+  /// Do not use PopupController for controlling Supercluster marker popups,
+  /// see [SuperclusterController] documentation above for more info.
+  void togglePopup(Marker marker, {bool disableAnimation = false});
+
+  /// Dispose of this controller. Should be called when it is no longer used.
+  void dispose();
 }
 
 abstract class SuperclusterImmutableController extends SuperclusterController {
@@ -48,8 +110,11 @@ abstract class SuperclusterMutableController extends SuperclusterController {
 
   /// Modify a Marker. Note that [oldMarker] must have the same [pos] as
   /// [newMarker]. This is an optimised function that skips re-clustering.
-  void modifyMarker(Marker oldMarker, Marker newMarker,
-      {bool updateParentClusters = true});
+  void modifyMarker(
+    Marker oldMarker,
+    Marker newMarker, {
+    bool updateParentClusters = true,
+  });
 
   /// Remove all of the existing Markers and replace them with [markers]. Note
   /// that this requires completely rebuilding the clusters and may be a slow

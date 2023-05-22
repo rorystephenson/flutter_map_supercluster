@@ -18,6 +18,7 @@ class ExpandedCluster {
   final List<DisplacedMarker> displacedMarkers;
   final Size maxMarkerSize;
   final ClusterSplayDelegate clusterSplayDelegate;
+  late final Map<Marker, DisplacedMarker> markersToDisplacedMarkers;
 
   final AnimationController animation;
   late final CurvedAnimation _splayAnimation;
@@ -48,6 +49,10 @@ class ExpandedCluster {
             max(previous.height, layerPoint.originalPoint.height),
           ),
         ) {
+    markersToDisplacedMarkers = {
+      for (final displacedMarker in displacedMarkers)
+        displacedMarker.marker: displacedMarker
+    };
     _splayAnimation = CurvedAnimation(
       parent: animation,
       curve: clusterSplayDelegate.curve,
@@ -93,6 +98,9 @@ class ExpandedCluster {
 
   bool get collapsing =>
       animation.isAnimating && animation.status == AnimationStatus.reverse;
+
+  Iterable<Marker> get markers =>
+      displacedMarkers.map((displacedMarker) => displacedMarker.marker);
 
   void tryCollapse(void Function(TickerFuture collapseTicker) onCollapse) {
     if (!collapsing) onCollapse(animation.reverse());

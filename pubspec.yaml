@@ -13,10 +13,17 @@ dependencies:
   flutter:
     sdk: flutter
   flutter_map: ^4.0.0
-  flutter_map_marker_popup: ^4.1.0
+  flutter_map_marker_popup: ^5.0.0
   latlong2: ^0.8.1
   provider: ^6.0.5
-  supercluster: ^2.1.1
+  supercluster: ^2.2.0
+
+dependency_overrides:
+  flutter_map_marker_popup:
+    path: ../marker_popup
+  supercluster:
+    path: ../supercluster_dart
+
 
 dev_dependencies:
   flutter_lints: ^2.0.1
