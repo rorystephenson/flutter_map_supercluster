@@ -1,3 +1,24 @@
+## [4.0.0]
+
+- FEATURE: It is now possible to show popups from a Supercluster layer and
+           a normal PopupMarkerLayer above their markers. See the new example.
+- BREAKING: Updated flutter_map_marker_popup to 5.0.0, breaking changes:
+  - The popupBuilder, popupSnap and popupAnimation options from PopupOptions
+    are now combined in to a single option: popupDisplayOptions.
+  - PopupMarkerLayerOptions.rotateAliginmentFor has been replaced with a new
+    rotateAlignment method on AnchorAlign.
+- BREAKING: Popups are now controlled via the SuperclusterController.
+- BREAKING: The following marker rotation options have been removed, they
+  should be set on the markers themselves:
+  - markerRotate
+  - markerRotateAlignment
+  - markerAnchorAlign
+- BREAKING: PopupMarkerLayerOptions.rotationAlignmentFor has been replaced 
+  a new rotateAlignment extension method on AnchorAlign. So
+  PopupMarkerLayerOptions.rotationAlignmentFor(AnchorAlign.top) becomes
+  AnchorAlign.top.rotationAlignment.
+
+
 ## [3.0.0+1]
 
 - DOCS: Improved the SuperclusterLayer clusterDataExtractor documentation to

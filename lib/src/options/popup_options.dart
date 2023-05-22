@@ -1,30 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_map/plugin_api.dart';
 import 'package:flutter_map_marker_popup/extension_api.dart';
-import 'package:flutter_map_marker_popup/flutter_map_marker_popup.dart';
+import 'package:flutter_map_supercluster/src/options/popup_options_impl.dart';
 
-class PopupOptions {
-  /// Used to construct the popup.
-  final PopupBuilder popupBuilder;
-
-  /// If a PopupController is provided it can be used to programmatically show
-  /// and hide the popup.
-  final PopupController popupController;
-
-  /// Controls the position of the popup relative to the marker or popup.
-  final PopupSnap popupSnap;
-
-  /// Allows the use of an animation for showing/hiding popups. Defaults to no
-  /// animation.
-  final PopupAnimation? popupAnimation;
+abstract class PopupOptions {
+  /// Control the appearance of popups. If this is ommited popups will not be
+  /// displayed and they may be displayed elsewhere by wrapping this widget
+  /// in a [PopupScope] and adding a [PopupLayer] inside the [PopupScope].
+  PopupDisplayOptions? get popupDisplayOptions;
 
   /// An optional builder to use when a Marker is selected.
-  final Widget Function(BuildContext context, Marker marker)?
-      selectedMarkerBuilder;
-
-  /// Whether or not the markers rotate counter clockwise to the map rotation,
-  /// defaults to false.
-  final bool markerRotate;
+  Widget Function(BuildContext context, Marker marker)?
+      get selectedMarkerBuilder;
 
   /// The default MarkerTapBehavior is
   /// [MarkerTapBehavior.togglePopupAndHideRest] which will toggle the popup of
@@ -33,17 +20,11 @@ class PopupOptions {
   /// multiple popups you probably want to use [MarkerTapBehavior.togglePopup].
   ///
   /// For more information and other options see [MarkerTapBehavior].
-  final MarkerTapBehavior markerTapBehavior;
+  MarkerTapBehavior get markerTapBehavior;
 
-  PopupOptions({
-    required this.popupBuilder,
-    this.popupSnap = PopupSnap.markerTop,
-    PopupController? popupController,
-    this.popupAnimation,
-    this.selectedMarkerBuilder,
-    this.markerRotate = false,
+  factory PopupOptions({
+    PopupDisplayOptions? popupDisplayOptions,
+    Widget Function(BuildContext context, Marker marker)? selectedMarkerBuilder,
     MarkerTapBehavior? markerTapBehavior,
-  })  : markerTapBehavior =
-            markerTapBehavior ?? MarkerTapBehavior.togglePopupAndHideRest(),
-        popupController = popupController ?? PopupController();
+  }) = PopupOptionsImpl;
 }

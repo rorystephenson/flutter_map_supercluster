@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_map/plugin_api.dart';
 import 'package:flutter_map_supercluster/src/splay/cluster_splay_delegate.dart';
+import 'package:flutter_map_supercluster/src/splay/displaced_marker.dart';
 import 'package:flutter_map_supercluster/src/widget/expanded_cluster.dart';
 import 'package:supercluster/supercluster.dart';
 
@@ -18,6 +19,9 @@ class ExpandedClusterManager {
       _expandedClusters.containsKey(layerCluster.uuid);
 
   Iterable<ExpandedCluster> get all => _expandedClusters.values;
+
+  Iterable<DisplacedMarker> get displacedMarkers =>
+      _expandedClusters.values.expand((e) => e.displacedMarkers);
 
   void add({
     required TickerProvider vsync,

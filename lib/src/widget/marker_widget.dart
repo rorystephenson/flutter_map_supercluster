@@ -4,15 +4,17 @@ import 'package:flutter/material.dart';
 import 'package:flutter_map/plugin_api.dart';
 import 'package:flutter_map_supercluster/src/layer/anchor_util.dart';
 import 'package:flutter_map_supercluster/src/layer/flutter_map_state_extension.dart';
-
-import 'rotate.dart';
+import 'package:flutter_map_supercluster/src/splay/displaced_marker.dart';
 
 class MarkerWidget extends StatelessWidget {
   final Marker marker;
   final WidgetBuilder markerBuilder;
   final VoidCallback onTap;
   final Point<double> position;
-  final Rotate? rotate;
+  final double mapRotationRad;
+
+  final AlignmentGeometry? rotateAlignment;
+  final bool removeRotateOrigin;
 
   MarkerWidget({
     Key? key,
@@ -20,23 +22,28 @@ class MarkerWidget extends StatelessWidget {
     required this.marker,
     required this.markerBuilder,
     required this.onTap,
-    required this.rotate,
-  })  : position = _getMapPointPixel(mapState, marker),
+  })  : mapRotationRad = mapState.rotationRad,
+        position = _getMapPointPixel(mapState, marker),
+        rotateAlignment = marker.rotateAlignment,
+        removeRotateOrigin = false,
         super(key: key);
 
-  MarkerWidget.withPosition({
+  MarkerWidget.displaced({
     Key? key,
+    required DisplacedMarker displacedMarker,
     required CustomPoint position,
-    required this.marker,
     required this.markerBuilder,
     required this.onTap,
-    required this.rotate,
-  })  : position = AnchorUtil.removeAnchor(
+    required this.mapRotationRad,
+  })  : marker = displacedMarker.marker,
+        position = AnchorUtil.removeAnchor(
           position,
-          marker.width,
-          marker.height,
-          marker.anchor,
+          displacedMarker.marker.width,
+          displacedMarker.marker.height,
+          displacedMarker.anchor,
         ),
+        rotateAlignment = DisplacedMarker.rotateAlignment,
+        removeRotateOrigin = true,
         super(key: key);
 
   @override
@@ -53,12 +60,12 @@ class MarkerWidget extends StatelessWidget {
       height: marker.height,
       left: position.x,
       top: position.y,
-      child: rotate == null
+      child: marker.rotate != true
           ? child
           : Transform.rotate(
-              angle: rotate!.angle,
-              origin: rotate!.origin,
-              alignment: rotate!.alignment,
+              angle: -mapRotationRad,
+              origin: removeRotateOrigin ? null : marker.rotateOrigin,
+              alignment: rotateAlignment,
               child: child,
             ),
     );

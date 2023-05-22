@@ -15,7 +15,6 @@ class ClusterWidget extends StatelessWidget {
   final ClusterWidgetBuilder builder;
   final VoidCallback onTap;
   final Size size;
-  final double? rotateAngle;
   final Point<double> position;
 
   ClusterWidget({
@@ -26,7 +25,6 @@ class ClusterWidget extends StatelessWidget {
     required this.onTap,
     required this.size,
     required AnchorPos? anchorPos,
-    required this.rotateAngle,
   })  : position = _getClusterPixel(
           mapState,
           cluster,
@@ -39,29 +37,21 @@ class ClusterWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     final clusterData = cluster.clusterData as ClusterData;
 
-    final child = GestureDetector(
-      behavior: HitTestBehavior.opaque,
-      onTap: onTap,
-      child: builder(
-        context,
-        cluster.latLng,
-        clusterData.markerCount,
-        clusterData.innerData,
-      ),
-    );
-
     return Positioned(
       width: size.width,
       height: size.height,
       left: position.x,
       top: position.y,
-      child: rotateAngle == null
-          ? child
-          : Transform.rotate(
-              angle: rotateAngle!,
-              alignment: Alignment.center,
-              child: child,
-            ),
+      child: GestureDetector(
+        behavior: HitTestBehavior.opaque,
+        onTap: onTap,
+        child: builder(
+          context,
+          cluster.latLng,
+          clusterData.markerCount,
+          clusterData.innerData,
+        ),
+      ),
     );
   }
 

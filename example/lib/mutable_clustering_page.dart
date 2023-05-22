@@ -1,11 +1,12 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_map/flutter_map.dart';
+import 'package:flutter_map/plugin_api.dart';
 import 'package:flutter_map_supercluster/flutter_map_supercluster.dart';
 import 'package:flutter_map_supercluster_example/drawer.dart';
+import 'package:flutter_map_supercluster_example/font/accurate_map_icons.dart';
 import 'package:latlong2/latlong.dart';
 
 class MutableClusteringPage extends StatefulWidget {
-  static const String route = 'clusteringPage';
+  static const String route = 'mutableClusteringPage';
 
   const MutableClusteringPage({Key? key}) : super(key: key);
 
@@ -16,41 +17,15 @@ class MutableClusteringPage extends StatefulWidget {
 class _MutableClusteringPageState extends State<MutableClusteringPage> {
   late final SuperclusterMutableController _superclusterController;
 
-  late List<Marker> markers;
-  late int pointIndex;
-  List points = [
+  final List<Marker> _initialMarkers = [
     LatLng(51.5, -0.09),
-    LatLng(49.8566, 3.3522),
-  ];
-  int? tappedMarkerIndex;
+    LatLng(53.3498, -6.2603),
+    LatLng(53.3488, -6.2613)
+  ].map((point) => _createMarker(point, Colors.black)).toList();
 
   @override
   void initState() {
     _superclusterController = SuperclusterMutableController();
-    pointIndex = 0;
-    markers = [
-      Marker(
-        anchorPos: AnchorPos.align(AnchorAlign.center),
-        height: 30,
-        width: 30,
-        point: points[pointIndex],
-        builder: (ctx) => const Icon(Icons.pin_drop),
-      ),
-      Marker(
-        anchorPos: AnchorPos.align(AnchorAlign.center),
-        height: 30,
-        width: 30,
-        point: LatLng(53.3498, -6.2603),
-        builder: (ctx) => const Icon(Icons.pin_drop),
-      ),
-      Marker(
-        anchorPos: AnchorPos.align(AnchorAlign.center),
-        height: 30,
-        width: 30,
-        point: LatLng(53.3488, -6.2613),
-        builder: (ctx) => const Icon(Icons.pin_drop),
-      ),
-    ];
 
     super.initState();
   }
@@ -65,7 +40,7 @@ class _MutableClusteringPageState extends State<MutableClusteringPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Clustering Page'),
+        title: const Text('Clustering Page (Mutable)'),
         actions: [
           StreamBuilder<SuperclusterState>(
               stream: _superclusterController.stateStream,
@@ -93,38 +68,20 @@ class _MutableClusteringPageState extends State<MutableClusteringPage> {
       drawer: buildDrawer(context, MutableClusteringPage.route),
       floatingActionButton: FloatingActionButton(
         onPressed: () {
-          pointIndex++;
-          if (pointIndex >= points.length) {
-            pointIndex = 0;
-          }
           setState(() {
-            markers[0] = Marker(
-              point: points[pointIndex],
-              anchorPos: AnchorPos.align(AnchorAlign.center),
-              height: 30,
-              width: 30,
-              builder: (ctx) => const Icon(Icons.pin_drop),
-            );
-            markers = List.from(markers);
+            _superclusterController.replaceAll(_initialMarkers);
           });
         },
         child: const Icon(Icons.refresh),
       ),
       body: FlutterMap(
         options: MapOptions(
-          center: points[0],
+          center: _initialMarkers[0].point,
           zoom: 5,
           maxZoom: 15,
           onTap: (_, latLng) {
-            _superclusterController.add(
-              Marker(
-                anchorPos: AnchorPos.align(AnchorAlign.center),
-                height: 30,
-                width: 30,
-                point: latLng,
-                builder: (ctx) => const Icon(Icons.pin_drop_outlined),
-              ),
-            );
+            debugPrint(latLng.toString());
+            _superclusterController.add(_createMarker(latLng, Colors.blue));
           },
         ),
         children: <Widget>[
@@ -133,12 +90,12 @@ class _MutableClusteringPageState extends State<MutableClusteringPage> {
             subdomains: const ['a', 'b', 'c'],
           ),
           SuperclusterLayer.mutable(
-            initialMarkers: markers,
+            initialMarkers: _initialMarkers,
+            indexBuilder: IndexBuilders.rootIsolate,
             controller: _superclusterController,
             onMarkerTap: (marker) {
               _superclusterController.remove(marker);
             },
-            rotate: true,
             clusterWidgetSize: const Size(40, 40),
             anchor: AnchorPos.align(AnchorAlign.center),
             clusterZoomAnimation: const AnimationOptions.animate(
@@ -149,8 +106,9 @@ class _MutableClusteringPageState extends State<MutableClusteringPage> {
             builder: (context, position, markerCount, extraClusterData) {
               return Container(
                 decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(20.0),
-                    color: Colors.blue),
+                  borderRadius: BorderRadius.circular(20.0),
+                  color: Colors.blue,
+                ),
                 child: Center(
                   child: Text(
                     markerCount.toString(),
@@ -164,4 +122,18 @@ class _MutableClusteringPageState extends State<MutableClusteringPage> {
       ),
     );
   }
+
+  static Marker _createMarker(LatLng point, Color color) => Marker(
+        anchorPos: AnchorPos.align(AnchorAlign.top),
+        rotate: true,
+        rotateAlignment: AnchorAlign.top.rotationAlignment,
+        height: 30,
+        width: 30,
+        point: point,
+        builder: (ctx) => Icon(
+          AccurateMapIcons.locationOnBottomAligned,
+          color: color,
+          size: 30,
+        ),
+      );
 }

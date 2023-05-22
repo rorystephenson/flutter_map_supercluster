@@ -17,6 +17,8 @@ class TooCloseToUnclusterPage extends StatefulWidget {
 class _TooCloseToUnclusterPageState extends State<TooCloseToUnclusterPage> {
   late final SuperclusterImmutableController _superclusterController;
 
+  int _markerPopupIndex = 0;
+
   static final points = [
     LatLng(51.4001, -0.08001),
     LatLng(51.4003, -0.08003),
@@ -29,22 +31,23 @@ class _TooCloseToUnclusterPageState extends State<TooCloseToUnclusterPage> {
     LatLng(51.5, -0.09),
     LatLng(51.5, -0.09),
     LatLng(51.59, -0.099),
-    LatLng(49.8566, 3.3522),
   ];
   late List<Marker> markers;
-  late int pointIndex;
 
   @override
   void initState() {
     _superclusterController = SuperclusterImmutableController();
-    pointIndex = 0;
+    int temp = 0;
+    debugPrint((temp++).toString());
     markers = points
         .map(
           (point) => Marker(
             anchorPos: AnchorPos.align(AnchorAlign.top),
+            rotateAlignment: AnchorAlign.top.rotationAlignment,
             height: 30,
             width: 30,
             point: point,
+            rotate: true,
             builder: (ctx) => const Icon(Icons.pin_drop),
           ),
         )
@@ -63,11 +66,21 @@ class _TooCloseToUnclusterPageState extends State<TooCloseToUnclusterPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: const Text('Too close to uncluster page')),
+      floatingActionButton: FloatingActionButton(
+        child: const Icon(Icons.toggle_on),
+        onPressed: () {
+          debugPrint('Originals: ' +
+              markers.map((e) => e.hashCode.toString()).join(', '));
+          _superclusterController
+              .showPopupsOnlyFor([markers[_markerPopupIndex]]);
+          _markerPopupIndex = (_markerPopupIndex + 1) % markers.length;
+        },
+      ),
       drawer: buildDrawer(context, TooCloseToUnclusterPage.route),
       body: FlutterMap(
         options: MapOptions(
-          center: points[0],
-          zoom: 5,
+          center: LatLng(51.4931, -0.1003),
+          zoom: 10,
           maxZoom: 15,
           onTap: (_, __) {
             _superclusterController.collapseSplayedClusters();
@@ -80,9 +93,8 @@ class _TooCloseToUnclusterPageState extends State<TooCloseToUnclusterPage> {
           ),
           SuperclusterLayer.immutable(
             initialMarkers: markers,
+            indexBuilder: IndexBuilders.rootIsolate,
             controller: _superclusterController,
-            rotate: true,
-            rotateAlignment: Alignment.center,
             clusterWidgetSize: const Size(40, 40),
             anchor: AnchorPos.align(AnchorAlign.center),
             clusterZoomAnimation: const AnimationOptions.animate(
@@ -94,12 +106,13 @@ class _TooCloseToUnclusterPageState extends State<TooCloseToUnclusterPage> {
                 Icons.pin_drop,
                 color: Colors.red,
               ),
-              popupBuilder: (BuildContext context, Marker marker) => Container(
-                color: Colors.white,
-                child: Text(marker.point.toString()),
+              popupDisplayOptions: PopupDisplayOptions(
+                builder: (BuildContext context, Marker marker) => Container(
+                  color: Colors.white,
+                  child: Text(marker.point.toString()),
+                ),
               ),
             ),
-            calculateAggregatedClusterData: true,
             builder: (context, position, markerCount, extraClusterData) {
               return Container(
                 decoration: BoxDecoration(

@@ -46,6 +46,8 @@ class _ClusteringManyMarkersPageState extends State<ClusteringManyMarkersPage> {
 
         markers.add(
           Marker(
+            anchorPos: AnchorPos.align(AnchorAlign.top),
+            rotateAlignment: AnchorAlign.top.rotationAlignment,
             height: 30,
             width: 30,
             point: latLng,
@@ -108,6 +110,7 @@ class _ClusteringManyMarkersPageState extends State<ClusteringManyMarkersPage> {
           ),
           SuperclusterLayer.immutable(
             initialMarkers: markers,
+            indexBuilder: IndexBuilders.computeWithOriginalMarkers,
             controller: _superclusterController,
             calculateAggregatedClusterData: true,
             clusterWidgetSize: const Size(40, 40),
@@ -117,9 +120,11 @@ class _ClusteringManyMarkersPageState extends State<ClusteringManyMarkersPage> {
                 Icons.pin_drop,
                 color: Colors.red,
               ),
-              popupBuilder: (BuildContext context, Marker marker) => Container(
-                color: Colors.white,
-                child: Text(marker.point.toString()),
+              popupDisplayOptions: PopupDisplayOptions(
+                builder: (BuildContext context, Marker marker) => Container(
+                  color: Colors.white,
+                  child: Text(marker.point.toString()),
+                ),
               ),
             ),
             builder: (context, position, markerCount, extraClusterData) {

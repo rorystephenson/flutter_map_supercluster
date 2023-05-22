@@ -106,7 +106,7 @@ class SpreadClusterSplayDelegate extends ClusterSplayDelegate {
       result.add(
         DisplacedMarker(
           marker: markersWithAngles[i].marker,
-          pointOverride: unproject(clusterPointAtMaxZoom + circleOffsets[i]),
+          displacedPoint: unproject(clusterPointAtMaxZoom + circleOffsets[i]),
         ),
       );
     }
@@ -125,9 +125,9 @@ class SpreadClusterSplayDelegate extends ClusterSplayDelegate {
         .map(
           (displacedMarker) => DisplacedMarkerOffset(
             displacedMarker: displacedMarker,
-            displacedOffset:
-                (getPixelOffset(displacedMarker.point) - clusterPosition)
-                    .multiplyBy(animationProgress),
+            displacedOffset: (getPixelOffset(displacedMarker.displacedPoint) -
+                    clusterPosition)
+                .multiplyBy(animationProgress),
             originalOffset:
                 getPixelOffset(displacedMarker.originalPoint) - clusterPosition,
           ),

@@ -12,13 +12,24 @@ dependencies:
   flutter_map: ^4.0.0
   flutter_map_supercluster:
     path: ../
+  flutter_map_marker_popup: ^5.0.0
   cupertino_icons: ^1.0.2
-  latlong2: ^0.8.0
+  latlong2: ^0.9.0
 
 dev_dependencies:
   flutter_lints: ^1.0.4
   flutter_test:
     sdk: flutter
 
+dependency_overrides:
+  flutter_map_marker_popup:
+    path: ../../marker_popup
+  supercluster:
+    path: ../../supercluster_dart
+
 flutter:
   uses-material-design: true
+  fonts:
+    - family: AccurateMapIcon
+      fonts:
+        - asset: fonts/AccurateMapIcon.ttf

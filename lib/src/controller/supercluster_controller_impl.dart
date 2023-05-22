@@ -1,24 +1,24 @@
 import 'dart:async';
 
 import 'package:flutter_map/plugin_api.dart';
+import 'package:flutter_map_supercluster/src/controller/supercluster_event.dart';
 import 'package:supercluster/supercluster.dart';
 
-import 'marker_event.dart';
 import 'supercluster_controller.dart';
 import 'supercluster_state.dart';
 
 class SuperclusterControllerImpl
     implements SuperclusterImmutableController, SuperclusterMutableController {
-  final StreamController<MarkerEvent> _markerEventController;
+  final StreamController<SuperclusterEvent> _superclusterEventController;
   final StreamController<SuperclusterState> _stateStreamController;
   Future<Supercluster<Marker>> _supercluster = Future.any([]);
 
   SuperclusterControllerImpl()
-      : _markerEventController = StreamController.broadcast(),
+      : _superclusterEventController = StreamController.broadcast(),
         _stateStreamController =
             StreamController<SuperclusterState>.broadcast();
 
-  Stream<MarkerEvent> get stream => _markerEventController.stream;
+  Stream<SuperclusterEvent> get stream => _superclusterEventController.stream;
 
   @override
   Stream<SuperclusterState> get stateStream =>
@@ -30,19 +30,22 @@ class SuperclusterControllerImpl
 
   @override
   void add(Marker marker) {
-    _markerEventController.add(AddMarkerEvent(marker));
+    _superclusterEventController.add(AddMarkerEvent(marker));
   }
 
   @override
   void remove(Marker marker) {
-    _markerEventController.add(RemoveMarkerEvent(marker));
+    _superclusterEventController.add(RemoveMarkerEvent(marker));
   }
 
   @override
-  void modifyMarker(Marker oldMarker, Marker newMarker,
-      {bool updateParentClusters = true}) {
+  void modifyMarker(
+    Marker oldMarker,
+    Marker newMarker, {
+    bool updateParentClusters = true,
+  }) {
     assert(oldMarker.point == newMarker.point);
-    _markerEventController.add(ModifyMarkerEvent(
+    _superclusterEventController.add(ModifyMarkerEvent(
       oldMarker,
       newMarker,
       updateParentClusters: updateParentClusters,
@@ -55,12 +58,12 @@ class SuperclusterControllerImpl
 
   @override
   void replaceAll(List<Marker> markers) {
-    _markerEventController.add(ReplaceAllMarkerEvent(markers));
+    _superclusterEventController.add(ReplaceAllMarkerEvent(markers));
   }
 
   @override
   void clear() {
-    _markerEventController.add(ReplaceAllMarkerEvent([]));
+    _superclusterEventController.add(const ReplaceAllMarkerEvent([]));
   }
 
   @override
@@ -70,7 +73,8 @@ class SuperclusterControllerImpl
 
   @override
   void collapseSplayedClusters() {
-    return _markerEventController.add(CollapseSplayedClustersEvent());
+    return _superclusterEventController
+        .add(const CollapseSplayedClustersEvent());
   }
 
   void updateState(SuperclusterState newState) {
@@ -78,8 +82,62 @@ class SuperclusterControllerImpl
   }
 
   @override
+  void showPopupsAlsoFor(
+    List<Marker> markers, {
+    bool disableAnimation = false,
+  }) {
+    _superclusterEventController.add(
+      ShowPopupsAlsoForEvent(markers, disableAnimation: false),
+    );
+  }
+
+  @override
+  void showPopupsOnlyFor(
+    List<Marker> markers, {
+    bool disableAnimation = false,
+  }) {
+    _superclusterEventController.add(
+      ShowPopupsOnlyForEvent(markers, disableAnimation: false),
+    );
+  }
+
+  @override
+  void hideAllPopups({bool disableAnimation = false}) {
+    _superclusterEventController.add(
+      const HideAllPopupsEvent(disableAnimation: false),
+    );
+  }
+
+  @override
+  void hidePopupsWhere(
+    bool Function(Marker marker) test, {
+    bool disableAnimation = false,
+  }) {
+    _superclusterEventController.add(
+      HidePopupsWhereEvent(test, disableAnimation: disableAnimation),
+    );
+  }
+
+  @override
+  void hidePopupsOnlyFor(
+    List<Marker> markers, {
+    bool disableAnimation = false,
+  }) {
+    _superclusterEventController.add(
+      HidePopupsOnlyForEvent(markers, disableAnimation: disableAnimation),
+    );
+  }
+
+  @override
+  void togglePopup(Marker marker, {bool disableAnimation = false}) {
+    _superclusterEventController.add(
+      TogglePopupEvent(marker, disableAnimation: disableAnimation),
+    );
+  }
+
+  @override
   void dispose() {
-    _markerEventController.close();
+    _superclusterEventController.close();
     _stateStreamController.close();
   }
 }
