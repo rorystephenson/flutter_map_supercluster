@@ -8,7 +8,6 @@ export 'src/controller/supercluster_state.dart';
 export 'src/layer/center_zoom_animation.dart';
 export 'src/layer/cluster_data.dart';
 export 'src/layer/supercluster_layer.dart';
-export 'src/options/animation_options.dart';
 export 'src/options/index_builder.dart';
 export 'src/options/popup_options.dart';
 export 'src/splay/cluster_splay_delegate.dart';

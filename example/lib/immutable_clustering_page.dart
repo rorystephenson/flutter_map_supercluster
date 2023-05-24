@@ -2,6 +2,7 @@ import 'dart:math';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_map/plugin_api.dart';
+import 'package:flutter_map_animations/flutter_map_animations.dart';
 import 'package:flutter_map_supercluster/flutter_map_supercluster.dart';
 import 'package:flutter_map_supercluster_example/drawer.dart';
 import 'package:latlong2/latlong.dart';
@@ -16,18 +17,21 @@ class ClusteringManyMarkersPage extends StatefulWidget {
       _ClusteringManyMarkersPageState();
 }
 
-class _ClusteringManyMarkersPageState extends State<ClusteringManyMarkersPage> {
+class _ClusteringManyMarkersPageState extends State<ClusteringManyMarkersPage>
+    with TickerProviderStateMixin {
   static const totalMarkers = 2000.0;
   final minLatLng = LatLng(49.8566, 1.3522);
   final maxLatLng = LatLng(58.3498, -10.2603);
 
   late final SuperclusterImmutableController _superclusterController;
+  late final AnimatedMapController _animatedMapController;
 
   late final List<Marker> markers;
 
   @override
   void initState() {
     _superclusterController = SuperclusterImmutableController();
+    _animatedMapController = AnimatedMapController(vsync: this);
 
     final latitudeRange = maxLatLng.latitude - minLatLng.latitude;
     final longitudeRange = maxLatLng.longitude - minLatLng.longitude;
@@ -61,6 +65,14 @@ class _ClusteringManyMarkersPageState extends State<ClusteringManyMarkersPage> {
   }
 
   @override
+  void dispose() {
+    _superclusterController.dispose();
+    _animatedMapController.dispose();
+
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
@@ -91,6 +103,7 @@ class _ClusteringManyMarkersPageState extends State<ClusteringManyMarkersPage> {
       ),
       drawer: buildDrawer(context, ClusteringManyMarkersPage.route),
       body: FlutterMap(
+        mapController: _animatedMapController,
         options: MapOptions(
           center: LatLng((maxLatLng.latitude + minLatLng.latitude) / 2,
               (maxLatLng.longitude + minLatLng.longitude) / 2),
@@ -112,6 +125,8 @@ class _ClusteringManyMarkersPageState extends State<ClusteringManyMarkersPage> {
             initialMarkers: markers,
             indexBuilder: IndexBuilders.computeWithOriginalMarkers,
             controller: _superclusterController,
+            onClusterTap: (center, zoom, splayCluster) =>
+                _animatedMapController.animateTo(dest: center, zoom: zoom),
             calculateAggregatedClusterData: true,
             clusterWidgetSize: const Size(40, 40),
             anchor: AnchorPos.align(AnchorAlign.center),

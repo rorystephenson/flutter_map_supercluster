@@ -89,10 +89,6 @@ class _NormalAndClusteredMarkersWithPopupsState
               controller: _superclusterController,
               clusterWidgetSize: const Size(40, 40),
               anchor: AnchorPos.align(AnchorAlign.center),
-              clusterZoomAnimation: const AnimationOptions.animate(
-                curve: Curves.linear,
-                velocity: 1,
-              ),
               popupOptions: PopupOptions(
                 selectedMarkerBuilder: (context, marker) => Icon(
                   Icons.pin_drop,

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_map/plugin_api.dart';
+import 'package:flutter_map_animations/flutter_map_animations.dart';
 import 'package:flutter_map_supercluster/flutter_map_supercluster.dart';
 import 'package:flutter_map_supercluster_example/drawer.dart';
 import 'package:flutter_map_supercluster_example/font/accurate_map_icons.dart';
@@ -14,8 +15,10 @@ class MutableClusteringPage extends StatefulWidget {
   _MutableClusteringPageState createState() => _MutableClusteringPageState();
 }
 
-class _MutableClusteringPageState extends State<MutableClusteringPage> {
+class _MutableClusteringPageState extends State<MutableClusteringPage>
+    with TickerProviderStateMixin {
   late final SuperclusterMutableController _superclusterController;
+  late final AnimatedMapController _animatedMapController;
 
   final List<Marker> _initialMarkers = [
     LatLng(51.5, -0.09),
@@ -26,6 +29,7 @@ class _MutableClusteringPageState extends State<MutableClusteringPage> {
   @override
   void initState() {
     _superclusterController = SuperclusterMutableController();
+    _animatedMapController = AnimatedMapController(vsync: this);
 
     super.initState();
   }
@@ -33,6 +37,7 @@ class _MutableClusteringPageState extends State<MutableClusteringPage> {
   @override
   void dispose() {
     _superclusterController.dispose();
+    _animatedMapController.dispose();
     super.dispose();
   }
 
@@ -75,6 +80,7 @@ class _MutableClusteringPageState extends State<MutableClusteringPage> {
         child: const Icon(Icons.refresh),
       ),
       body: FlutterMap(
+        mapController: _animatedMapController,
         options: MapOptions(
           center: _initialMarkers[0].point,
           zoom: 5,
@@ -93,15 +99,13 @@ class _MutableClusteringPageState extends State<MutableClusteringPage> {
             initialMarkers: _initialMarkers,
             indexBuilder: IndexBuilders.rootIsolate,
             controller: _superclusterController,
+            onClusterTap: (center, zoom, splayCluster) =>
+                _animatedMapController.animateTo(dest: center, zoom: zoom),
             onMarkerTap: (marker) {
               _superclusterController.remove(marker);
             },
             clusterWidgetSize: const Size(40, 40),
             anchor: AnchorPos.align(AnchorAlign.center),
-            clusterZoomAnimation: const AnimationOptions.animate(
-              curve: Curves.linear,
-              velocity: 1,
-            ),
             calculateAggregatedClusterData: true,
             builder: (context, position, markerCount, extraClusterData) {
               return Container(
