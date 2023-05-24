@@ -26,11 +26,9 @@ import 'package:supercluster/supercluster.dart';
 
 import '../controller/supercluster_controller.dart';
 import '../controller/supercluster_controller_impl.dart';
-import '../options/animation_options.dart';
 import '../options/popup_options.dart';
 import '../widget/cluster_widget.dart';
 import '../widget/marker_widget.dart';
-import 'center_zoom_controller.dart';
 import 'cluster_data.dart';
 
 /// Builder for the cluster widget.
@@ -39,6 +37,13 @@ typedef ClusterWidgetBuilder = Widget Function(
   LatLng position,
   int markerCount,
   ClusterDataBase? extraClusterData,
+);
+
+/// See [SuperclusterLayer.onClusterTap].
+typedef ClusterTapCallback = FutureOr<void> Function(
+  LatLng center,
+  double expansionZoom,
+  bool splayCluster,
 );
 
 class SuperclusterLayer extends StatefulWidget {
@@ -82,6 +87,17 @@ class SuperclusterLayer extends StatefulWidget {
   /// creation from occuring in a separate isolate.
   final ClusterDataBase Function(Marker marker)? clusterDataExtractor;
 
+  /// When a cluster is tapped this callback fires to pan/zoom the map and then
+  /// then, if the cluster is a splay cluster (see [clusterSplayDelegate]),
+  /// splaying occurs. This callback is not called when collapsing a splay
+  /// cluster.
+  ///
+  /// The default behaviour is to center the map on the cluster and zoom to the
+  /// minimum zoom required to open the cluster. This callback can be overriden
+  /// in order to animate movement. Note that if a Future is returned splaying
+  /// will not occur until the future completes.
+  final ClusterTapCallback? onClusterTap;
+
   /// Function to call when a Marker is tapped
   final void Function(Marker)? onMarkerTap;
 
@@ -100,11 +116,6 @@ class SuperclusterLayer extends StatefulWidget {
   /// Cluster anchor
   final AnchorPos? anchor;
 
-  /// Control cluster zooming (triggered by cluster tap) animation. Use
-  /// [AnimationOptions.none] to disable animation. See
-  ///  [AnimationOptions.animate] for more information on animation options.
-  final AnimationOptions clusterZoomAnimation;
-
   /// If true then whenever the aggregated cluster data changes (that is, the
   /// combined cluster data of all Markers as calculated by
   /// [clusterDataExtractor]) then the new value will be added to the
@@ -122,6 +133,7 @@ class SuperclusterLayer extends StatefulWidget {
     required this.builder,
     required this.indexBuilder,
     this.initialMarkers = const [],
+    this.onClusterTap,
     this.onMarkerTap,
     this.minimumClusterSize,
     this.maxClusterRadius = 80,
@@ -129,10 +141,6 @@ class SuperclusterLayer extends StatefulWidget {
     this.clusterDataExtractor,
     this.calculateAggregatedClusterData = false,
     this.clusterWidgetSize = const Size(30, 30),
-    this.clusterZoomAnimation = const AnimationOptions.animate(
-      curve: Curves.linear,
-      velocity: 1,
-    ),
     this.loadingOverlayBuilder,
     PopupOptions? popupOptions,
     this.anchor,
@@ -151,6 +159,7 @@ class SuperclusterLayer extends StatefulWidget {
     required this.builder,
     required this.indexBuilder,
     this.initialMarkers = const [],
+    this.onClusterTap,
     this.onMarkerTap,
     this.minimumClusterSize,
     this.maxClusterRadius = 80,
@@ -158,10 +167,6 @@ class SuperclusterLayer extends StatefulWidget {
     this.clusterDataExtractor,
     this.calculateAggregatedClusterData = false,
     this.clusterWidgetSize = const Size(30, 30),
-    this.clusterZoomAnimation = const AnimationOptions.animate(
-      curve: Curves.linear,
-      velocity: 1,
-    ),
     this.loadingOverlayBuilder,
     PopupOptions? popupOptions,
     this.anchor,
@@ -190,7 +195,6 @@ class _SuperclusterLayerState extends State<SuperclusterLayer>
   late FlutterMapState _mapState;
   late final ExpandedClusterManager _expandedClusterManager;
 
-  late CenterZoomController _centerZoomController;
   StreamSubscription<SuperclusterEvent>? _controllerSubscription;
   StreamSubscription<void>? _movementStreamSubscription;
 
@@ -234,11 +238,6 @@ class _SuperclusterLayerState extends State<SuperclusterLayer>
 
     if (!_initialized) {
       _lastMovementZoom = _mapState.zoom.ceil();
-      _centerZoomController = CenterZoomController(
-        vsync: this,
-        mapState: _mapState,
-        animationOptions: widget.clusterZoomAnimation,
-      );
       _controllerSubscription = widget.controller == null
           ? null
           : (widget.controller! as SuperclusterControllerImpl).stream.listen(
@@ -292,10 +291,6 @@ class _SuperclusterLayerState extends State<SuperclusterLayer>
           .then((supercluster) => supercluster?.getLeaves().toList() ?? []));
     }
 
-    if (oldWidget.clusterZoomAnimation != widget.clusterZoomAnimation) {
-      _centerZoomController.animationOptions = widget.clusterZoomAnimation;
-    }
-
     if (widget.popupOptions != oldWidget.popupOptions) {
       oldWidget.popupOptions?.popupController.dispose();
       _movementStreamSubscription?.cancel();
@@ -308,7 +303,6 @@ class _SuperclusterLayerState extends State<SuperclusterLayer>
   void dispose() {
     widget.popupOptions?.popupController.dispose();
     _movementStreamSubscription?.cancel();
-    _centerZoomController.dispose();
     _controllerSubscription?.cancel();
     super.dispose();
   }
@@ -530,8 +524,14 @@ class _SuperclusterLayerState extends State<SuperclusterLayer>
   void _onClusterTap(
     Supercluster<Marker> supercluster,
     LayerCluster<Marker> layerCluster,
-  ) {
-    if (layerCluster.highestZoom == maxZoom) {
+  ) async {
+    if (layerCluster.highestZoom >= maxZoom) {
+      await _clusterTapCallback(
+        layerCluster.latLng,
+        layerCluster.highestZoom.toDouble(),
+        true,
+      );
+
       setState(() {
         _expandedClusterManager.add(
           vsync: this,
@@ -544,12 +544,20 @@ class _SuperclusterLayerState extends State<SuperclusterLayer>
       });
     }
 
-    // TODO: Zoom then add with setState
+    await _clusterTapCallback(
+      layerCluster.latLng,
+      layerCluster.highestZoom + 0.000001,
+      false,
+    );
+  }
 
-    _centerZoomController.moveTo(CenterZoom(
-      center: layerCluster.latLng,
-      zoom: layerCluster.highestZoom + 1.0,
-    ));
+  FutureOr<void> _clusterTapCallback(
+      LatLng center, double zoom, bool splayCluster) {
+    if (widget.onClusterTap != null) {
+      return widget.onClusterTap!(center, zoom, splayCluster);
+    }
+
+    _mapState.move(center, zoom, source: MapEventSource.custom);
   }
 
   void _onMarkerTap(PopupSpec popupSpec) {
@@ -573,7 +581,6 @@ class _SuperclusterLayerState extends State<SuperclusterLayer>
     final zoom = mapState.zoom.ceil();
 
     if (_lastMovementZoom == null || zoom < _lastMovementZoom!) {
-      debugPrint('Removing');
       _expandedClusterManager.removeIfZoomGreaterThan(zoom);
     }
 
