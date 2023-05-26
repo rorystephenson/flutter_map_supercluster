@@ -3,6 +3,7 @@ library flutter_map_supercluster;
 export 'package:flutter_map_marker_popup/extension_api.dart';
 export 'package:supercluster/supercluster.dart';
 
+export 'src/controller/marker_matcher.dart';
 export 'src/controller/supercluster_controller.dart';
 export 'src/controller/supercluster_state.dart';
 export 'src/layer/center_zoom_animation.dart';

@@ -19,7 +19,6 @@ class ExpandableClusterWidget extends StatelessWidget {
   final Widget Function(BuildContext, Marker) markerBuilder;
   final void Function(PopupSpec popupSpec) onMarkerTap;
   final VoidCallback onCollapse;
-  final double mapRotationRad;
   final CustomPoint clusterPixelPosition;
 
   ExpandableClusterWidget({
@@ -32,8 +31,7 @@ class ExpandableClusterWidget extends StatelessWidget {
     required this.markerBuilder,
     required this.onMarkerTap,
     required this.onCollapse,
-  })  : mapRotationRad = mapState.rotationRad,
-        clusterPixelPosition =
+  })  : clusterPixelPosition =
             mapState.getPixelOffset(expandedCluster.layerCluster.latLng),
         super(key: ValueKey('expandable-${expandedCluster.layerCluster.uuid}'));
 
@@ -75,7 +73,7 @@ class ExpandableClusterWidget extends StatelessWidget {
                       expandedCluster.layerCluster.lowestZoom,
                     ),
                   ),
-                  mapRotationRad: mapRotationRad,
+                  mapRotationRad: mapState.rotationRad,
                 ),
               ),
               ClusterWidget(

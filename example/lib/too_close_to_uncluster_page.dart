@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_map/plugin_api.dart';
 import 'package:flutter_map_animations/flutter_map_animations.dart';
@@ -69,20 +71,24 @@ class _TooCloseToUnclusterPageState extends State<TooCloseToUnclusterPage>
     return PopupScope(
       child: Scaffold(
         appBar: AppBar(title: const Text('Too close to uncluster page')),
-        floatingActionButton: Builder(
-          builder: (context) {
-            final popupState = PopupState.of(context);
-            final popupVisible = popupState.selectedMarkers.isNotEmpty;
-            return FloatingActionButton.extended(
-              label: SizedBox(
-                  width: 100,
-                  child: Text(popupVisible ? 'Hide popups' : 'Show popups')),
-              icon: Icon(popupVisible ? Icons.web_asset : Icons.web_asset_off),
-              onPressed: popupVisible
-                  ? () => _superclusterController.hideAllPopups()
-                  : () => _superclusterController.showPopupsOnlyFor(markers),
-            );
-          },
+        floatingActionButton: Column(
+          mainAxisAlignment: MainAxisAlignment.end,
+          children: [
+            Builder(
+              builder: (context) {
+                final popupState = PopupState.of(context);
+                return FloatingActionButton.extended(
+                  label: const SizedBox(child: Text('Select random marker')),
+                  icon: const Icon(Icons.shuffle),
+                  onPressed: () => _superclusterController.moveToMarker(
+                    MarkerMatcher.equalsMarker(
+                      _randomNextMarker(popupState),
+                    ),
+                  ),
+                );
+              },
+            ),
+          ],
         ),
         drawer: buildDrawer(context, TooCloseToUnclusterPage.route),
         body: FlutterMap(
@@ -104,8 +110,10 @@ class _TooCloseToUnclusterPageState extends State<TooCloseToUnclusterPage>
               initialMarkers: markers,
               indexBuilder: IndexBuilders.rootIsolate,
               controller: _superclusterController,
-              onClusterTap: (center, zoom, splayCluster) =>
-                  _animatedMapController.animateTo(dest: center, zoom: zoom),
+              moveMap: (center, zoom) => _animatedMapController.animateTo(
+                dest: center,
+                zoom: zoom,
+              ),
               clusterWidgetSize: const Size(40, 40),
               anchor: AnchorPos.align(AnchorAlign.center),
               popupOptions: PopupOptions(
@@ -138,5 +146,17 @@ class _TooCloseToUnclusterPageState extends State<TooCloseToUnclusterPage>
         ),
       ),
     );
+  }
+
+  Marker _randomNextMarker(PopupState popupState) {
+    final candidateMarkers = List.from(markers);
+
+    while (candidateMarkers.isNotEmpty) {
+      final randomIndex = Random().nextInt(candidateMarkers.length);
+      final candidateMarker = candidateMarkers.removeAt(randomIndex);
+      if (!popupState.isSelected(candidateMarker)) return candidateMarker;
+    }
+
+    throw 'No deselected markers found';
   }
 }

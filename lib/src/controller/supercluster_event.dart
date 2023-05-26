@@ -1,4 +1,8 @@
+import 'dart:async';
+
 import 'package:flutter_map/plugin_api.dart';
+import 'package:flutter_map_supercluster/src/controller/marker_matcher.dart';
+import 'package:latlong2/latlong.dart';
 
 abstract class SuperclusterEvent {
   const SuperclusterEvent();
@@ -36,6 +40,18 @@ class ModifyMarkerEvent extends SuperclusterEvent {
 
 class CollapseSplayedClustersEvent extends SuperclusterEvent {
   const CollapseSplayedClustersEvent();
+}
+
+class MoveToMarkerEvent extends SuperclusterEvent {
+  final MarkerMatcher markerMatcher;
+  final bool showPopup;
+  final FutureOr<void> Function(LatLng center, double zoom)? moveMap;
+
+  const MoveToMarkerEvent({
+    required this.markerMatcher,
+    required this.showPopup,
+    required this.moveMap,
+  });
 }
 
 class ShowPopupsAlsoForEvent extends SuperclusterEvent {

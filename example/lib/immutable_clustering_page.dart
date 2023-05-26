@@ -125,8 +125,10 @@ class _ClusteringManyMarkersPageState extends State<ClusteringManyMarkersPage>
             initialMarkers: markers,
             indexBuilder: IndexBuilders.computeWithOriginalMarkers,
             controller: _superclusterController,
-            onClusterTap: (center, zoom, splayCluster) =>
-                _animatedMapController.animateTo(dest: center, zoom: zoom),
+            moveMap: (center, zoom) => _animatedMapController.animateTo(
+              dest: center,
+              zoom: zoom,
+            ),
             calculateAggregatedClusterData: true,
             clusterWidgetSize: const Size(40, 40),
             anchor: AnchorPos.align(AnchorAlign.center),

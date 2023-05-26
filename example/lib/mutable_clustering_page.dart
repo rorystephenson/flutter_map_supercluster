@@ -99,8 +99,10 @@ class _MutableClusteringPageState extends State<MutableClusteringPage>
             initialMarkers: _initialMarkers,
             indexBuilder: IndexBuilders.rootIsolate,
             controller: _superclusterController,
-            onClusterTap: (center, zoom, splayCluster) =>
-                _animatedMapController.animateTo(dest: center, zoom: zoom),
+            moveMap: (center, zoom) => _animatedMapController.animateTo(
+              dest: center,
+              zoom: zoom,
+            ),
             onMarkerTap: (marker) {
               _superclusterController.remove(marker);
             },
