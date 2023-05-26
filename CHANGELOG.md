@@ -1,23 +1,30 @@
 ## [4.0.0]
 
 - FEATURE: It is now possible to show popups from a Supercluster layer and
-           a normal PopupMarkerLayer above their markers. See the new example.
+  a normal PopupMarkerLayer above their markers. See the new example.
+- BREAKING: Animated movement is no longer implemented by this plugin.
+  Animation is now supported using the onClusterTap/onMarkerTap callbacks to
+  trigger animated movement. The examples have been updated to use the
+  flutter_map_animations to drive animated movement.
 - BREAKING: Updated flutter_map_marker_popup to 5.0.0, breaking changes:
   - The popupBuilder, popupSnap and popupAnimation options from PopupOptions
     are now combined in to a single option: popupDisplayOptions.
-  - PopupMarkerLayerOptions.rotateAliginmentFor has been replaced with a new
-    rotateAlignment method on AnchorAlign.
-- BREAKING: Popups are now controlled via the SuperclusterController.
+  - PopupMarkerLayerOptions.rotationAlignmentFor has been replaced with a new
+    arotateAlignment extension method on AnchorAlign. So
+    PopupMarkerLayerOptions.rotationAlignmentFor(AnchorAlign.top) becomes
+    AnchorAlign.top.rotationAlignment.
+- BREAKING: Popups are now controlled via the SuperclusterController. This is
+  necessary to properly support displaying popups for splayed markers.
 - BREAKING: The following marker rotation options have been removed, they
   should be set on the markers themselves:
   - markerRotate
   - markerRotateAlignment
   - markerAnchorAlign
-- BREAKING: PopupMarkerLayerOptions.rotationAlignmentFor has been replaced 
-  a new rotateAlignment extension method on AnchorAlign. So
-  PopupMarkerLayerOptions.rotationAlignmentFor(AnchorAlign.top) becomes
-  AnchorAlign.top.rotationAlignment.
-
+- BREAKING: The wrapIndexCreation optional callback has now been replaced with
+  the required indexBuilder callback. This makes makes the choice between
+  building the index in the root isolate or a separate isolate explicit and
+  some predefined IndexBuilders have been added. See the IndexBuilders
+  documentation for a full explanation.
 
 ## [3.0.0+1]
 

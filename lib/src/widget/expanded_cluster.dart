@@ -35,7 +35,7 @@ class ExpandedCluster {
         animation = AnimationController(
           vsync: vsync,
           duration: clusterSplayDelegate.duration,
-        )..forward(),
+        ),
         displacedMarkers = clusterSplayDelegate.displaceMarkers(
           layerPoints.map((e) => e.originalPoint).toList(),
           clusterPosition: layerCluster.latLng,

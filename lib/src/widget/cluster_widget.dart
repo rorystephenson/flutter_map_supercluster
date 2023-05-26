@@ -16,6 +16,7 @@ class ClusterWidget extends StatelessWidget {
   final VoidCallback onTap;
   final Size size;
   final Point<double> position;
+  final double mapRotationRad;
 
   ClusterWidget({
     Key? key,
@@ -31,6 +32,7 @@ class ClusterWidget extends StatelessWidget {
           anchorPos,
           size,
         ),
+        mapRotationRad = mapState.rotationRad,
         super(key: ValueKey(cluster.uuid));
 
   @override
@@ -42,14 +44,17 @@ class ClusterWidget extends StatelessWidget {
       height: size.height,
       left: position.x,
       top: position.y,
-      child: GestureDetector(
-        behavior: HitTestBehavior.opaque,
-        onTap: onTap,
-        child: builder(
-          context,
-          cluster.latLng,
-          clusterData.markerCount,
-          clusterData.innerData,
+      child: Transform.rotate(
+        angle: -mapRotationRad,
+        child: GestureDetector(
+          behavior: HitTestBehavior.opaque,
+          onTap: onTap,
+          child: builder(
+            context,
+            cluster.latLng,
+            clusterData.markerCount,
+            clusterData.innerData,
+          ),
         ),
       ),
     );
