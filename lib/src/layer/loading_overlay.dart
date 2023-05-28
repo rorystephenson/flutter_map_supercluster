@@ -24,15 +24,15 @@ class LoadingOverlay extends StatelessWidget {
         return loadingOverlayBuilder?.call(context) ??
             Container(
               color: Colors.black26,
-              child: Center(
+              child: const Center(
                 child: Card(
                   elevation: 3,
                   child: Padding(
-                    padding: const EdgeInsets.fromLTRB(18, 24, 18, 18),
+                    padding: EdgeInsets.fromLTRB(18, 24, 18, 18),
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.center,
                       mainAxisSize: MainAxisSize.min,
-                      children: const [
+                      children: [
                         CircularProgressIndicator(),
                         SizedBox(height: 16.0),
                         Text('Building clusters'),

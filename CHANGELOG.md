@@ -1,3 +1,7 @@
+## [4.0.0+1]
+
+- Removed example dependency overrides.
+
 ## [4.0.0]
 
 - BREAKING: Animated movement is no longer implemented by this plugin.
