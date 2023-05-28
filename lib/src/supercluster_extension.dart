@@ -3,25 +3,6 @@ import 'package:flutter_map_supercluster/src/controller/marker_matcher.dart';
 import 'package:supercluster/supercluster.dart';
 
 extension SuperclusterExtension on Supercluster<Marker> {
-  List<LayerPoint<Marker>> layerClusterChildren(
-    LayerCluster<Marker> layerCluster,
-  ) {
-    final thisSupercluster = this;
-    if (thisSupercluster is SuperclusterImmutable<Marker>) {
-      return thisSupercluster
-          .childrenOf((layerCluster as ImmutableLayerCluster<Marker>).id)
-          .cast<ImmutableLayerPoint<Marker>>()
-          .toList();
-    } else if (thisSupercluster is SuperclusterMutable<Marker>) {
-      return thisSupercluster
-          .childrenOf((layerCluster as MutableLayerCluster<Marker>))
-          .cast<MutableLayerPoint<Marker>>()
-          .toList();
-    } else {
-      throw 'Unexpected supercluster type: ${thisSupercluster.runtimeType}';
-    }
-  }
-
   LayerPoint<Marker>? layerPointMatching(MarkerMatcher markerMatcher) {
     final latLng = markerMatcher.point;
 
