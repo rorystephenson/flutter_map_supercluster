@@ -13,7 +13,7 @@ class TooCloseToUnclusterPage extends StatefulWidget {
   const TooCloseToUnclusterPage({Key? key}) : super(key: key);
 
   @override
-  _TooCloseToUnclusterPageState createState() =>
+  State<TooCloseToUnclusterPage> createState() =>
       _TooCloseToUnclusterPageState();
 }
 

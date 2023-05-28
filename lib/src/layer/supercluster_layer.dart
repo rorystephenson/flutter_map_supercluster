@@ -639,95 +639,94 @@ class _SuperclusterLayerState extends State<SuperclusterLayer>
   }
 
   void _onSuperclusterEvent(SuperclusterEvent event) async {
-    if (event is AddMarkerEvent) {
-      _superclusterCompleter.operation.then((supercluster) {
-        (supercluster as SuperclusterMutable<Marker>).insert(event.marker);
-        _onMarkersChange();
-      });
-    } else if (event is RemoveMarkerEvent) {
-      _superclusterCompleter.operation.then((supercluster) {
-        final removed =
-            (supercluster as SuperclusterMutable<Marker>).remove(event.marker);
-        if (removed) _onMarkersChange();
-      });
-    } else if (event is ReplaceAllMarkerEvent) {
-      _initializeClusterManager(Future.value(event.markers));
-    } else if (event is ModifyMarkerEvent) {
-      _superclusterCompleter.operation.then((supercluster) {
-        final modified =
-            (supercluster as SuperclusterMutable<Marker>).modifyPointData(
-          event.oldMarker,
-          event.newMarker,
-          updateParentClusters: event.updateParentClusters,
-        );
+    switch (event) {
+      case AddMarkerEvent():
+        _superclusterCompleter.operation.then((supercluster) {
+          (supercluster as SuperclusterMutable<Marker>).insert(event.marker);
+          _onMarkersChange();
+        });
+      case RemoveMarkerEvent():
+        _superclusterCompleter.operation.then((supercluster) {
+          final removed = (supercluster as SuperclusterMutable<Marker>)
+              .remove(event.marker);
+          if (removed) _onMarkersChange();
+        });
+      case ReplaceAllMarkerEvent():
+        _initializeClusterManager(Future.value(event.markers));
+      case ModifyMarkerEvent():
+        _superclusterCompleter.operation.then((supercluster) {
+          final modified =
+              (supercluster as SuperclusterMutable<Marker>).modifyPointData(
+            event.oldMarker,
+            event.newMarker,
+            updateParentClusters: event.updateParentClusters,
+          );
 
-        if (modified) _onMarkersChange();
-      });
-    } else if (event is CollapseSplayedClustersEvent) {
-      _expandedClusterManager.collapseThenRemoveAll();
-    } else if (event is ShowPopupsAlsoForEvent) {
-      if (widget.popupOptions == null) return;
-      widget.popupOptions?.popupController.showPopupsAlsoForSpecs(
-        PopupSpecBuilder.buildList(
+          if (modified) _onMarkersChange();
+        });
+      case CollapseSplayedClustersEvent():
+        _expandedClusterManager.collapseThenRemoveAll();
+      case ShowPopupsAlsoForEvent():
+        if (widget.popupOptions == null) return;
+        widget.popupOptions?.popupController.showPopupsAlsoForSpecs(
+          PopupSpecBuilder.buildList(
+            supercluster: await _superclusterCompleter.operation.value,
+            zoom: _mapState.zoom.ceil(),
+            maxZoom: maxZoom,
+            markers: event.markers,
+            expandedClusters: _expandedClusterManager.all,
+          ),
+          disableAnimation: event.disableAnimation,
+        );
+      case MoveToMarkerEvent():
+        _moveToMarker(
+          markerMatcher: event.markerMatcher,
+          showPopup: event.showPopup,
+          moveMap: event.moveMap,
+        );
+      case ShowPopupsOnlyForEvent():
+        if (widget.popupOptions == null) return;
+        widget.popupOptions?.popupController.showPopupsOnlyForSpecs(
+          PopupSpecBuilder.buildList(
+            supercluster: await _superclusterCompleter.operation.value,
+            zoom: _mapState.zoom.ceil(),
+            maxZoom: maxZoom,
+            markers: event.markers,
+            expandedClusters: _expandedClusterManager.all,
+          ),
+          disableAnimation: event.disableAnimation,
+        );
+      case HideAllPopupsEvent():
+        if (widget.popupOptions == null) return;
+        widget.popupOptions?.popupController.hideAllPopups(
+          disableAnimation: event.disableAnimation,
+        );
+      case HidePopupsWhereEvent():
+        if (widget.popupOptions == null) return;
+        widget.popupOptions?.popupController.hidePopupsWhere(
+          event.test,
+          disableAnimation: event.disableAnimation,
+        );
+      case HidePopupsOnlyForEvent():
+        if (widget.popupOptions == null) return;
+        widget.popupOptions?.popupController.hidePopupsOnlyFor(
+          event.markers,
+          disableAnimation: event.disableAnimation,
+        );
+      case TogglePopupEvent():
+        if (widget.popupOptions == null) return;
+        final popupSpec = PopupSpecBuilder.build(
           supercluster: await _superclusterCompleter.operation.value,
           zoom: _mapState.zoom.ceil(),
           maxZoom: maxZoom,
-          markers: event.markers,
+          marker: event.marker,
           expandedClusters: _expandedClusterManager.all,
-        ),
-        disableAnimation: event.disableAnimation,
-      );
-    } else if (event is MoveToMarkerEvent) {
-      _moveToMarker(
-        markerMatcher: event.markerMatcher,
-        showPopup: event.showPopup,
-        moveMap: event.moveMap,
-      );
-    } else if (event is ShowPopupsOnlyForEvent) {
-      if (widget.popupOptions == null) return;
-      widget.popupOptions?.popupController.showPopupsOnlyForSpecs(
-        PopupSpecBuilder.buildList(
-          supercluster: await _superclusterCompleter.operation.value,
-          zoom: _mapState.zoom.ceil(),
-          maxZoom: maxZoom,
-          markers: event.markers,
-          expandedClusters: _expandedClusterManager.all,
-        ),
-        disableAnimation: event.disableAnimation,
-      );
-    } else if (event is HideAllPopupsEvent) {
-      if (widget.popupOptions == null) return;
-      widget.popupOptions?.popupController.hideAllPopups(
-        disableAnimation: event.disableAnimation,
-      );
-    } else if (event is HidePopupsWhereEvent) {
-      if (widget.popupOptions == null) return;
-      widget.popupOptions?.popupController.hidePopupsWhere(
-        event.test,
-        disableAnimation: event.disableAnimation,
-      );
-    } else if (event is HidePopupsOnlyForEvent) {
-      if (widget.popupOptions == null) return;
-      widget.popupOptions?.popupController.hidePopupsOnlyFor(
-        event.markers,
-        disableAnimation: event.disableAnimation,
-      );
-    } else if (event is TogglePopupEvent) {
-      if (widget.popupOptions == null) return;
-      final popupSpec = PopupSpecBuilder.build(
-        supercluster: await _superclusterCompleter.operation.value,
-        zoom: _mapState.zoom.ceil(),
-        maxZoom: maxZoom,
-        marker: event.marker,
-        expandedClusters: _expandedClusterManager.all,
-      );
-      if (popupSpec == null) return;
-      widget.popupOptions?.popupController.togglePopupSpec(
-        popupSpec,
-        disableAnimation: event.disableAnimation,
-      );
-    } else {
-      throw 'Unknown $SuperclusterEvent type ${event.runtimeType}';
+        );
+        if (popupSpec == null) return;
+        widget.popupOptions?.popupController.togglePopupSpec(
+          popupSpec,
+          disableAnimation: event.disableAnimation,
+        );
     }
 
     setState(() {});

@@ -11,7 +11,7 @@ class NormalAndClusteredMarkersWithPopups extends StatefulWidget {
   const NormalAndClusteredMarkersWithPopups({Key? key}) : super(key: key);
 
   @override
-  _NormalAndClusteredMarkersWithPopupsState createState() =>
+  State<NormalAndClusteredMarkersWithPopups> createState() =>
       _NormalAndClusteredMarkersWithPopupsState();
 }
 

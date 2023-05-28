@@ -4,7 +4,7 @@ import 'package:flutter_map/plugin_api.dart';
 import 'package:flutter_map_supercluster/src/controller/marker_matcher.dart';
 import 'package:latlong2/latlong.dart';
 
-abstract class SuperclusterEvent {
+sealed class SuperclusterEvent {
   const SuperclusterEvent();
 }
 

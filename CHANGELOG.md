@@ -1,3 +1,7 @@
+## [4.1.0]
+
+Requires dart 3.
+
 ## [4.0.0+1]
 
 - Removed example dependency overrides.

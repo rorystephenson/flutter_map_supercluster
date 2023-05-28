@@ -12,7 +12,7 @@ class MutableClusteringPage extends StatefulWidget {
   const MutableClusteringPage({Key? key}) : super(key: key);
 
   @override
-  _MutableClusteringPageState createState() => _MutableClusteringPageState();
+  State<MutableClusteringPage> createState() => _MutableClusteringPageState();
 }
 
 class _MutableClusteringPageState extends State<MutableClusteringPage>
