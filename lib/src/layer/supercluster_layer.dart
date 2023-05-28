@@ -81,7 +81,7 @@ class SuperclusterLayer extends StatefulWidget {
   /// Note that if index creation happens in an isolate, code which does not
   /// work on a separate isolate (e.g. riverpod) will fail. In this case either
   /// refactor your clusterDataExtractor to stop using code which does not work
-  /// in a separate isolate or see [wrapIndexCreation] for how to prevent index
+  /// in a separate isolate or see [IndexBuilders] for how to prevent index
   /// creation from occuring in a separate isolate.
   final ClusterDataBase Function(Marker marker)? clusterDataExtractor;
 
@@ -208,9 +208,9 @@ class _SuperclusterLayerState extends State<SuperclusterLayer>
     _expandedClusterManager = ExpandedClusterManager(
       onRemoveStart: (expandedClusters) {
         // The flutter_map_marker_popup package takes care of hiding popups
-        // when zooming out but they an ExpandedCluster removal triggered by
-        // SuperclusterController.collapseSplayedClusters in which case we need
-        // to remove the popups ourselves.
+        // when zooming out but when an ExpandedCluster removal is triggered by
+        // SuperclusterController.collapseSplayedClusters we need to remove the
+        // popups ourselves.
         widget.popupOptions?.popupController.hidePopupsOnlyFor(
           expandedClusters
               .expand((expandedCluster) => expandedCluster.markers)
@@ -537,7 +537,8 @@ class _SuperclusterLayerState extends State<SuperclusterLayer>
         () => ExpandedCluster(
           vsync: this,
           mapState: _mapState,
-          layerPoints: supercluster.layerClusterChildren(layerCluster),
+          layerPoints:
+              supercluster.childrenOf(layerCluster).cast<LayerPoint<Marker>>(),
           layerCluster: layerCluster,
           clusterSplayDelegate: widget.clusterSplayDelegate,
           expansionZoom: min(maxZoom, layerCluster.highestZoom).toDouble(),
@@ -786,7 +787,8 @@ class _SuperclusterLayerState extends State<SuperclusterLayer>
     createExpandedCluster() => ExpandedCluster(
           vsync: this,
           mapState: _mapState,
-          layerPoints: supercluster.layerClusterChildren(layerCluster),
+          layerPoints:
+              supercluster.childrenOf(layerCluster).cast<LayerPoint<Marker>>(),
           layerCluster: layerCluster,
           clusterSplayDelegate: widget.clusterSplayDelegate,
           expansionZoom: min(maxZoom, layerCluster.highestZoom).toDouble(),

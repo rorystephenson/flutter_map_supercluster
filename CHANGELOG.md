@@ -1,7 +1,5 @@
 ## [4.0.0]
 
-- FEATURE: It is now possible to show popups from a Supercluster layer and
-  a normal PopupMarkerLayer above their markers. See the new example.
 - BREAKING: Animated movement is no longer implemented by this plugin.
   Animation is now supported using the onClusterTap/onMarkerTap callbacks to
   trigger animated movement. The examples have been updated to use the
