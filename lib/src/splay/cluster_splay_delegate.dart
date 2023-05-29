@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_map/plugin_api.dart';
-import 'package:flutter_map_supercluster/flutter_map_supercluster.dart';
+import 'package:flutter_map_supercluster/src/layer/supercluster_layer.dart';
+import 'package:flutter_map_supercluster/src/splay/displaced_marker.dart';
+import 'package:flutter_map_supercluster/src/splay/displaced_marker_offset.dart';
 import 'package:latlong2/latlong.dart';
+import 'package:supercluster/supercluster.dart';
 
 /// Base class for delegates which control splaying of markers when a cluster's
 /// Markers are too close to uncluster at the max zoom.

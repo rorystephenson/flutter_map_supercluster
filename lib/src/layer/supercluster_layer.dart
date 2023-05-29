@@ -71,10 +71,6 @@ class SuperclusterLayer extends StatefulWidget {
   /// The maximum radius in pixels that a cluster can cover.
   final int maxClusterRadius;
 
-  /// The maximum zoom at which clusters will be formed. Defaults to the
-  /// FlutterMapState maxZoom or, if none is set, 20.
-  final int? maxClusterZoom;
-
   /// Implement this function to extract extra data from Markers which can be
   /// used in the [builder].
   ///
@@ -134,7 +130,6 @@ class SuperclusterLayer extends StatefulWidget {
     this.onMarkerTap,
     this.minimumClusterSize,
     this.maxClusterRadius = 80,
-    this.maxClusterZoom,
     this.clusterDataExtractor,
     this.calculateAggregatedClusterData = false,
     this.clusterWidgetSize = const Size(30, 30),
@@ -160,7 +155,6 @@ class SuperclusterLayer extends StatefulWidget {
     this.onMarkerTap,
     this.minimumClusterSize,
     this.maxClusterRadius = 80,
-    this.maxClusterZoom,
     this.clusterDataExtractor,
     this.calculateAggregatedClusterData = false,
     this.clusterWidgetSize = const Size(30, 30),
@@ -230,9 +224,7 @@ class _SuperclusterLayerState extends State<SuperclusterLayer>
     final oldMinZoom = !_initialized ? null : minZoom;
     final oldMaxZoom = !_initialized ? null : maxZoom;
     minZoom = _mapState.options.minZoom?.ceil() ?? defaultMinZoom;
-    maxZoom = widget.maxClusterZoom ??
-        _mapState.options.maxZoom?.ceil() ??
-        defaultMaxZoom;
+    maxZoom = _mapState.options.maxZoom?.ceil() ?? defaultMaxZoom;
 
     bool zoomsChanged =
         _initialized && oldMinZoom != minZoom || oldMaxZoom != maxZoom;
@@ -280,7 +272,6 @@ class _SuperclusterLayerState extends State<SuperclusterLayer>
     if (oldWidget._isMutableSupercluster != widget._isMutableSupercluster ||
         oldWidget.maxClusterRadius != widget.maxClusterRadius ||
         oldWidget.minimumClusterSize != widget.minimumClusterSize ||
-        oldWidget.maxClusterZoom != widget.maxClusterZoom ||
         oldWidget.calculateAggregatedClusterData !=
             widget.calculateAggregatedClusterData) {
       debugPrint(

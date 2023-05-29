@@ -17,7 +17,7 @@ class MarkerWidget extends StatelessWidget {
   final bool removeRotateOrigin;
 
   MarkerWidget({
-    Key? key,
+    super.key,
     required FlutterMapState mapState,
     required this.marker,
     required this.markerBuilder,
@@ -25,8 +25,7 @@ class MarkerWidget extends StatelessWidget {
   })  : mapRotationRad = mapState.rotationRad,
         position = _getMapPointPixel(mapState, marker),
         rotateAlignment = marker.rotateAlignment,
-        removeRotateOrigin = false,
-        super(key: key);
+        removeRotateOrigin = false;
 
   MarkerWidget.displaced({
     Key? key,

@@ -1,10 +1,18 @@
+## [4.2.0]
+
+- BREAKING: Remove maxZoom option. It was a workaround for clusters that
+  couldn't be opened because the markers were too close to be unclustered at
+  the map's maxZoom but the implementation is actually flawed in that it will
+  only work if the maxZoom is one greater than the map's maxZoom. Otherwise the
+  behaviour would be undefined.
+
 ## [4.1.0]
 
-Requires dart 3.
+- BREAKING: Requires dart 3.
 
 ## [4.0.0+1]
 
-- Removed example dependency overrides.
+- BUGFIX: Removed example dependency overrides.
 
 ## [4.0.0]
 

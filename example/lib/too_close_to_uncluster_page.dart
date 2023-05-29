@@ -39,6 +39,8 @@ class _TooCloseToUnclusterPageState extends State<TooCloseToUnclusterPage>
 
   @override
   void initState() {
+    super.initState();
+
     _superclusterController = SuperclusterImmutableController();
     _animatedMapController = AnimatedMapController(vsync: this);
 
@@ -55,8 +57,6 @@ class _TooCloseToUnclusterPageState extends State<TooCloseToUnclusterPage>
           ),
         )
         .toList();
-
-    super.initState();
   }
 
   @override
@@ -75,18 +75,15 @@ class _TooCloseToUnclusterPageState extends State<TooCloseToUnclusterPage>
           mainAxisAlignment: MainAxisAlignment.end,
           children: [
             Builder(
-              builder: (context) {
-                final popupState = PopupState.of(context);
-                return FloatingActionButton.extended(
-                  label: const SizedBox(child: Text('Select random marker')),
-                  icon: const Icon(Icons.shuffle),
-                  onPressed: () => _superclusterController.moveToMarker(
-                    MarkerMatcher.equalsMarker(
-                      _randomNextMarker(popupState),
-                    ),
+              builder: (context) => FloatingActionButton.extended(
+                label: const SizedBox(child: Text('Select random marker')),
+                icon: const Icon(Icons.shuffle),
+                onPressed: () => _superclusterController.moveToMarker(
+                  MarkerMatcher.equalsMarker(
+                    _randomNextMarker(PopupState.of(context, listen: false)),
                   ),
-                );
-              },
+                ),
+              ),
             ),
           ],
         ),
