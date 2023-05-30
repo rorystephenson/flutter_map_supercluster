@@ -14,7 +14,6 @@ import 'package:supercluster/supercluster.dart';
 class ExpandedCluster {
   final LayerCluster<Marker> layerCluster;
   final ClusterData clusterData;
-  final double expansionZoom;
   final List<DisplacedMarker> displacedMarkers;
   final Size maxMarkerSize;
   final ClusterSplayDelegate clusterSplayDelegate;
@@ -27,7 +26,6 @@ class ExpandedCluster {
   ExpandedCluster({
     required TickerProvider vsync,
     required this.layerCluster,
-    required this.expansionZoom,
     required FlutterMapState mapState,
     required List<LayerPoint<Marker>> layerPoints,
     required this.clusterSplayDelegate,
@@ -39,8 +37,10 @@ class ExpandedCluster {
         displacedMarkers = clusterSplayDelegate.displaceMarkers(
           layerPoints.map((e) => e.originalPoint).toList(),
           clusterPosition: layerCluster.latLng,
-          project: (latLng) => mapState.project(latLng, expansionZoom),
-          unproject: (point) => mapState.unproject(point, expansionZoom),
+          project: (latLng) =>
+              mapState.project(latLng, layerCluster.highestZoom.toDouble()),
+          unproject: (point) =>
+              mapState.unproject(point, layerCluster.highestZoom.toDouble()),
         ),
         maxMarkerSize = layerPoints.fold(
           Size.zero,
@@ -62,6 +62,8 @@ class ExpandedCluster {
       curve: Interval(0.2, 1.0, curve: clusterSplayDelegate.curve),
     );
   }
+
+  int get minimumVisibleZoom => layerCluster.highestZoom;
 
   List<DisplacedMarkerOffset> displacedMarkerOffsets(
     FlutterMapState mapState,

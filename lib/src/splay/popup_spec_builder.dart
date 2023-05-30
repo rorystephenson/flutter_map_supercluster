@@ -71,7 +71,7 @@ class PopupSpecBuilder {
       if (matchingDisplacedMarker != null) {
         return forDisplacedMarker(
           matchingDisplacedMarker,
-          expandedCluster.layerCluster.lowestZoom,
+          expandedCluster.layerCluster.highestZoom,
         );
       }
     }

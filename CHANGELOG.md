@@ -1,3 +1,9 @@
+## [4.2.1]
+
+- BUGFIX: Correct the splay cluster's target zoom level which determines how
+  far markers are spread and when their popups are hidden.
+- CHORE: Remove unused code.
+
 ## [4.2.0]
 
 - BREAKING: Remove maxZoom option. It was a workaround for clusters that

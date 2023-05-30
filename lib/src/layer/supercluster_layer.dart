@@ -532,14 +532,13 @@ class _SuperclusterLayerState extends State<SuperclusterLayer>
               supercluster.childrenOf(layerCluster).cast<LayerPoint<Marker>>(),
           layerCluster: layerCluster,
           clusterSplayDelegate: widget.clusterSplayDelegate,
-          expansionZoom: min(maxZoom, layerCluster.highestZoom).toDouble(),
         ),
       );
       if (splayAnimation != null) setState(() {});
     } else {
       await _moveMapIfNotAt(
         layerCluster.latLng,
-        layerCluster.highestZoom + 0.000001,
+        layerCluster.highestZoom + 0.5,
       );
     }
   }
@@ -561,7 +560,7 @@ class _SuperclusterLayerState extends State<SuperclusterLayer>
               source: MapEventSource.custom,
             );
 
-    moveMap.call(center, zoom);
+    return moveMap.call(center, zoom);
   }
 
   void _onMarkerTap(PopupSpec popupSpec) {
@@ -626,6 +625,106 @@ class _SuperclusterLayerState extends State<SuperclusterLayer>
     }
     if (newController != null) {
       newController.setSupercluster(_superclusterCompleter.operation.value);
+    }
+  }
+
+  void _moveToMarker({
+    required MarkerMatcher markerMatcher,
+    required bool showPopup,
+    required FutureOr<void> Function(LatLng center, double zoom)? moveMap,
+  }) async {
+    // Create a shorthand for the map movement function.
+    move(center, zoom) =>
+        _moveMapIfNotAt(center, zoom, moveMapOverride: moveMap);
+
+    /// Find the Marker's LayerPoint.
+    final supercluster = await _superclusterCompleter.operation.value;
+    LayerPoint<Marker>? foundLayerPoint =
+        supercluster.layerPointMatching(markerMatcher);
+    if (foundLayerPoint == null) return;
+
+    final markerInSplayCluster = maxZoom < foundLayerPoint.lowestZoom;
+    if (markerInSplayCluster) {
+      await _moveToSplayClusterMarker(
+        supercluster: supercluster,
+        layerPoint: foundLayerPoint,
+        move: move,
+        showPopup: showPopup,
+      );
+    } else {
+      await move(
+        foundLayerPoint.latLng,
+        max(foundLayerPoint.lowestZoom.toDouble(), _mapState.zoom),
+      );
+      if (showPopup) {
+        _selectMarker(PopupSpecBuilder.forLayerPoint(foundLayerPoint));
+      }
+    }
+  }
+
+  /// Move to Marker inside splay cluster. There are three possibilities:
+  ///  1. There is already an ExpandedCluster containing the Marker and it
+  ///     remains expanded during movement.
+  ///  2. There is already an ExpandedCluster and it closes during movement so
+  ///     we must create a new one once movement finishes.
+  ///  3. There is NOT already an ExpandedCluster, we should create one and add
+  ///     it once movement finishes.
+  Future<void> _moveToSplayClusterMarker({
+    required Supercluster<Marker> supercluster,
+    required LayerPoint<Marker> layerPoint,
+    required FutureOr<void> Function(LatLng center, double zoom) move,
+    required bool showPopup,
+  }) async {
+    // Find the parent.
+    final layerCluster = supercluster.parentOf(layerPoint)!;
+
+    // Shorthand for creating an ExpandedCluster.
+    createExpandedCluster() => ExpandedCluster(
+          vsync: this,
+          mapState: _mapState,
+          layerPoints:
+              supercluster.childrenOf(layerCluster).cast<LayerPoint<Marker>>(),
+          layerCluster: layerCluster,
+          clusterSplayDelegate: widget.clusterSplayDelegate,
+        );
+
+    // Find or create the marker's ExpandedCluster and use it to find the
+    // DisplacedMarker.
+    final expandedClusterBeforeMovement =
+        _expandedClusterManager.forLayerCluster(layerCluster);
+    final createdExpandedCluster =
+        expandedClusterBeforeMovement != null ? null : createExpandedCluster();
+    final displacedMarker =
+        (expandedClusterBeforeMovement ?? createdExpandedCluster)!
+            .markersToDisplacedMarkers[layerPoint.originalPoint]!;
+
+    // Move to the DisplacedMarker.
+    await move(
+      displacedMarker.displacedPoint,
+      max(_mapState.zoom, layerPoint.lowestZoom - 0.99999),
+    );
+
+    // Determine the ExpandedCluster after movement, either:
+    //   1. We created one (without adding it to ExpandedClusterManager)
+    //      because there was none before movement.
+    //   2. Movement may have caused the ExpandedCluster to be removed in which
+    //      case we create a new one.
+    final splayAnimation = _expandedClusterManager.putIfAbsent(
+      layerCluster,
+      () => createdExpandedCluster ?? createExpandedCluster(),
+    );
+    if (splayAnimation != null) {
+      if (!mounted) return;
+      setState(() {});
+      await splayAnimation;
+    }
+
+    if (showPopup) {
+      final popupSpec = PopupSpecBuilder.forDisplacedMarker(
+        displacedMarker,
+        layerCluster.highestZoom,
+      );
+      _selectMarker(popupSpec);
     }
   }
 
@@ -721,106 +820,5 @@ class _SuperclusterLayerState extends State<SuperclusterLayer>
     }
 
     setState(() {});
-  }
-
-  void _moveToMarker({
-    required MarkerMatcher markerMatcher,
-    required bool showPopup,
-    required FutureOr<void> Function(LatLng center, double zoom)? moveMap,
-  }) async {
-    // Create a shorthand for the map movement function.
-    move(center, zoom) =>
-        _moveMapIfNotAt(center, zoom, moveMapOverride: moveMap);
-
-    /// Find the Marker's LayerPoint.
-    final supercluster = await _superclusterCompleter.operation.value;
-    LayerPoint<Marker>? foundLayerPoint =
-        supercluster.layerPointMatching(markerMatcher);
-    if (foundLayerPoint == null) return;
-
-    final markerInSplayCluster = maxZoom < foundLayerPoint.lowestZoom;
-    if (markerInSplayCluster) {
-      await _moveToSplayClusterMarker(
-        supercluster: supercluster,
-        layerPoint: foundLayerPoint,
-        move: move,
-        showPopup: showPopup,
-      );
-    } else {
-      await move(
-        foundLayerPoint.latLng,
-        max(foundLayerPoint.lowestZoom.toDouble(), _mapState.zoom),
-      );
-      if (showPopup) {
-        _selectMarker(PopupSpecBuilder.forLayerPoint(foundLayerPoint));
-      }
-    }
-  }
-
-  /// Move to Marker inside splay cluster. There are three possibilities:
-  ///  1. There is already an ExpandedCluster containing the Marker and it
-  ///     remains expanded during movement.
-  ///  2. There is already an ExpandedCluster and it closes during movement so
-  ///     we must create a new one once movement finishes.
-  ///  3. There is NOT already an ExpandedCluster, we should create one and add
-  ///     it once movement finishes.
-  Future<void> _moveToSplayClusterMarker({
-    required Supercluster<Marker> supercluster,
-    required LayerPoint<Marker> layerPoint,
-    required FutureOr<void> Function(LatLng center, double zoom) move,
-    required bool showPopup,
-  }) async {
-    // Find the parent.
-    final layerCluster = supercluster.parentOf(layerPoint)!;
-
-    // Shorthand for creating an ExpandedCluster.
-    createExpandedCluster() => ExpandedCluster(
-          vsync: this,
-          mapState: _mapState,
-          layerPoints:
-              supercluster.childrenOf(layerCluster).cast<LayerPoint<Marker>>(),
-          layerCluster: layerCluster,
-          clusterSplayDelegate: widget.clusterSplayDelegate,
-          expansionZoom: min(maxZoom, layerCluster.highestZoom).toDouble(),
-        );
-
-    // Find or create the marker's ExpandedCluster and use it to find the
-    // DisplacedMarker.
-    final expandedClusterBeforeMovement =
-        _expandedClusterManager.forLayerCluster(layerCluster);
-    final createdExpandedCluster =
-        expandedClusterBeforeMovement != null ? null : createExpandedCluster();
-    final displacedMarker =
-        (expandedClusterBeforeMovement ?? createdExpandedCluster)!
-            .markersToDisplacedMarkers[layerPoint.originalPoint]!;
-
-    // Move to the DisplacedMarker.
-    await move(
-      displacedMarker.displacedPoint,
-      max(_mapState.zoom, layerPoint.lowestZoom - 0.99999),
-    );
-
-    // Determine the ExpandedCluster after movement, either:
-    //   1. We created one (without adding it to ExpandedClusterManager)
-    //      because there was none before movement.
-    //   2. Movement may have caused the ExpandedCluster to be removed in which
-    //      case we create a new one.
-    final splayAnimation = _expandedClusterManager.putIfAbsent(
-      layerCluster,
-      () => createdExpandedCluster ?? createExpandedCluster(),
-    );
-    if (splayAnimation != null) {
-      if (!mounted) return;
-      setState(() {});
-      await splayAnimation;
-    }
-
-    if (showPopup) {
-      final popupSpec = PopupSpecBuilder.forDisplacedMarker(
-        displacedMarker,
-        layerCluster.lowestZoom,
-      );
-      _selectMarker(popupSpec);
-    }
   }
 }

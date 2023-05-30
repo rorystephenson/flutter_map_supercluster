@@ -70,7 +70,7 @@ class ExpandableClusterWidget extends StatelessWidget {
                   onTap: () => onMarkerTap(
                     PopupSpecBuilder.forDisplacedMarker(
                       offset.displacedMarker,
-                      expandedCluster.layerCluster.lowestZoom,
+                      expandedCluster.minimumVisibleZoom,
                     ),
                   ),
                   mapRotationRad: mapState.rotationRad,
