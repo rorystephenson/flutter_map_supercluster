@@ -4,6 +4,10 @@ import 'package:latlong2/latlong.dart';
 
 class DisplacedMarker {
   static final anchorPos = AnchorPos.align(AnchorAlign.center);
+<<<<<<< HEAD
+=======
+
+>>>>>>> 9275ff8 (v5 WIP)
   final Marker marker;
   final LatLng displacedPoint;
 
