@@ -1,3 +1,12 @@
+## [5.0.0]
+- FEATURE: Added addAll() and removeAll() to SuperclusterMutableController for
+  efficiently adding/removing multiple markers at once.
+- FEATURE: SuperclusterMutableController's add/remove methods now fully
+  recluster markers affected by an addition/removal.
+- FEATURE: supercluster v3.
+- FEATURE: flutter_map_marker_popup v5.2.0
+- FEATURE: flutter_map v6.
+
 ## [4.3.0]
 
 - FEATURE: flutter_map 5.0.0

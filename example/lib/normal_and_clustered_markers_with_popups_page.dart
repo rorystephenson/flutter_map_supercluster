@@ -20,9 +20,9 @@ class _NormalAndClusteredMarkersWithPopupsState
   late final SuperclusterImmutableController _superclusterController;
   late final PopupController _popupController;
 
-  static final points = [
-    const LatLng(51.5, 0),
-    const LatLng(51.0, 0.5),
+  static const points = [
+    LatLng(51.5, 0),
+    LatLng(51.0, 0.5),
   ];
   late List<Marker> markersA;
   late List<Marker> markersB;

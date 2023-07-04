@@ -74,91 +74,83 @@ class _ClusteringManyMarkersPageState extends State<ClusteringManyMarkersPage>
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Clustering Many Markers Page'),
-        actions: [
-          StreamBuilder<SuperclusterState>(
-              stream: _superclusterController.stateStream,
-              builder: (context, snapshot) {
-                final data = snapshot.data;
-                final String markerCountLabel;
-                if (data == null ||
-                    data.loading ||
-                    data.aggregatedClusterData == null) {
-                  markerCountLabel = '...';
-                } else {
-                  markerCountLabel =
-                      data.aggregatedClusterData!.markerCount.toString();
-                }
+    return SuperclusterScope(
+      child: Scaffold(
+        appBar: AppBar(
+          title: const Text('Clustering Many Markers Page'),
+          actions: [
+            Builder(builder: (context) {
+              final data = SuperclusterState.of(context);
+              final String markerCountLabel;
+              if (data.loading || data.aggregatedClusterData == null) {
+                markerCountLabel = '...';
+              } else {
+                markerCountLabel =
+                    data.aggregatedClusterData!.markerCount.toString();
+              }
 
-                return Center(
-                  child: Padding(
-                    padding: const EdgeInsets.only(right: 20),
-                    child: Text('Total markers: $markerCountLabel'),
-                  ),
-                );
-              }),
-        ],
-      ),
-      drawer: buildDrawer(context, ClusteringManyMarkersPage.route),
-      body: FlutterMap(
-        mapController: _animatedMapController.mapController,
-        options: MapOptions(
-          center: LatLng((maxLatLng.latitude + minLatLng.latitude) / 2,
-              (maxLatLng.longitude + minLatLng.longitude) / 2),
-          zoom: 6,
-          maxZoom: 15,
-        ),
-        nonRotatedChildren: [
-          Builder(
-            builder: (context) =>
-                Text(FlutterMapState.maybeOf(context)!.zoom.toString()),
-          )
-        ],
-        children: <Widget>[
-          TileLayer(
-            urlTemplate: 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
-            subdomains: const ['a', 'b', 'c'],
-          ),
-          SuperclusterLayer.immutable(
-            initialMarkers: markers,
-            indexBuilder: IndexBuilders.computeWithOriginalMarkers,
-            controller: _superclusterController,
-            moveMap: (center, zoom) => _animatedMapController.animateTo(
-              dest: center,
-              zoom: zoom,
-            ),
-            calculateAggregatedClusterData: true,
-            clusterWidgetSize: const Size(40, 40),
-            anchor: AnchorPos.align(AnchorAlign.center),
-            popupOptions: PopupOptions(
-              selectedMarkerBuilder: (context, marker) => const Icon(
-                Icons.pin_drop,
-                color: Colors.red,
-              ),
-              popupDisplayOptions: PopupDisplayOptions(
-                builder: (BuildContext context, Marker marker) => Container(
-                  color: Colors.white,
-                  child: Text(marker.point.toString()),
-                ),
-              ),
-            ),
-            builder: (context, position, markerCount, extraClusterData) {
-              return Container(
-                decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(20.0),
-                    color: Colors.blue),
-                child: Center(
-                  child: Text(
-                    markerCount.toString(),
-                    style: const TextStyle(color: Colors.white),
-                  ),
+              return Center(
+                child: Padding(
+                  padding: const EdgeInsets.only(right: 20),
+                  child: Text('Total:\n$markerCountLabel'),
                 ),
               );
-            },
+            }),
+          ],
+        ),
+        drawer: buildDrawer(context, ClusteringManyMarkersPage.route),
+        body: FlutterMap(
+          mapController: _animatedMapController.mapController,
+          options: MapOptions(
+            center: LatLng((maxLatLng.latitude + minLatLng.latitude) / 2,
+                (maxLatLng.longitude + minLatLng.longitude) / 2),
+            zoom: 6,
+            maxZoom: 15,
           ),
-        ],
+          children: <Widget>[
+            TileLayer(
+              urlTemplate: 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
+              subdomains: const ['a', 'b', 'c'],
+            ),
+            SuperclusterLayer.immutable(
+              initialMarkers: markers,
+              indexBuilder: IndexBuilders.computeWithOriginalMarkers,
+              controller: _superclusterController,
+              moveMap: (center, zoom) => _animatedMapController.animateTo(
+                dest: center,
+                zoom: zoom,
+              ),
+              calculateAggregatedClusterData: true,
+              clusterWidgetSize: const Size(40, 40),
+              anchor: AnchorPos.align(AnchorAlign.center),
+              popupOptions: PopupOptions(
+                selectedMarkerBuilder: (context, marker) => const Icon(
+                  Icons.pin_drop,
+                  color: Colors.red,
+                ),
+                popupDisplayOptions: PopupDisplayOptions(
+                  builder: (BuildContext context, Marker marker) => Container(
+                    color: Colors.white,
+                    child: Text(marker.point.toString()),
+                  ),
+                ),
+              ),
+              builder: (context, position, markerCount, extraClusterData) {
+                return Container(
+                  decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(20.0),
+                      color: Colors.blue),
+                  child: Center(
+                    child: Text(
+                      markerCount.toString(),
+                      style: const TextStyle(color: Colors.white),
+                    ),
+                  ),
+                );
+              },
+            ),
+          ],
+        ),
       ),
     );
   }

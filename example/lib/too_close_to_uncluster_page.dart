@@ -93,7 +93,7 @@ class _TooCloseToUnclusterPageState extends State<TooCloseToUnclusterPage>
           options: MapOptions(
             center: const LatLng(51.4931, -0.1003),
             zoom: 10,
-            maxZoom: 15,
+            maxZoom: 16,
             onTap: (_, __) {
               _superclusterController.collapseSplayedClusters();
             },
@@ -105,6 +105,7 @@ class _TooCloseToUnclusterPageState extends State<TooCloseToUnclusterPage>
             ),
             SuperclusterLayer.immutable(
               initialMarkers: markers,
+              maxClusterZoom: 16,
               indexBuilder: IndexBuilders.rootIsolate,
               controller: _superclusterController,
               moveMap: (center, zoom) => _animatedMapController.animateTo(
