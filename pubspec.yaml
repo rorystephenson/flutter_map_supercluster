@@ -17,7 +17,11 @@ dependencies:
   flutter_map_marker_popup: ^5.2.0
   latlong2: ^0.9.0
   provider: ^6.0.5
+<<<<<<< HEAD
   supercluster: ^3.0.0
+=======
+  supercluster: ^3.0.0-dev.2
+>>>>>>> 3bb4564 (Use supercluster 3.0.0-dev.2, fix example to show zero instead of ellipsis when there are no elements)
 
 dev_dependencies:
   flutter_lints: ^2.0.2
@@ -33,6 +37,4 @@ dependency_overrides:
     git:
       url: https://github.com/rorystephenson/flutter_map_marker_popup
       ref: flutter_map_v6
-  supercluster:
-    path: ../supercluster_dart
 

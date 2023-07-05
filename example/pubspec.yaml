@@ -44,5 +44,3 @@ dependency_overrides:
     git:
       url: https://github.com/rorystephenson/flutter_map_animations
       ref: flutter-map-v6
-  supercluster:
-    path: ../../supercluster_dart
