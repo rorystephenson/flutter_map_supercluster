@@ -16,7 +16,11 @@ class PopupSpecBuilder {
         markerPointOverride: displacedMarker.displacedPoint,
         markerRotateAlignmentOveride: DisplacedMarker.rotateAlignment,
         removeMarkerRotateOrigin: true,
-        markerAnchorPosOverride: DisplacedMarker.anchorPos,
+        markerAnchorOverride: Anchor.fromPos(
+          DisplacedMarker.anchorPos,
+          displacedMarker.marker.width,
+          displacedMarker.marker.height,
+        ),
         removeIfZoomLessThan: lowestZoom,
       );
 

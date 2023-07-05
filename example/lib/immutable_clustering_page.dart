@@ -102,9 +102,9 @@ class _ClusteringManyMarkersPageState extends State<ClusteringManyMarkersPage>
         body: FlutterMap(
           mapController: _animatedMapController.mapController,
           options: MapOptions(
-            center: LatLng((maxLatLng.latitude + minLatLng.latitude) / 2,
+            initialCenter: LatLng((maxLatLng.latitude + minLatLng.latitude) / 2,
                 (maxLatLng.longitude + minLatLng.longitude) / 2),
-            zoom: 6,
+            initialZoom: 6,
             maxZoom: 15,
           ),
           children: <Widget>[

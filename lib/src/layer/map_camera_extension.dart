@@ -3,7 +3,7 @@ import 'dart:ui';
 import 'package:flutter_map/plugin_api.dart';
 import 'package:latlong2/latlong.dart';
 
-extension FlutterMapStateExtension on FlutterMapState {
+extension MapCameraExtension on MapCamera {
   CustomPoint<num> getPixelOffset(LatLng point) => project(point) - pixelOrigin;
 
   LatLngBounds paddedMapBounds(Size clusterWidgetSize) {

@@ -34,7 +34,7 @@ class IndexBuilders {
 
   /// Creates the supercluster in the root isolate. This is the best choice if
   /// you don't experience jank when creating the index.
-  static IndexBuilder rootIsolate =
+  static final IndexBuilder rootIsolate =
       ((createSupercluster, superclusterParameters) async =>
           createSupercluster(superclusterParameters));
 
@@ -45,7 +45,7 @@ class IndexBuilders {
   /// down index creation for large numbers of Markers. This is unnecessary if
   /// you extend Marker and override its hashCode/== methods, in which case you
   /// should use [computeWithCopiedMarkers].
-  static IndexBuilder computeWithOriginalMarkers = ((createSupercluster,
+  static final IndexBuilder computeWithOriginalMarkers = ((createSupercluster,
           superclusterParameters) async =>
       compute(createSupercluster, superclusterParameters).then((supercluster) =>
           supercluster..replacePoints(superclusterParameters.markers)));
@@ -60,7 +60,7 @@ class IndexBuilders {
   ///
   /// Failure to override hashCode/== will prevent popups from working properly
   /// for splayed clusters and may cause other issues.
-  static IndexBuilder computeWithCopiedMarkers =
+  static final IndexBuilder computeWithCopiedMarkers =
       ((createSupercluster, superclusterParameters) async =>
           compute(createSupercluster, superclusterParameters));
 

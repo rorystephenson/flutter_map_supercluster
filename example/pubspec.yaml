@@ -30,3 +30,19 @@ flutter:
     - family: AccurateMapIcon
       fonts:
         - asset: fonts/AccurateMapIcon.ttf
+
+dependency_overrides:
+  flutter_map:
+    git:
+      url: https://github.com/rorystephenson/flutter_map
+      ref: flutter-map-state-refactor
+  flutter_map_marker_popup:
+    git:
+      url: https://github.com/rorystephenson/flutter_map_marker_popup
+      ref: flutter_map_v6
+  flutter_map_animations:
+    git:
+      url: https://github.com/rorystephenson/flutter_map_animations
+      ref: flutter-map-v6
+  supercluster:
+    path: ../../supercluster_dart

@@ -71,8 +71,8 @@ class _NormalAndClusteredMarkersWithPopupsState
         ),
         child: FlutterMap(
           options: MapOptions(
-            center: points[0],
-            zoom: 5,
+            initialCenter: points[0],
+            initialZoom: 5,
             maxZoom: 15,
             onTap: (_, __) {
               _popupController.hideAllPopups();

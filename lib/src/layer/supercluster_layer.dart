@@ -37,7 +37,10 @@ class SuperclusterLayer extends StatelessWidget {
 
   /// Builder used to create the supercluster index. See [IndexBuilders] for
   /// predefined builders and guidelines on which one to use.
-  final IndexBuilder indexBuilder;
+  ///
+  /// Defaults to IndexBuilder.rootIsolate which may be slow for large amounts
+  /// of markers.
+  final IndexBuilder? indexBuilder;
 
   /// The maximum zoom at which clusters will be formed, at higher zooms all
   // points will be visible. Defaults to the FlutterMap maxZoom or, if it is
@@ -135,7 +138,7 @@ class SuperclusterLayer extends StatelessWidget {
     Key? key,
     SuperclusterMutableController? this.controller,
     required this.builder,
-    required this.indexBuilder,
+    this.indexBuilder,
     this.initialMarkers = const [],
     this.moveMap,
     this.onMarkerTap,
@@ -160,12 +163,13 @@ class SuperclusterLayer extends StatelessWidget {
   Widget build(BuildContext context) => InheritOrCreateSuperclusterScope(
         child: SuperclusterLayerImpl(
           isMutableSupercluster: isMutableSupercluster,
-          mapState: FlutterMapState.of(context),
+          mapCamera: MapCamera.of(context),
+          mapController: MapController.of(context),
           controller: controller == null
               ? null
               : controller as SuperclusterControllerImpl,
           builder: builder,
-          indexBuilder: indexBuilder,
+          indexBuilder: indexBuilder ?? IndexBuilders.rootIsolate,
           initialMarkers: initialMarkers,
           moveMap: moveMap,
           onMarkerTap: onMarkerTap,
@@ -177,7 +181,7 @@ class SuperclusterLayer extends StatelessWidget {
           clusterWidgetSize: clusterWidgetSize,
           loadingOverlayBuilder: loadingOverlayBuilder,
           popupOptions: popupOptions,
-          anchor: anchor,
+          anchorPos: anchor,
           clusterSplayDelegate: clusterSplayDelegate,
         ),
       );

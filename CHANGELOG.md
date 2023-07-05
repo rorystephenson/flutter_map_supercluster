@@ -1,11 +1,32 @@
 ## [5.0.0]
+- FEATURE: Add maxClusterZoom option to prevent clusters from being formed
+  above a certain zoom.
+- FEATURE: Added SuperclusterScope and SuperclusterState.of(context) methods.
+  This allows accessing of the supercluster layer state from children of the
+  relevant SuperclusterScope. For example if you wrap your Scaffold in
+  SuperclusterScope() and the scaffold contains a FlutterMap with a
+  SuperclusterLayer you will be able to access the state of the layer from
+  children of Scaffold.
 - FEATURE: Added addAll() and removeAll() to SuperclusterMutableController for
   efficiently adding/removing multiple markers at once.
 - FEATURE: SuperclusterMutableController's add/remove methods now fully
   recluster markers affected by an addition/removal.
-- FEATURE: supercluster v3.
-- FEATURE: flutter_map_marker_popup v5.2.0
+- FEATURE: The indexBuilder option now defaults to building in the root index.
+- FEATURE: Popups will now be hidden automatically when removing their Marker.
+- FEATURE: Splayed clusters will now be collapsed automatically when removing
+  one of their points or inserting a point which causes the splay cluster to
+  change.
 - FEATURE: flutter_map v6.
+- FEATURE: flutter_map_marker_popup v5.2.0
+- FEATURE: supercluster v3.0.0.
+
+Note that this version included major changes internally. I was close to
+completing this verison before I noticed some issues with how FlutterMap works
+which required a huge refactor of FlutterMap. That PR has taken quite some time 
+which put this version on hold. As a result I have come back to some incomplete
+changes and there may be breaking changes or deprecations missing in the
+CHANGELOG despite my best efforts to list them all. If you notice something
+don't hesitate to open an issue.
 
 ## [4.3.0]
 
