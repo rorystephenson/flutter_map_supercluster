@@ -39,15 +39,15 @@ class SuperclusterConfigImpl extends Equatable implements SuperclusterConfig {
   final int? _mapStateMaxZoom;
 
   SuperclusterConfigImpl({
-    required FlutterMapState mapState,
+    required MapCamera mapCamera,
     required this.isMutableSupercluster,
     required int? maxClusterZoom,
     required this.maxClusterRadius,
     required this.innerClusterDataExtractor,
     required this.minimumClusterSize,
   })  : _maxClusterZoom = maxClusterZoom,
-        _mapStateMinZoom = _mapStateMinZoomFrom(mapState),
-        _mapStateMaxZoom = _mapStateMaxZoomFrom(mapState);
+        _mapStateMinZoom = _mapStateMinZoomFrom(mapCamera),
+        _mapStateMaxZoom = _mapStateMaxZoomFrom(mapCamera);
 
   @override
   int get minZoom => _mapStateMinZoom ?? SuperclusterConfig.defaultMinZoom;
@@ -55,15 +55,15 @@ class SuperclusterConfigImpl extends Equatable implements SuperclusterConfig {
   int get maxZoom =>
       _maxClusterZoom ?? _mapStateMaxZoom ?? SuperclusterConfig.defaultMaxZoom;
 
-  bool mapStateZoomLimitsHaveChanged(FlutterMapState mapState) =>
-      _mapStateMaxZoom != _mapStateMaxZoomFrom(mapState) ||
-      _mapStateMinZoom != _mapStateMinZoomFrom(mapState);
+  bool mapStateZoomLimitsHaveChanged(MapCamera mapCamera) =>
+      _mapStateMaxZoom != _mapStateMaxZoomFrom(mapCamera) ||
+      _mapStateMinZoom != _mapStateMinZoomFrom(mapCamera);
 
-  static int? _mapStateMinZoomFrom(FlutterMapState mapState) =>
-      mapState.options.minZoom?.ceil();
+  static int? _mapStateMinZoomFrom(MapCamera mapCamera) =>
+      mapCamera.minZoom?.ceil();
 
-  static int? _mapStateMaxZoomFrom(FlutterMapState mapState) =>
-      mapState.options.maxZoom?.ceil();
+  static int? _mapStateMaxZoomFrom(MapCamera mapCamera) =>
+      mapCamera.maxZoom?.ceil();
 
   @override
   List<Object?> get props => [

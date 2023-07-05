@@ -64,26 +64,42 @@ class _MutableClusteringPageState extends State<MutableClusteringPage>
                 return Center(
                   child: Padding(
                     padding: const EdgeInsets.only(right: 20),
-                    child: Text('Total markers: $markerCountLabel'),
+                    child: Text('Total:\n$markerCountLabel'),
                   ),
                 );
               }),
         ],
       ),
       drawer: buildDrawer(context, MutableClusteringPage.route),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () {
-          setState(() {
-            _superclusterController.replaceAll(_initialMarkers);
-          });
-        },
-        child: const Icon(Icons.refresh),
+      floatingActionButton: Column(
+        mainAxisAlignment: MainAxisAlignment.end,
+        children: [
+          FloatingActionButton(
+            heroTag: 'clear',
+            onPressed: () {
+              setState(() {
+                _superclusterController.clear();
+              });
+            },
+            child: const Icon(Icons.clear_all),
+          ),
+          const SizedBox(height: 12),
+          FloatingActionButton(
+            heroTag: 'reset',
+            onPressed: () {
+              setState(() {
+                _superclusterController.replaceAll(_initialMarkers);
+              });
+            },
+            child: const Icon(Icons.refresh),
+          ),
+        ],
       ),
       body: FlutterMap(
         mapController: _animatedMapController.mapController,
         options: MapOptions(
-          center: _initialMarkers[0].point,
-          zoom: 5,
+          initialCenter: _initialMarkers[0].point,
+          initialZoom: 5,
           maxZoom: 15,
           onTap: (_, latLng) {
             debugPrint(latLng.toString());
@@ -98,14 +114,48 @@ class _MutableClusteringPageState extends State<MutableClusteringPage>
           SuperclusterLayer.mutable(
             initialMarkers: _initialMarkers,
             indexBuilder: IndexBuilders.rootIsolate,
+            loadingOverlayBuilder: (_) => const SizedBox.shrink(),
             controller: _superclusterController,
             moveMap: (center, zoom) => _animatedMapController.animateTo(
               dest: center,
               zoom: zoom,
             ),
-            onMarkerTap: (marker) {
-              _superclusterController.remove(marker);
-            },
+            popupOptions: PopupOptions(
+              popupDisplayOptions: PopupDisplayOptions(
+                builder: (context, marker) => GestureDetector(
+                  onTap: () => _superclusterController.remove(marker),
+                  child: Card(
+                    child: SizedBox(
+                      width: 250,
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(
+                          vertical: 12,
+                          horizontal: 8,
+                        ),
+                        child: Row(
+                          children: [
+                            Padding(
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 12,
+                                ),
+                                child: Icon(
+                                  Icons.delete,
+                                  color: Colors.grey.shade600,
+                                )),
+                            const Expanded(
+                              child: Text(
+                                'Tap this popup to remove the marker. Tap the marker again to close this popup.',
+                                softWrap: true,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+            ),
             clusterWidgetSize: const Size(40, 40),
             anchor: AnchorPos.align(AnchorAlign.center),
             calculateAggregatedClusterData: true,

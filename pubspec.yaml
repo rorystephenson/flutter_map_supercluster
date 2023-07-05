@@ -23,3 +23,16 @@ dev_dependencies:
   flutter_lints: ^2.0.2
   flutter_test:
     sdk: flutter
+
+dependency_overrides:
+  flutter_map:
+    git:
+      url: https://github.com/rorystephenson/flutter_map
+      ref: flutter-map-state-refactor
+  flutter_map_marker_popup:
+    git:
+      url: https://github.com/rorystephenson/flutter_map_marker_popup
+      ref: flutter_map_v6
+  supercluster:
+    path: ../supercluster_dart
+

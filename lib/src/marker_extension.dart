@@ -1,8 +1,10 @@
 import 'package:flutter_map/plugin_api.dart';
 
 extension MarkerExtension on Marker {
-  Anchor get anchor => Anchor.fromPos(
-        anchorPos ?? AnchorPos.align(AnchorAlign.center),
+  Anchor get anchorWithDefault =>
+      anchor ??
+      Anchor.fromPos(
+        AnchorPos.defaultAnchorPos,
         width,
         height,
       );
