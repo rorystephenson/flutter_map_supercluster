@@ -9,18 +9,10 @@ import 'supercluster_controller.dart';
 
 class SuperclusterControllerImpl
     implements SuperclusterImmutableController, SuperclusterMutableController {
-  final bool createdInternally;
   final StreamController<SuperclusterEvent> _superclusterEventController;
 
-<<<<<<< HEAD
-  SuperclusterControllerImpl({required this.createdInternally})
-      : _superclusterEventController = StreamController.broadcast(),
-        _stateStreamController =
-            StreamController<SuperclusterState>.broadcast();
-=======
   SuperclusterControllerImpl()
       : _superclusterEventController = StreamController.broadcast();
->>>>>>> 9275ff8 (v5 WIP)
 
   Stream<SuperclusterEvent> get stream => _superclusterEventController.stream;
 

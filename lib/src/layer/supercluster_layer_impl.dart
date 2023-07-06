@@ -463,8 +463,6 @@ class _SuperclusterLayerImplState extends State<SuperclusterLayerImpl>
   }
 
   void _onMarkersChange() {
-    if (widget.controller == null) return;
-
     _superclusterCompleter.operation.value.then((supercluster) {
       final aggregatedClusterData = widget.calculateAggregatedClusterData
           ? supercluster.aggregatedClusterData()

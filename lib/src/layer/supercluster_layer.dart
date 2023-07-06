@@ -99,8 +99,8 @@ class SuperclusterLayer extends StatelessWidget {
 
   /// If true then whenever the aggregated cluster data changes (that is, the
   /// combined cluster data of all Markers as calculated by
-  /// [clusterDataExtractor]) then the new value will be added to the
-  /// [controller]'s [aggregatedClusterDataStream].
+  /// [clusterDataExtractor]) dependents of SuperclusterState will be notified
+  /// with the updated value.
   final bool calculateAggregatedClusterData;
 
   /// Splaying occurs when it is not possible to open a cluster because its

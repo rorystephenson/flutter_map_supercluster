@@ -50,7 +50,7 @@ class _ClusteringManyMarkersPageState extends State<ClusteringManyMarkersPage>
 
         markers.add(
           Marker(
-            anchorPos: AnchorPos.align(AnchorAlign.top),
+            anchorPos: const AnchorPos.align(AnchorAlign.top),
             rotateAlignment: AnchorAlign.top.rotationAlignment,
             height: 30,
             width: 30,
@@ -122,7 +122,7 @@ class _ClusteringManyMarkersPageState extends State<ClusteringManyMarkersPage>
               ),
               calculateAggregatedClusterData: true,
               clusterWidgetSize: const Size(40, 40),
-              anchor: AnchorPos.align(AnchorAlign.center),
+              anchor: const AnchorPos.align(AnchorAlign.center),
               popupOptions: PopupOptions(
                 selectedMarkerBuilder: (context, marker) => const Icon(
                   Icons.pin_drop,

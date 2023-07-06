@@ -22,18 +22,18 @@ class _TooCloseToUnclusterPageState extends State<TooCloseToUnclusterPage>
   late final SuperclusterImmutableController _superclusterController;
   late final AnimatedMapController _animatedMapController;
 
-  static final points = [
-    const LatLng(51.4001, -0.08001),
-    const LatLng(51.4003, -0.08003),
-    const LatLng(51.4005, -0.08005),
-    const LatLng(51.4006, -0.08006),
-    const LatLng(51.4009, -0.08009),
-    const LatLng(51.5, -0.09),
-    const LatLng(51.5, -0.09),
-    const LatLng(51.5, -0.09),
-    const LatLng(51.5, -0.09),
-    const LatLng(51.5, -0.09),
-    const LatLng(51.59, -0.099),
+  static const points = [
+    LatLng(51.4001, -0.08001),
+    LatLng(51.4003, -0.08003),
+    LatLng(51.4005, -0.08005),
+    LatLng(51.4006, -0.08006),
+    LatLng(51.4009, -0.08009),
+    LatLng(51.5, -0.09),
+    LatLng(51.5, -0.09),
+    LatLng(51.5, -0.09),
+    LatLng(51.5, -0.09),
+    LatLng(51.5, -0.09),
+    LatLng(51.59, -0.099),
   ];
   late List<Marker> markers;
 
@@ -47,7 +47,7 @@ class _TooCloseToUnclusterPageState extends State<TooCloseToUnclusterPage>
     markers = points
         .map(
           (point) => Marker(
-            anchorPos: AnchorPos.align(AnchorAlign.top),
+            anchorPos: const AnchorPos.align(AnchorAlign.top),
             rotateAlignment: AnchorAlign.top.rotationAlignment,
             height: 30,
             width: 30,
@@ -112,7 +112,7 @@ class _TooCloseToUnclusterPageState extends State<TooCloseToUnclusterPage>
                 zoom: zoom,
               ),
               clusterWidgetSize: const Size(40, 40),
-              anchor: AnchorPos.align(AnchorAlign.center),
+              anchor: const AnchorPos.align(AnchorAlign.center),
               popupOptions: PopupOptions(
                 selectedMarkerBuilder: (context, marker) => const Icon(
                   Icons.pin_drop,
