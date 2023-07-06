@@ -53,7 +53,7 @@ class SuperclusterLayer extends StatefulWidget {
   final ClusterWidgetBuilder builder;
 
   /// Controller for managing [Marker]s and listening to changes.
-  final SuperclusterController? controller;
+  final SuperclusterControllerImpl controller;
 
   /// Initial list of markers, additions/removals must be made using the
   /// [controller].
@@ -120,9 +120,9 @@ class SuperclusterLayer extends StatefulWidget {
   /// controls the animation and style of the cluster splaying.
   final ClusterSplayDelegate clusterSplayDelegate;
 
-  const SuperclusterLayer.immutable({
+  SuperclusterLayer.immutable({
     Key? key,
-    SuperclusterImmutableController? this.controller,
+    SuperclusterImmutableController? controller,
     required this.builder,
     required this.indexBuilder,
     this.initialMarkers = const [],
@@ -141,13 +141,16 @@ class SuperclusterLayer extends StatefulWidget {
       splayLineOptions: SplayLineOptions(),
     ),
   })  : _isMutableSupercluster = false,
+        controller = controller != null
+            ? controller as SuperclusterControllerImpl
+            : SuperclusterControllerImpl(createdInternally: true),
         popupOptions =
             popupOptions == null ? null : popupOptions as PopupOptionsImpl,
         super(key: key);
 
-  const SuperclusterLayer.mutable({
+  SuperclusterLayer.mutable({
     Key? key,
-    SuperclusterMutableController? this.controller,
+    SuperclusterMutableController? controller,
     required this.builder,
     required this.indexBuilder,
     this.initialMarkers = const [],
@@ -165,6 +168,9 @@ class SuperclusterLayer extends StatefulWidget {
       duration: Duration(milliseconds: 400),
     ),
   })  : _isMutableSupercluster = true,
+        controller = controller != null
+            ? controller as SuperclusterControllerImpl
+            : SuperclusterControllerImpl(createdInternally: true),
         popupOptions =
             popupOptions == null ? null : popupOptions as PopupOptionsImpl,
         super(key: key);
@@ -231,10 +237,8 @@ class _SuperclusterLayerState extends State<SuperclusterLayer>
 
     if (!_initialized) {
       _lastMovementZoom = _mapState.zoom.ceil();
-      _controllerSubscription = widget.controller == null
-          ? null
-          : (widget.controller! as SuperclusterControllerImpl).stream.listen(
-              (superclusterEvent) => _onSuperclusterEvent(superclusterEvent));
+      _controllerSubscription = widget.controller.stream.listen(
+          (superclusterEvent) => _onSuperclusterEvent(superclusterEvent));
 
       _movementStreamSubscription = _mapState.mapController.mapEventStream
           .listen((_) => _onMove(_mapState));
@@ -263,10 +267,7 @@ class _SuperclusterLayerState extends State<SuperclusterLayer>
 
     if (oldWidget._isMutableSupercluster != widget._isMutableSupercluster ||
         oldWidget.controller != widget.controller) {
-      _onControllerChange(
-        oldWidget.controller as SuperclusterControllerImpl?,
-        widget.controller as SuperclusterControllerImpl?,
-      );
+      _onControllerChange(oldWidget.controller, widget.controller);
     }
 
     if (oldWidget._isMutableSupercluster != widget._isMutableSupercluster ||
@@ -294,14 +295,16 @@ class _SuperclusterLayerState extends State<SuperclusterLayer>
   @override
   void dispose() {
     widget.popupOptions?.popupController.dispose();
+    if (widget.controller.createdInternally) widget.controller.dispose();
     _movementStreamSubscription?.cancel();
     _controllerSubscription?.cancel();
     super.dispose();
   }
 
   void _initializeClusterManager(Future<List<Marker>> markersFuture) {
-    (widget.controller as SuperclusterControllerImpl).updateState(
-        const SuperclusterState(loading: true, aggregatedClusterData: null));
+    widget.controller.updateState(
+      const SuperclusterState(loading: true, aggregatedClusterData: null),
+    );
 
     final supercluster =
         markersFuture.catchError((_) => <Marker>[]).then((markers) {
@@ -338,10 +341,7 @@ class _SuperclusterLayerState extends State<SuperclusterLayer>
       return newSupercluster;
     });
 
-    if (widget.controller != null) {
-      (widget.controller as SuperclusterControllerImpl)
-          .setSupercluster(supercluster);
-    }
+    widget.controller.setSupercluster(supercluster);
   }
 
   @override
@@ -594,38 +594,35 @@ class _SuperclusterLayerState extends State<SuperclusterLayer>
   }
 
   void _onMarkersChange() {
-    if (widget.controller == null) return;
-
-    _superclusterCompleter.operation.value.then((supercluster) {
-      final aggregatedClusterData = widget.calculateAggregatedClusterData
-          ? supercluster.aggregatedClusterData()
-          : null;
-      final clusterData = aggregatedClusterData == null
-          ? null
-          : (aggregatedClusterData as ClusterData);
-      (widget.controller as SuperclusterControllerImpl).updateState(
-        SuperclusterState(
-          loading: false,
-          aggregatedClusterData: clusterData,
-        ),
-      );
-    });
+    if (!widget.controller.createdInternally) {
+      _superclusterCompleter.operation.value.then((supercluster) {
+        final aggregatedClusterData = widget.calculateAggregatedClusterData
+            ? supercluster.aggregatedClusterData()
+            : null;
+        final clusterData = aggregatedClusterData == null
+            ? null
+            : (aggregatedClusterData as ClusterData);
+        widget.controller.updateState(
+          SuperclusterState(
+            loading: false,
+            aggregatedClusterData: clusterData,
+          ),
+        );
+      });
+    }
   }
 
   void _onControllerChange(
-    SuperclusterControllerImpl? oldController,
-    SuperclusterControllerImpl? newController,
+    SuperclusterControllerImpl oldController,
+    SuperclusterControllerImpl newController,
   ) {
     _controllerSubscription?.cancel();
     _controllerSubscription =
-        newController?.stream.listen((event) => _onSuperclusterEvent(event));
+        newController.stream.listen((event) => _onSuperclusterEvent(event));
 
-    if (oldController != null) {
-      oldController.removeSupercluster();
-    }
-    if (newController != null) {
-      newController.setSupercluster(_superclusterCompleter.operation.value);
-    }
+    oldController.removeSupercluster();
+    if (oldController.createdInternally) oldController.dispose();
+    newController.setSupercluster(_superclusterCompleter.operation.value);
   }
 
   void _moveToMarker({

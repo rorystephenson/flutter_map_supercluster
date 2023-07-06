@@ -1,3 +1,9 @@
+## [4.3.0]
+
+- FEATURE: flutter_map 5.0.0
+- FEATURE: latlon2 0.9.0
+- BUGFIX: Fix bug where not providing a controller caused an exception.
+
 ## [4.2.1]
 
 - BUGFIX: Correct the splay cluster's target zoom level which determines how

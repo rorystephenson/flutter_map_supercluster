@@ -21,8 +21,8 @@ class _NormalAndClusteredMarkersWithPopupsState
   late final PopupController _popupController;
 
   static final points = [
-    LatLng(51.5, 0),
-    LatLng(51.0, 0.5),
+    const LatLng(51.5, 0),
+    const LatLng(51.0, 0.5),
   ];
   late List<Marker> markersA;
   late List<Marker> markersB;

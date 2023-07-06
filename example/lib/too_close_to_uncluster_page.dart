@@ -23,17 +23,17 @@ class _TooCloseToUnclusterPageState extends State<TooCloseToUnclusterPage>
   late final AnimatedMapController _animatedMapController;
 
   static final points = [
-    LatLng(51.4001, -0.08001),
-    LatLng(51.4003, -0.08003),
-    LatLng(51.4005, -0.08005),
-    LatLng(51.4006, -0.08006),
-    LatLng(51.4009, -0.08009),
-    LatLng(51.5, -0.09),
-    LatLng(51.5, -0.09),
-    LatLng(51.5, -0.09),
-    LatLng(51.5, -0.09),
-    LatLng(51.5, -0.09),
-    LatLng(51.59, -0.099),
+    const LatLng(51.4001, -0.08001),
+    const LatLng(51.4003, -0.08003),
+    const LatLng(51.4005, -0.08005),
+    const LatLng(51.4006, -0.08006),
+    const LatLng(51.4009, -0.08009),
+    const LatLng(51.5, -0.09),
+    const LatLng(51.5, -0.09),
+    const LatLng(51.5, -0.09),
+    const LatLng(51.5, -0.09),
+    const LatLng(51.5, -0.09),
+    const LatLng(51.59, -0.099),
   ];
   late List<Marker> markers;
 
@@ -89,9 +89,9 @@ class _TooCloseToUnclusterPageState extends State<TooCloseToUnclusterPage>
         ),
         drawer: buildDrawer(context, TooCloseToUnclusterPage.route),
         body: FlutterMap(
-          mapController: _animatedMapController,
+          mapController: _animatedMapController.mapController,
           options: MapOptions(
-            center: LatLng(51.4931, -0.1003),
+            center: const LatLng(51.4931, -0.1003),
             zoom: 10,
             maxZoom: 15,
             onTap: (_, __) {

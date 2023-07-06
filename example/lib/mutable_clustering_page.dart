@@ -21,9 +21,9 @@ class _MutableClusteringPageState extends State<MutableClusteringPage>
   late final AnimatedMapController _animatedMapController;
 
   final List<Marker> _initialMarkers = [
-    LatLng(51.5, -0.09),
-    LatLng(53.3498, -6.2603),
-    LatLng(53.3488, -6.2613)
+    const LatLng(51.5, -0.09),
+    const LatLng(53.3498, -6.2603),
+    const LatLng(53.3488, -6.2613)
   ].map((point) => _createMarker(point, Colors.black)).toList();
 
   @override
@@ -80,7 +80,7 @@ class _MutableClusteringPageState extends State<MutableClusteringPage>
         child: const Icon(Icons.refresh),
       ),
       body: FlutterMap(
-        mapController: _animatedMapController,
+        mapController: _animatedMapController.mapController,
         options: MapOptions(
           center: _initialMarkers[0].point,
           zoom: 5,

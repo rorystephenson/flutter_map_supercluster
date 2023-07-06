@@ -11,8 +11,8 @@ class AnchorUtil {
     AnchorPos? clusterAnchorPos,
     Size clusterWidgetSize,
   ) {
-    final anchor = Anchor.forPos(
-      clusterAnchorPos,
+    final anchor = Anchor.fromPos(
+      clusterAnchorPos ?? AnchorPos.align(AnchorAlign.center),
       clusterWidgetSize.width,
       clusterWidgetSize.height,
     );

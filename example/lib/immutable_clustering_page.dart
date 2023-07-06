@@ -20,8 +20,8 @@ class ClusteringManyMarkersPage extends StatefulWidget {
 class _ClusteringManyMarkersPageState extends State<ClusteringManyMarkersPage>
     with TickerProviderStateMixin {
   static const totalMarkers = 2000.0;
-  final minLatLng = LatLng(49.8566, 1.3522);
-  final maxLatLng = LatLng(58.3498, -10.2603);
+  final minLatLng = const LatLng(49.8566, 1.3522);
+  final maxLatLng = const LatLng(58.3498, -10.2603);
 
   late final SuperclusterImmutableController _superclusterController;
   late final AnimatedMapController _animatedMapController;
@@ -103,7 +103,7 @@ class _ClusteringManyMarkersPageState extends State<ClusteringManyMarkersPage>
       ),
       drawer: buildDrawer(context, ClusteringManyMarkersPage.route),
       body: FlutterMap(
-        mapController: _animatedMapController,
+        mapController: _animatedMapController.mapController,
         options: MapOptions(
           center: LatLng((maxLatLng.latitude + minLatLng.latitude) / 2,
               (maxLatLng.longitude + minLatLng.longitude) / 2),

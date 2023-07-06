@@ -126,8 +126,8 @@ class SpreadClusterSplayDelegate extends ClusterSplayDelegate {
           (displacedMarker) => DisplacedMarkerOffset(
             displacedMarker: displacedMarker,
             displacedOffset: (getPixelOffset(displacedMarker.displacedPoint) -
-                    clusterPosition)
-                .multiplyBy(animationProgress),
+                    clusterPosition) *
+                animationProgress,
             originalOffset:
                 getPixelOffset(displacedMarker.originalPoint) - clusterPosition,
           ),

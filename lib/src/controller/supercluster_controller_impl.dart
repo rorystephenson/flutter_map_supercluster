@@ -11,11 +11,12 @@ import 'supercluster_state.dart';
 
 class SuperclusterControllerImpl
     implements SuperclusterImmutableController, SuperclusterMutableController {
+  final bool createdInternally;
   final StreamController<SuperclusterEvent> _superclusterEventController;
   final StreamController<SuperclusterState> _stateStreamController;
   Future<Supercluster<Marker>> _supercluster = Future.any([]);
 
-  SuperclusterControllerImpl()
+  SuperclusterControllerImpl({required this.createdInternally})
       : _superclusterEventController = StreamController.broadcast(),
         _stateStreamController =
             StreamController<SuperclusterState>.broadcast();
