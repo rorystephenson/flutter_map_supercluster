@@ -154,7 +154,7 @@ class _MutableClusteringPageState extends State<MutableClusteringPage>
                 ),
               ),
               clusterWidgetSize: const Size(40, 40),
-              anchor: AnchorPos.align(AnchorAlign.center),
+              anchor: const AnchorPos.align(AnchorAlign.center),
               calculateAggregatedClusterData: true,
               builder: (context, position, markerCount, extraClusterData) {
                 return Container(
@@ -178,7 +178,7 @@ class _MutableClusteringPageState extends State<MutableClusteringPage>
   }
 
   static Marker _createMarker(LatLng point, Color color) => Marker(
-        anchorPos: AnchorPos.align(AnchorAlign.top),
+        anchorPos: const AnchorPos.align(AnchorAlign.top),
         rotate: true,
         rotateAlignment: AnchorAlign.top.rotationAlignment,
         height: 30,

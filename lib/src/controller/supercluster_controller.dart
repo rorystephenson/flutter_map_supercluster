@@ -95,9 +95,7 @@ abstract class SuperclusterController {
 }
 
 abstract class SuperclusterImmutableController extends SuperclusterController {
-  factory SuperclusterImmutableController() => SuperclusterControllerImpl(
-        createdInternally: false,
-      );
+  factory SuperclusterImmutableController() => SuperclusterControllerImpl();
 
   /// Remove all of the existing Markers and replace them with [markers]. Note
   /// that this requires completely rebuilding the clusters and may be a slow
@@ -108,9 +106,7 @@ abstract class SuperclusterImmutableController extends SuperclusterController {
 }
 
 abstract class SuperclusterMutableController extends SuperclusterController {
-  factory SuperclusterMutableController() => SuperclusterControllerImpl(
-        createdInternally: false,
-      );
+  factory SuperclusterMutableController() => SuperclusterControllerImpl();
 
   /// Add a single [Marker]. This [Marker] will be clustered if possible.
   void add(Marker marker);
