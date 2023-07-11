@@ -4,18 +4,19 @@ import 'package:flutter_map_animations/flutter_map_animations.dart';
 import 'package:flutter_map_supercluster/flutter_map_supercluster.dart';
 import 'package:flutter_map_supercluster_example/drawer.dart';
 import 'package:flutter_map_supercluster_example/font/accurate_map_icons.dart';
+import 'package:flutter_map_supercluster_example/main.dart';
 import 'package:latlong2/latlong.dart';
 
-class MutableClusteringPage extends StatefulWidget {
-  static const String route = 'mutableClusteringPage';
+class MutableClustersPage extends StatefulWidget {
+  static const String route = 'mutableClustersPage';
 
-  const MutableClusteringPage({Key? key}) : super(key: key);
+  const MutableClustersPage({Key? key}) : super(key: key);
 
   @override
-  State<MutableClusteringPage> createState() => _MutableClusteringPageState();
+  State<MutableClustersPage> createState() => _MutableClustersPageState();
 }
 
-class _MutableClusteringPageState extends State<MutableClusteringPage>
+class _MutableClustersPageState extends State<MutableClustersPage>
     with TickerProviderStateMixin {
   late final SuperclusterMutableController _superclusterController;
   late final AnimatedMapController _animatedMapController;
@@ -46,7 +47,7 @@ class _MutableClusteringPageState extends State<MutableClusteringPage>
     return SuperclusterScope(
       child: Scaffold(
         appBar: AppBar(
-          title: const Text('Clustering Page (Mutable)'),
+          title: const Text('Mutable Clusters'),
           actions: [
             Builder(builder: (context) {
               final data = SuperclusterState.of(context);
@@ -67,7 +68,7 @@ class _MutableClusteringPageState extends State<MutableClusteringPage>
             }),
           ],
         ),
-        drawer: buildDrawer(context, MutableClusteringPage.route),
+        drawer: buildDrawer(context, MutableClustersPage.route),
         floatingActionButton: Column(
           mainAxisAlignment: MainAxisAlignment.end,
           children: [
@@ -107,6 +108,7 @@ class _MutableClusteringPageState extends State<MutableClusteringPage>
             TileLayer(
               urlTemplate: 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
               subdomains: const ['a', 'b', 'c'],
+              userAgentPackageName: tileLayerPackageName,
             ),
             SuperclusterLayer.mutable(
               initialMarkers: _initialMarkers,
@@ -154,7 +156,7 @@ class _MutableClusteringPageState extends State<MutableClusteringPage>
                 ),
               ),
               clusterWidgetSize: const Size(40, 40),
-              anchor: const AnchorPos.align(AnchorAlign.center),
+              clusterAnchorPos: const AnchorPos.align(AnchorAlign.center),
               calculateAggregatedClusterData: true,
               builder: (context, position, markerCount, extraClusterData) {
                 return Container(

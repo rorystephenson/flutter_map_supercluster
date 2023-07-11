@@ -3,20 +3,21 @@ import 'package:flutter_map/plugin_api.dart';
 import 'package:flutter_map_marker_popup/flutter_map_marker_popup.dart';
 import 'package:flutter_map_supercluster/flutter_map_supercluster.dart';
 import 'package:flutter_map_supercluster_example/drawer.dart';
+import 'package:flutter_map_supercluster_example/main.dart';
 import 'package:latlong2/latlong.dart';
 
-class NormalAndClusteredMarkersWithPopups extends StatefulWidget {
-  static const String route = 'normalAndClusteredMarkersWithPopupPage';
+class NormalAndClusteredMarkersWithPopupsPage extends StatefulWidget {
+  static const String route = 'normalAndClusteredMarkersWithPopupsPage';
 
-  const NormalAndClusteredMarkersWithPopups({Key? key}) : super(key: key);
+  const NormalAndClusteredMarkersWithPopupsPage({Key? key}) : super(key: key);
 
   @override
-  State<NormalAndClusteredMarkersWithPopups> createState() =>
-      _NormalAndClusteredMarkersWithPopupsState();
+  State<NormalAndClusteredMarkersWithPopupsPage> createState() =>
+      _NormalAndClusteredMarkersWithPopupsPageState();
 }
 
-class _NormalAndClusteredMarkersWithPopupsState
-    extends State<NormalAndClusteredMarkersWithPopups> {
+class _NormalAndClusteredMarkersWithPopupsPageState
+    extends State<NormalAndClusteredMarkersWithPopupsPage> {
   late final SuperclusterImmutableController _superclusterController;
   late final PopupController _popupController;
 
@@ -63,7 +64,8 @@ class _NormalAndClusteredMarkersWithPopupsState
     return Scaffold(
       appBar:
           AppBar(title: const Text('Normal and Clustered Markers With Popups')),
-      drawer: buildDrawer(context, NormalAndClusteredMarkersWithPopups.route),
+      drawer:
+          buildDrawer(context, NormalAndClusteredMarkersWithPopupsPage.route),
       body: PopupScope(
         popupController: _popupController,
         onPopupEvent: (event, selectedMarkers) => debugPrint(
@@ -82,13 +84,14 @@ class _NormalAndClusteredMarkersWithPopupsState
             TileLayer(
               urlTemplate: 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
               subdomains: const ['a', 'b', 'c'],
+              userAgentPackageName: tileLayerPackageName,
             ),
             SuperclusterLayer.immutable(
               initialMarkers: markersA,
               indexBuilder: IndexBuilders.rootIsolate,
               controller: _superclusterController,
               clusterWidgetSize: const Size(40, 40),
-              anchor: const AnchorPos.align(AnchorAlign.center),
+              clusterAnchorPos: const AnchorPos.align(AnchorAlign.center),
               popupOptions: PopupOptions(
                 selectedMarkerBuilder: (context, marker) => Icon(
                   Icons.pin_drop,
