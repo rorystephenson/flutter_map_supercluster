@@ -94,8 +94,8 @@ class SuperclusterLayer extends StatelessWidget {
   /// Cluster size
   final Size clusterWidgetSize;
 
-  /// Cluster anchor
-  final AnchorPos? anchor;
+  /// Cluster anchor position.
+  final AnchorPos clusterAnchorPos;
 
   /// If true then whenever the aggregated cluster data changes (that is, the
   /// combined cluster data of all Markers as calculated by
@@ -124,12 +124,19 @@ class SuperclusterLayer extends StatelessWidget {
     this.clusterWidgetSize = const Size(30, 30),
     this.loadingOverlayBuilder,
     PopupOptions? popupOptions,
-    this.anchor,
+    @Deprecated(
+      'Prefer `clusterAnchorPos` instead. '
+      'This method has been renamed to clusterAnchorPos for clarity. '
+      'This method is deprecated since v5.0.0',
+    )
+    AnchorPos? anchorPos,
+    AnchorPos clusterAnchorPos = AnchorPos.defaultAnchorPos,
     this.clusterSplayDelegate = const SpreadClusterSplayDelegate(
       duration: Duration(milliseconds: 300),
       splayLineOptions: SplayLineOptions(),
     ),
   })  : isMutableSupercluster = false,
+        clusterAnchorPos = anchorPos ?? clusterAnchorPos,
         popupOptions =
             popupOptions == null ? null : popupOptions as PopupOptionsImpl,
         super(key: key);
@@ -150,11 +157,18 @@ class SuperclusterLayer extends StatelessWidget {
     this.clusterWidgetSize = const Size(30, 30),
     this.loadingOverlayBuilder,
     PopupOptions? popupOptions,
-    this.anchor,
+    @Deprecated(
+      'Prefer `clusterAnchorPos` instead. '
+      'This method has been renamed to clusterAnchorPos for clarity. '
+      'This method is deprecated since v5.0.0',
+    )
+    AnchorPos? anchorPos,
+    AnchorPos clusterAnchorPos = AnchorPos.defaultAnchorPos,
     this.clusterSplayDelegate = const SpreadClusterSplayDelegate(
       duration: Duration(milliseconds: 400),
     ),
   })  : isMutableSupercluster = true,
+        clusterAnchorPos = anchorPos ?? clusterAnchorPos,
         popupOptions =
             popupOptions == null ? null : popupOptions as PopupOptionsImpl,
         super(key: key);
@@ -181,7 +195,11 @@ class SuperclusterLayer extends StatelessWidget {
           clusterWidgetSize: clusterWidgetSize,
           loadingOverlayBuilder: loadingOverlayBuilder,
           popupOptions: popupOptions,
-          anchorPos: anchor,
+          clusterAnchor: Anchor.fromPos(
+            clusterAnchorPos,
+            clusterWidgetSize.width,
+            clusterWidgetSize.height,
+          ),
           clusterSplayDelegate: clusterSplayDelegate,
         ),
       );

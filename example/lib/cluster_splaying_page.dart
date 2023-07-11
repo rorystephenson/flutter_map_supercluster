@@ -7,105 +7,93 @@ import 'package:flutter_map_supercluster/flutter_map_supercluster.dart';
 import 'package:flutter_map_supercluster_example/drawer.dart';
 import 'package:latlong2/latlong.dart';
 
-class ClusteringManyMarkersPage extends StatefulWidget {
-  static const String route = 'clusteringManyMarkersPage';
+class ClusterSplayingPage extends StatefulWidget {
+  static const String route = 'clusterSplayingPage';
 
-  const ClusteringManyMarkersPage({Key? key}) : super(key: key);
+  const ClusterSplayingPage({Key? key}) : super(key: key);
 
   @override
-  State<ClusteringManyMarkersPage> createState() =>
-      _ClusteringManyMarkersPageState();
+  State<ClusterSplayingPage> createState() => _ClusterSplayingPageState();
 }
 
-class _ClusteringManyMarkersPageState extends State<ClusteringManyMarkersPage>
+class _ClusterSplayingPageState extends State<ClusterSplayingPage>
     with TickerProviderStateMixin {
-  static const totalMarkers = 2000.0;
-  final minLatLng = const LatLng(49.8566, 1.3522);
-  final maxLatLng = const LatLng(58.3498, -10.2603);
-
   late final SuperclusterImmutableController _superclusterController;
   late final AnimatedMapController _animatedMapController;
 
-  late final List<Marker> markers;
+  static const points = [
+    LatLng(51.4001, -0.08001),
+    LatLng(51.4003, -0.08003),
+    LatLng(51.4005, -0.08005),
+    LatLng(51.4006, -0.08006),
+    LatLng(51.4009, -0.08009),
+    LatLng(51.5, -0.09),
+    LatLng(51.5, -0.09),
+    LatLng(51.5, -0.09),
+    LatLng(51.5, -0.09),
+    LatLng(51.5, -0.09),
+    LatLng(51.59, -0.099),
+  ];
+  static final List<Marker> markers = points
+      .map(
+        (point) => Marker(
+          anchorPos: const AnchorPos.align(AnchorAlign.top),
+          rotateAlignment: AnchorAlign.top.rotationAlignment,
+          height: 30,
+          width: 30,
+          point: point,
+          rotate: true,
+          builder: (ctx) => const Icon(Icons.pin_drop),
+        ),
+      )
+      .toList();
 
   @override
   void initState() {
+    super.initState();
+
     _superclusterController = SuperclusterImmutableController();
     _animatedMapController = AnimatedMapController(vsync: this);
-
-    final latitudeRange = maxLatLng.latitude - minLatLng.latitude;
-    final longitudeRange = maxLatLng.longitude - minLatLng.longitude;
-
-    final stepsInEachDirection = sqrt(totalMarkers).floor();
-    final latStep = latitudeRange / stepsInEachDirection;
-    final lonStep = longitudeRange / stepsInEachDirection;
-
-    markers = [];
-    for (var i = 0; i < stepsInEachDirection; i++) {
-      for (var j = 0; j < stepsInEachDirection; j++) {
-        final latLng = LatLng(
-          minLatLng.latitude + i * latStep,
-          minLatLng.longitude + j * lonStep,
-        );
-
-        markers.add(
-          Marker(
-            anchorPos: const AnchorPos.align(AnchorAlign.top),
-            rotateAlignment: AnchorAlign.top.rotationAlignment,
-            height: 30,
-            width: 30,
-            point: latLng,
-            builder: (ctx) => const Icon(Icons.pin_drop),
-          ),
-        );
-      }
-    }
-
-    super.initState();
   }
 
   @override
   void dispose() {
     _superclusterController.dispose();
     _animatedMapController.dispose();
-
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
-    return SuperclusterScope(
+    return PopupScope(
       child: Scaffold(
-        appBar: AppBar(
-          title: const Text('Clustering Many Markers Page'),
-          actions: [
-            Builder(builder: (context) {
-              final data = SuperclusterState.of(context);
-              final String markerCountLabel;
-              if (data.loading || data.aggregatedClusterData == null) {
-                markerCountLabel = '...';
-              } else {
-                markerCountLabel =
-                    data.aggregatedClusterData!.markerCount.toString();
-              }
-
-              return Center(
-                child: Padding(
-                  padding: const EdgeInsets.only(right: 20),
-                  child: Text('Total:\n$markerCountLabel'),
+        appBar: AppBar(title: const Text('Cluster Splaying')),
+        floatingActionButton: Column(
+          mainAxisAlignment: MainAxisAlignment.end,
+          children: [
+            Builder(
+              builder: (context) => FloatingActionButton.extended(
+                label: const SizedBox(child: Text('Select random marker')),
+                icon: const Icon(Icons.shuffle),
+                onPressed: () => _superclusterController.moveToMarker(
+                  MarkerMatcher.equalsMarker(
+                    _randomNextMarker(PopupState.of(context, listen: false)),
+                  ),
                 ),
-              );
-            }),
+              ),
+            ),
           ],
         ),
-        drawer: buildDrawer(context, ClusteringManyMarkersPage.route),
+        drawer: buildDrawer(context, ClusterSplayingPage.route),
         body: FlutterMap(
           mapController: _animatedMapController.mapController,
           options: MapOptions(
-            initialCenter: LatLng((maxLatLng.latitude + minLatLng.latitude) / 2,
-                (maxLatLng.longitude + minLatLng.longitude) / 2),
-            initialZoom: 6,
-            maxZoom: 15,
+            initialCenter: const LatLng(51.4931, -0.1003),
+            initialZoom: 10,
+            maxZoom: 16,
+            onTap: (_, __) {
+              _superclusterController.collapseSplayedClusters();
+            },
           ),
           children: <Widget>[
             TileLayer(
@@ -114,15 +102,14 @@ class _ClusteringManyMarkersPageState extends State<ClusteringManyMarkersPage>
             ),
             SuperclusterLayer.immutable(
               initialMarkers: markers,
-              indexBuilder: IndexBuilders.computeWithOriginalMarkers,
+              indexBuilder: IndexBuilders.rootIsolate,
               controller: _superclusterController,
               moveMap: (center, zoom) => _animatedMapController.animateTo(
                 dest: center,
                 zoom: zoom,
               ),
-              calculateAggregatedClusterData: true,
               clusterWidgetSize: const Size(40, 40),
-              anchor: const AnchorPos.align(AnchorAlign.center),
+              clusterAnchorPos: const AnchorPos.align(AnchorAlign.center),
               popupOptions: PopupOptions(
                 selectedMarkerBuilder: (context, marker) => const Icon(
                   Icons.pin_drop,
@@ -153,5 +140,17 @@ class _ClusteringManyMarkersPageState extends State<ClusteringManyMarkersPage>
         ),
       ),
     );
+  }
+
+  Marker _randomNextMarker(PopupState popupState) {
+    final candidateMarkers = List.from(markers);
+
+    while (candidateMarkers.isNotEmpty) {
+      final randomIndex = Random().nextInt(candidateMarkers.length);
+      final candidateMarker = candidateMarkers.removeAt(randomIndex);
+      if (!popupState.isSelected(candidateMarker)) return candidateMarker;
+    }
+
+    throw 'No deselected markers found';
   }
 }

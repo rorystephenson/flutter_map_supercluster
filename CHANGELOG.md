@@ -1,4 +1,4 @@
-## [5.0.0]
+## [5.0.0-dev.1]
 - FEATURE: Add maxClusterZoom option to prevent clusters from being formed
   above a certain zoom.
 - FEATURE: Added SuperclusterScope and SuperclusterState.of(context) methods.
@@ -16,9 +16,12 @@
 - FEATURE: Splayed clusters will now be collapsed automatically when removing
   one of their points or inserting a point which causes the splay cluster to
   change.
-- FEATURE: flutter_map v6.
-- FEATURE: flutter_map_marker_popup v5.2.0
+- FEATURE: flutter_map 6.0.0-dev.1.
+- FEATURE: flutter_map_marker_popup v5.3.0-dev.1
 - FEATURE: supercluster v3.0.0.
+- DEPRECATION: SuperclusterLayer's anchor has been renamed to clusterAnchorPos.
+- CHORE: Example app tidy-up. Added desktop platforms and renamed/simplified
+  examples.
 
 Note that this version included major changes internally. I was close to
 completing this verison before I noticed some issues with how FlutterMap works

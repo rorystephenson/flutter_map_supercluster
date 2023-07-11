@@ -1,15 +1,13 @@
-# Flutter Map Supercluster (previously `flutter_map_fast_cluster`)
+# Flutter Map Supercluster
 
 Two different Marker clustering layers for [flutter_map](https://github.com/fleaflet/flutter_map):
 
-- `SuperclusterImmutableLayer`: An extremely fast Marker clustering layer, Markers may not be
+- `SuperclusterLayer.immutable`: An extremely fast Marker clustering layer, Markers may not be
   added/removed.
-- `SuperclusterMutableLayer`: An slightly slower (but still very fast) Marker clustering layer.
+- `SuperclusterLayer.mutable`: A slightly slower (but still very fast) Marker clustering layer.
   Markers can be added/removed.
 
-If you want beautiful clustering animations check out `flutter_map_marker_plugin`. It will perform
-well for quite a lot of Markers on most devices. If you are running in to performance issues and are
-happy to sacrifice animations then this package may be for you.
+![Example](https://github.com/rorystephenson/project_gifs/blob/master/flutter_map_supercluster/demo.gif)
 
 ## Usage
 

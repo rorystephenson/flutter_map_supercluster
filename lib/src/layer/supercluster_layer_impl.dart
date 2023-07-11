@@ -42,7 +42,7 @@ class SuperclusterLayerImpl extends StatefulWidget {
   final WidgetBuilder? loadingOverlayBuilder;
   final PopupOptionsImpl? popupOptions;
   final Size clusterWidgetSize;
-  final AnchorPos? anchorPos;
+  final Anchor clusterAnchor;
   final bool calculateAggregatedClusterData;
   final ClusterSplayDelegate clusterSplayDelegate;
 
@@ -65,7 +65,7 @@ class SuperclusterLayerImpl extends StatefulWidget {
     required this.clusterWidgetSize,
     required this.loadingOverlayBuilder,
     required this.popupOptions,
-    required this.anchorPos,
+    required this.clusterAnchor,
     required this.clusterSplayDelegate,
   });
 
@@ -353,7 +353,7 @@ class _SuperclusterLayerImplState extends State<SuperclusterLayerImpl>
       builder: widget.builder,
       onTap: () => _onClusterTap(supercluster, cluster),
       size: widget.clusterWidgetSize,
-      anchorPos: widget.anchorPos,
+      anchor: widget.clusterAnchor,
     );
   }
 
@@ -374,7 +374,7 @@ class _SuperclusterLayerImplState extends State<SuperclusterLayerImpl>
       expandedCluster: expandedCluster,
       builder: widget.builder,
       size: widget.clusterWidgetSize,
-      anchorPos: widget.anchorPos,
+      anchor: widget.clusterAnchor,
       markerBuilder: markerBuilder,
       onCollapse: () {
         widget.popupOptions?.popupController

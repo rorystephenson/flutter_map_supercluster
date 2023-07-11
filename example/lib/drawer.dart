@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_map_supercluster_example/immutable_clustering_page.dart';
-import 'package:flutter_map_supercluster_example/mutable_clustering_page.dart';
+import 'package:flutter_map_supercluster_example/basic_example_page.dart';
+import 'package:flutter_map_supercluster_example/cluster_splaying_page.dart';
+import 'package:flutter_map_supercluster_example/mutable_clusters_page.dart';
 import 'package:flutter_map_supercluster_example/normal_and_clustered_markers_with_popups_page.dart';
-import 'package:flutter_map_supercluster_example/too_close_to_uncluster_page.dart';
 
 Widget _buildMenuItem(
     BuildContext context, Widget title, String routeName, String currentRoute) {
@@ -32,26 +32,26 @@ Drawer buildDrawer(BuildContext context, String currentRoute) {
         ),
         _buildMenuItem(
           context,
-          const Text('Clustering (mutable)'),
-          MutableClusteringPage.route,
+          const Text('Basic Example'),
+          BasicExamplePage.route,
           currentRoute,
         ),
         _buildMenuItem(
           context,
-          const Text('Clustering Many Markers (Immutable)'),
-          ClusteringManyMarkersPage.route,
+          const Text('Mutable Clustering'),
+          MutableClustersPage.route,
           currentRoute,
         ),
         _buildMenuItem(
           context,
-          const Text('Too close to uncluster'),
-          TooCloseToUnclusterPage.route,
+          const Text('Cluster Splaying'),
+          ClusterSplayingPage.route,
           currentRoute,
         ),
         _buildMenuItem(
           context,
           const Text('Normal and Clustered Markers With Popups'),
-          NormalAndClusteredMarkersWithPopups.route,
+          NormalAndClusteredMarkersWithPopupsPage.route,
           currentRoute,
         ),
       ],

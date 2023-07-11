@@ -25,11 +25,11 @@ class ClusterWidget extends StatelessWidget {
     required this.builder,
     required this.onTap,
     required this.size,
-    required AnchorPos? anchorPos,
+    required Anchor anchor,
   })  : position = _getClusterPixel(
           mapCamera,
           cluster,
-          anchorPos,
+          anchor,
           size,
         ),
         mapRotationRad = mapCamera.rotationRad,
@@ -63,14 +63,14 @@ class ClusterWidget extends StatelessWidget {
   static Point<double> _getClusterPixel(
     MapCamera mapCamera,
     LayerCluster<Marker> cluster,
-    AnchorPos? anchorPos,
+    Anchor anchor,
     Size size,
   ) {
-    return AnchorUtil.removeClusterAnchor(
+    return AnchorUtil.removeAnchor(
       mapCamera.getPixelOffset(cluster.latLng),
-      cluster,
-      anchorPos,
-      size,
+      size.width,
+      size.height,
+      anchor,
     );
   }
 }
