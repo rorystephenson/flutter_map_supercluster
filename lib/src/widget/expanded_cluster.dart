@@ -67,7 +67,7 @@ class ExpandedCluster {
 
   List<DisplacedMarkerOffset> displacedMarkerOffsets(
     MapCamera mapCamera,
-    CustomPoint clusterPosition,
+    Point clusterPosition,
   ) =>
       clusterSplayDelegate.displacedMarkerOffsets(
         displacedMarkers,

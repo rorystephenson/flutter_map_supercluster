@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:flutter_map/plugin_api.dart';
 import 'package:flutter_map_supercluster/src/splay/displaced_marker.dart';
 
@@ -5,8 +7,8 @@ import 'package:flutter_map_supercluster/src/splay/displaced_marker.dart';
 /// position.
 class DisplacedMarkerOffset {
   final DisplacedMarker displacedMarker;
-  final CustomPoint displacedOffset;
-  final CustomPoint originalOffset;
+  final Point displacedOffset;
+  final Point originalOffset;
 
   const DisplacedMarkerOffset({
     required this.displacedMarker,

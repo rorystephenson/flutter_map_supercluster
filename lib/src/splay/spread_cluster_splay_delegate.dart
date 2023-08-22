@@ -84,8 +84,8 @@ class SpreadClusterSplayDelegate extends ClusterSplayDelegate {
   List<DisplacedMarker> displaceMarkers(
     List<Marker> markers, {
     required LatLng clusterPosition,
-    required CustomPoint Function(LatLng latLng) project,
-    required LatLng Function(CustomPoint point) unproject,
+    required Point Function(LatLng latLng) project,
+    required LatLng Function(Point point) unproject,
   }) {
     final markersWithAngles = markers
         .map(
@@ -118,8 +118,8 @@ class SpreadClusterSplayDelegate extends ClusterSplayDelegate {
   List<DisplacedMarkerOffset> displacedMarkerOffsets(
     List<DisplacedMarker> displacedMarkers,
     double animationProgress,
-    CustomPoint<num> Function(LatLng point) getPixelOffset,
-    CustomPoint clusterPosition,
+    Point<num> Function(LatLng point) getPixelOffset,
+    Point clusterPosition,
   ) {
     return displacedMarkers
         .map(
@@ -156,13 +156,13 @@ class SpreadClusterSplayDelegate extends ClusterSplayDelegate {
     return atan2(y, x);
   }
 
-  static List<CustomPoint> _clockwiseCircle(double radius, int count) {
+  static List<Point> _clockwiseCircle(double radius, int count) {
     final angleStep = pi2 / count;
 
-    return List<CustomPoint>.generate(count, (index) {
+    return List<Point>.generate(count, (index) {
       final angle = circleStartAngle + index * angleStep;
 
-      return CustomPoint<double>(
+      return Point<double>(
         radius * cos(angle),
         radius * sin(angle),
       );
