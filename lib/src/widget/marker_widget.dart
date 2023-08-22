@@ -31,7 +31,7 @@ class MarkerWidget extends StatelessWidget {
   MarkerWidget.displaced({
     Key? key,
     required DisplacedMarker displacedMarker,
-    required CustomPoint position,
+    required Point position,
     required this.markerBuilder,
     required this.onTap,
     required this.mapRotationRad,
@@ -48,10 +48,13 @@ class MarkerWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final child = GestureDetector(
-      behavior: HitTestBehavior.opaque,
-      onTap: onTap,
-      child: markerBuilder(context),
+    final child = MouseRegion(
+      cursor: SystemMouseCursors.click,
+      child: GestureDetector(
+        behavior: HitTestBehavior.opaque,
+        onTap: onTap,
+        child: markerBuilder(context),
+      ),
     );
 
     return Positioned(
