@@ -40,7 +40,7 @@ Add it to FlutterMap:
       SuperclusterLayer.immutable(
         initialMarkers: markers, // Provide your own
         clusterWidgetSize: const Size(40, 40),
-        builder: (context, markerCount, extraClusterData) {
+        builder: (context, markerCount, markers, extraClusterData) {
           return Container(
             decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(20.0),
