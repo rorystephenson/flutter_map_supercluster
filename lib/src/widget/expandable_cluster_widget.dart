@@ -79,7 +79,7 @@ class ExpandableClusterWidget extends StatelessWidget {
               ClusterWidget(
                 mapState: mapState,
                 cluster: expandedCluster.layerCluster,
-                builder: (context, latLng, count, data) =>
+                builder: (context, latLng, count, markers, data) =>
                     expandedCluster.buildCluster(context, builder),
                 onTap: expandedCluster.isExpanded ? onCollapse : () {},
                 size: size,

@@ -125,7 +125,7 @@ class _TooCloseToUnclusterPageState extends State<TooCloseToUnclusterPage>
                   ),
                 ),
               ),
-              builder: (context, position, markerCount, extraClusterData) {
+              builder: (context, position, markerCount, markers, extraClusterData) {
                 return Container(
                   decoration: BoxDecoration(
                       borderRadius: BorderRadius.circular(20.0),

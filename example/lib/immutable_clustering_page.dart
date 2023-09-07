@@ -144,7 +144,7 @@ class _ClusteringManyMarkersPageState extends State<ClusteringManyMarkersPage>
                 ),
               ),
             ),
-            builder: (context, position, markerCount, extraClusterData) {
+            builder: (context, position, markerCount, markers, extraClusterData) {
               return Container(
                 decoration: BoxDecoration(
                     borderRadius: BorderRadius.circular(20.0),

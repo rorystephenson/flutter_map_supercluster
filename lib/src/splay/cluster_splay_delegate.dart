@@ -52,6 +52,7 @@ abstract class ClusterSplayDelegate {
     ClusterWidgetBuilder clusterBuilder,
     LatLng position,
     int markerCount,
+    List<Marker> markers,
     ClusterDataBase? extraClusterData,
     double animationProgress,
   ) =>
@@ -59,6 +60,7 @@ abstract class ClusterSplayDelegate {
         context,
         position,
         markerCount,
+        markers,
         extraClusterData,
       );
 }

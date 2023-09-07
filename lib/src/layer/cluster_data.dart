@@ -3,6 +3,7 @@ import 'package:supercluster/supercluster.dart';
 
 class ClusterData extends ClusterDataBase {
   final int markerCount;
+  final List<Marker> markers;
 
   final ClusterDataBase Function(Marker)? _innerExtractor;
   final ClusterDataBase? innerData;
@@ -11,13 +12,15 @@ class ClusterData extends ClusterDataBase {
     Marker marker, {
     ClusterDataBase Function(Marker)? innerExtractor,
   })  : markerCount = 1,
+        markers = [marker],
         _innerExtractor = innerExtractor,
         innerData = innerExtractor?.call(marker);
 
   ClusterData._combined(
-    this.markerCount, {
+    this.markerCount,  {
     ClusterDataBase Function(Marker)? innerExtractor,
     this.innerData,
+    required this.markers,
   }) : _innerExtractor = innerExtractor;
 
   @override
@@ -26,6 +29,7 @@ class ClusterData extends ClusterDataBase {
       markerCount + data.markerCount,
       innerExtractor: _innerExtractor,
       innerData: innerData?.combine(data.innerData!),
+      markers: [...markers, ...data.markers],
     );
   }
 }

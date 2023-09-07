@@ -38,6 +38,7 @@ typedef ClusterWidgetBuilder = Widget Function(
   BuildContext context,
   LatLng position,
   int markerCount,
+  List<Marker> markers,
   ClusterDataBase? extraClusterData,
 );
 

@@ -53,6 +53,7 @@ class ClusterWidget extends StatelessWidget {
             context,
             cluster.latLng,
             clusterData.markerCount,
+            clusterData.markers,
             clusterData.innerData,
           ),
         ),

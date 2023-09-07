@@ -88,6 +88,7 @@ class ExpandedCluster {
         clusterBuilder,
         layerCluster.latLng,
         clusterData.markerCount,
+        clusterData.markers,
         clusterData.innerData,
         animation.value,
       );

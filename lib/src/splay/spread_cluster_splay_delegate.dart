@@ -14,6 +14,7 @@ typedef SplayClusterWidgetBuilder = Widget Function(
   BuildContext context,
   LatLng position,
   int markerCount,
+  List<Marker> markers,
   ClusterDataBase? extraClusterData,
   double animation,
 );
@@ -56,6 +57,7 @@ class SpreadClusterSplayDelegate extends ClusterSplayDelegate {
     ClusterWidgetBuilder clusterBuilder,
     LatLng position,
     int markerCount,
+    List<Marker> markers,
     ClusterDataBase? extraClusterData,
     double animationProgress,
   ) {
@@ -64,6 +66,7 @@ class SpreadClusterSplayDelegate extends ClusterSplayDelegate {
         context,
         position,
         markerCount,
+        markers,
         extraClusterData,
         animationProgress,
       );
@@ -74,6 +77,7 @@ class SpreadClusterSplayDelegate extends ClusterSplayDelegate {
           context,
           position,
           markerCount,
+          markers,
           extraClusterData,
         ),
       );
