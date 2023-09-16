@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_map_supercluster_example/custom_cluster_marker_page.dart';
 import 'package:flutter_map_supercluster_example/immutable_clustering_page.dart';
 import 'package:flutter_map_supercluster_example/mutable_clustering_page.dart';
 import 'package:flutter_map_supercluster_example/normal_and_clustered_markers_with_popups_page.dart';
@@ -25,6 +26,8 @@ class MyApp extends StatelessWidget {
             const TooCloseToUnclusterPage(),
         NormalAndClusteredMarkersWithPopups.route: (context) =>
             const NormalAndClusteredMarkersWithPopups(),
+        CustomClusterMarkerPage.route: (context) =>
+            const CustomClusterMarkerPage(),
       },
     );
   }

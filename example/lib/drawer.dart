@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_map_supercluster_example/custom_cluster_marker_page.dart';
 import 'package:flutter_map_supercluster_example/immutable_clustering_page.dart';
 import 'package:flutter_map_supercluster_example/mutable_clustering_page.dart';
 import 'package:flutter_map_supercluster_example/normal_and_clustered_markers_with_popups_page.dart';
@@ -52,6 +53,12 @@ Drawer buildDrawer(BuildContext context, String currentRoute) {
           context,
           const Text('Normal and Clustered Markers With Popups'),
           NormalAndClusteredMarkersWithPopups.route,
+          currentRoute,
+        ),
+        _buildMenuItem(
+          context,
+          const Text('Custom Cluster Marker'),
+          CustomClusterMarkerPage.route,
           currentRoute,
         ),
       ],
