@@ -1,16 +1,17 @@
 import 'dart:math';
 
 import 'package:flutter/material.dart';
-import 'package:flutter_map/plugin_api.dart';
+import 'package:flutter_map/flutter_map.dart';
 import 'package:flutter_map_animations/flutter_map_animations.dart';
 import 'package:flutter_map_supercluster/flutter_map_supercluster.dart';
 import 'package:flutter_map_supercluster_example/drawer.dart';
+import 'package:flutter_map_supercluster_example/main.dart';
 import 'package:latlong2/latlong.dart';
 
 class ClusterSplayingPage extends StatefulWidget {
   static const String route = 'clusterSplayingPage';
 
-  const ClusterSplayingPage({Key? key}) : super(key: key);
+  const ClusterSplayingPage({super.key});
 
   @override
   State<ClusterSplayingPage> createState() => _ClusterSplayingPageState();
@@ -37,13 +38,12 @@ class _ClusterSplayingPageState extends State<ClusterSplayingPage>
   static final List<Marker> markers = points
       .map(
         (point) => Marker(
-          anchorPos: const AnchorPos.align(AnchorAlign.top),
-          rotateAlignment: AnchorAlign.top.rotationAlignment,
+          alignment: Alignment.topCenter,
           height: 30,
           width: 30,
           point: point,
           rotate: true,
-          builder: (ctx) => const Icon(Icons.pin_drop),
+          child: const Icon(Icons.pin_drop),
         ),
       )
       .toList();
@@ -97,8 +97,8 @@ class _ClusterSplayingPageState extends State<ClusterSplayingPage>
           ),
           children: <Widget>[
             TileLayer(
-              urlTemplate: 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
-              subdomains: const ['a', 'b', 'c'],
+              urlTemplate: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
+              userAgentPackageName: tileLayerPackageName,
             ),
             SuperclusterLayer.immutable(
               initialMarkers: markers,
@@ -109,7 +109,7 @@ class _ClusterSplayingPageState extends State<ClusterSplayingPage>
                 zoom: zoom,
               ),
               clusterWidgetSize: const Size(40, 40),
-              clusterAnchorPos: const AnchorPos.align(AnchorAlign.center),
+              clusterAlignment: Alignment.center,
               popupOptions: PopupOptions(
                 selectedMarkerBuilder: (context, marker) => const Icon(
                   Icons.pin_drop,

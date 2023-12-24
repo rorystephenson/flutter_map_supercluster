@@ -1,5 +1,7 @@
+import 'dart:math';
+
 import 'package:flutter/material.dart';
-import 'package:flutter_map/plugin_api.dart';
+import 'package:flutter_map/flutter_map.dart';
 import 'package:flutter_map_marker_popup/extension_api.dart';
 import 'package:flutter_map_supercluster/src/layer/map_camera_extension.dart';
 import 'package:flutter_map_supercluster/src/layer_element_extension.dart';
@@ -15,11 +17,11 @@ class ExpandableClusterWidget extends StatelessWidget {
   final ExpandedCluster expandedCluster;
   final ClusterWidgetBuilder builder;
   final Size size;
-  final Anchor anchor;
+  final Alignment clusterAlignment;
   final Widget Function(BuildContext, Marker) markerBuilder;
   final void Function(PopupSpec popupSpec) onMarkerTap;
   final VoidCallback onCollapse;
-  final CustomPoint clusterPixelPosition;
+  final Point clusterPixelPosition;
 
   ExpandableClusterWidget({
     Key? key,
@@ -27,7 +29,7 @@ class ExpandableClusterWidget extends StatelessWidget {
     required this.expandedCluster,
     required this.builder,
     required this.size,
-    required this.anchor,
+    required this.clusterAlignment,
     required this.markerBuilder,
     required this.onMarkerTap,
     required this.onCollapse,
@@ -63,7 +65,7 @@ class ExpandableClusterWidget extends StatelessWidget {
                 (offset) => MarkerWidget.displaced(
                   displacedMarker: offset.displacedMarker,
                   position: clusterPixelPosition + offset.displacedOffset,
-                  markerBuilder: (context) => markerBuilder(
+                  markerChild: markerBuilder(
                     context,
                     offset.displacedMarker.marker,
                   ),
@@ -83,7 +85,7 @@ class ExpandableClusterWidget extends StatelessWidget {
                     expandedCluster.buildCluster(context, builder),
                 onTap: expandedCluster.isExpanded ? onCollapse : () {},
                 size: size,
-                anchor: anchor,
+                alignment: clusterAlignment,
               ),
             ],
           ),

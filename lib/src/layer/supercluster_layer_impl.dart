@@ -3,7 +3,7 @@ import 'dart:math';
 
 import 'package:async/async.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_map/plugin_api.dart';
+import 'package:flutter_map/flutter_map.dart';
 import 'package:flutter_map_supercluster/flutter_map_supercluster.dart';
 import 'package:flutter_map_supercluster/src/controller/supercluster_controller_impl.dart';
 import 'package:flutter_map_supercluster/src/controller/supercluster_event.dart';
@@ -42,7 +42,7 @@ class SuperclusterLayerImpl extends StatefulWidget {
   final WidgetBuilder? loadingOverlayBuilder;
   final PopupOptionsImpl? popupOptions;
   final Size clusterWidgetSize;
-  final Anchor clusterAnchor;
+  final Alignment clusterAlignment;
   final bool calculateAggregatedClusterData;
   final ClusterSplayDelegate clusterSplayDelegate;
 
@@ -65,7 +65,7 @@ class SuperclusterLayerImpl extends StatefulWidget {
     required this.clusterWidgetSize,
     required this.loadingOverlayBuilder,
     required this.popupOptions,
-    required this.clusterAnchor,
+    required this.clusterAlignment,
     required this.clusterSplayDelegate,
   });
 
@@ -227,7 +227,7 @@ class _SuperclusterLayerImplState extends State<SuperclusterLayerImpl>
     return _wrapWithPopupStateIfPopupsEnabled(
       (popupState) => Stack(
         children: [
-          _clustersAndMarkers(),
+          MobileLayerTransformer(child: _clustersAndMarkers()),
           if (widget.popupOptions?.popupDisplayOptions != null)
             PopupLayer(
               popupDisplayOptions: widget.popupOptions!.popupDisplayOptions!,
@@ -330,15 +330,14 @@ class _SuperclusterLayerImplState extends State<SuperclusterLayerImpl>
   }) {
     final marker = mapPoint.originalPoint;
 
-    final markerBuilder = !selected
-        ? marker.builder
-        : (context) =>
-            widget.popupOptions!.selectedMarkerBuilder!(context, marker);
+    final markerChild = !selected
+        ? marker.child
+        : widget.popupOptions!.selectedMarkerBuilder!(context, marker);
 
     return MarkerWidget(
       mapCamera: widget.mapCamera,
       marker: marker,
-      markerBuilder: markerBuilder,
+      markerChild: markerChild,
       onTap: () => _onMarkerTap(PopupSpecBuilder.forLayerPoint(mapPoint)),
     );
   }
@@ -353,7 +352,7 @@ class _SuperclusterLayerImplState extends State<SuperclusterLayerImpl>
       builder: widget.builder,
       onTap: () => _onClusterTap(supercluster, cluster),
       size: widget.clusterWidgetSize,
-      anchor: widget.clusterAnchor,
+      alignment: widget.clusterAlignment,
     );
   }
 
@@ -363,18 +362,18 @@ class _SuperclusterLayerImplState extends State<SuperclusterLayerImpl>
     final selectedMarkerBuilder = widget.popupOptions?.selectedMarkerBuilder;
     final Widget Function(BuildContext context, Marker marker) markerBuilder =
         selectedMarkerBuilder == null
-            ? ((context, marker) => marker.builder(context))
+            ? ((context, marker) => marker.child)
             : ((context, marker) =>
                 _popupState?.selectedMarkers.contains(marker) == true
                     ? selectedMarkerBuilder(context, marker)
-                    : marker.builder(context));
+                    : marker.child);
 
     return ExpandableClusterWidget(
       mapCamera: widget.mapCamera,
       expandedCluster: expandedCluster,
       builder: widget.builder,
       size: widget.clusterWidgetSize,
-      anchor: widget.clusterAnchor,
+      clusterAlignment: widget.clusterAlignment,
       markerBuilder: markerBuilder,
       onCollapse: () {
         widget.popupOptions?.popupController

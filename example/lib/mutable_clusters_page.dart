@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_map/plugin_api.dart';
+import 'package:flutter_map/flutter_map.dart';
 import 'package:flutter_map_animations/flutter_map_animations.dart';
 import 'package:flutter_map_supercluster/flutter_map_supercluster.dart';
 import 'package:flutter_map_supercluster_example/drawer.dart';
@@ -10,7 +10,7 @@ import 'package:latlong2/latlong.dart';
 class MutableClustersPage extends StatefulWidget {
   static const String route = 'mutableClustersPage';
 
-  const MutableClustersPage({Key? key}) : super(key: key);
+  const MutableClustersPage({super.key});
 
   @override
   State<MutableClustersPage> createState() => _MutableClustersPageState();
@@ -106,8 +106,7 @@ class _MutableClustersPageState extends State<MutableClustersPage>
           ),
           children: <Widget>[
             TileLayer(
-              urlTemplate: 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
-              subdomains: const ['a', 'b', 'c'],
+              urlTemplate: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
               userAgentPackageName: tileLayerPackageName,
             ),
             SuperclusterLayer.mutable(
@@ -156,7 +155,7 @@ class _MutableClustersPageState extends State<MutableClustersPage>
                 ),
               ),
               clusterWidgetSize: const Size(40, 40),
-              clusterAnchorPos: const AnchorPos.align(AnchorAlign.center),
+              clusterAlignment: Alignment.center,
               calculateAggregatedClusterData: true,
               builder: (context, position, markerCount, extraClusterData) {
                 return Container(
@@ -180,13 +179,12 @@ class _MutableClustersPageState extends State<MutableClustersPage>
   }
 
   static Marker _createMarker(LatLng point, Color color) => Marker(
-        anchorPos: const AnchorPos.align(AnchorAlign.top),
+        alignment: Alignment.topCenter,
         rotate: true,
-        rotateAlignment: AnchorAlign.top.rotationAlignment,
         height: 30,
         width: 30,
         point: point,
-        builder: (ctx) => Icon(
+        child: Icon(
           AccurateMapIcons.locationOnBottomAligned,
           color: color,
           size: 30,

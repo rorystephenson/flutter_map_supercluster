@@ -1,7 +1,7 @@
 import 'dart:math';
 
 import 'package:flutter/material.dart';
-import 'package:flutter_map/plugin_api.dart';
+import 'package:flutter_map/flutter_map.dart';
 import 'package:flutter_map_supercluster/flutter_map_supercluster.dart';
 import 'package:flutter_map_supercluster_example/drawer.dart';
 import 'package:flutter_map_supercluster_example/main.dart';
@@ -16,15 +16,15 @@ class BasicExamplePage extends StatelessWidget {
   static final _markers = List<Marker>.generate(
     _totalMarkers,
     (_) => Marker(
-      builder: (context) => const Icon(Icons.location_on),
       point: LatLng(
         _random.nextDouble() * 3 - 1.5 + _initialCenter.latitude,
         _random.nextDouble() * 3 - 1.5 + _initialCenter.longitude,
       ),
+      child: const Icon(Icons.location_on),
     ),
   );
 
-  const BasicExamplePage({Key? key}) : super(key: key);
+  const BasicExamplePage({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -39,8 +39,7 @@ class BasicExamplePage extends StatelessWidget {
         ),
         children: <Widget>[
           TileLayer(
-            urlTemplate: 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
-            subdomains: const ['a', 'b', 'c'],
+            urlTemplate: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
             userAgentPackageName: tileLayerPackageName,
           ),
           SuperclusterLayer.immutable(
@@ -48,7 +47,7 @@ class BasicExamplePage extends StatelessWidget {
             indexBuilder: IndexBuilders.computeWithOriginalMarkers,
             clusterWidgetSize: const Size(40, 40),
             maxClusterRadius: 120,
-            clusterAnchorPos: const AnchorPos.align(AnchorAlign.center),
+            clusterAlignment: Alignment.center,
             builder: (context, position, markerCount, extraClusterData) {
               return Container(
                 decoration: BoxDecoration(

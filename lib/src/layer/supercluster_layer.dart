@@ -1,7 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
-import 'package:flutter_map/plugin_api.dart';
+import 'package:flutter_map/flutter_map.dart';
 import 'package:flutter_map_supercluster/flutter_map_supercluster.dart';
 import 'package:flutter_map_supercluster/src/controller/supercluster_controller_impl.dart';
 import 'package:flutter_map_supercluster/src/layer/supercluster_layer_impl.dart';
@@ -43,12 +43,12 @@ class SuperclusterLayer extends StatelessWidget {
   final IndexBuilder? indexBuilder;
 
   /// The maximum zoom at which clusters will be formed, at higher zooms all
-  // points will be visible. Defaults to the FlutterMap maxZoom or, if it is
-  // not set, 20.
-  //
-  // This value must not be higher than the FlutterMap's maxZoom if it is set
-  // as this will break splay cluster functionality and causes unnecesssary
-  // calculations since not all clusters/points will be able to be viewed.
+  /// points will be visible. Defaults to the FlutterMap maxZoom or, if it is
+  /// not set, 20.
+  ///
+  /// This value must not be higher than the FlutterMap's maxZoom if it is set
+  /// as this will break splay cluster functionality and causes unnecesssary
+  /// calculations since not all clusters/points will be able to be viewed.
   final int? maxClusterZoom;
 
   /// The minimum number of points required to form a cluster, if there is less
@@ -95,7 +95,7 @@ class SuperclusterLayer extends StatelessWidget {
   final Size clusterWidgetSize;
 
   /// Cluster anchor position.
-  final AnchorPos clusterAnchorPos;
+  final Alignment clusterAlignment;
 
   /// If true then whenever the aggregated cluster data changes (that is, the
   /// combined cluster data of all Markers as calculated by
@@ -109,7 +109,7 @@ class SuperclusterLayer extends StatelessWidget {
   final ClusterSplayDelegate clusterSplayDelegate;
 
   const SuperclusterLayer.immutable({
-    Key? key,
+    super.key,
     SuperclusterImmutableController? this.controller,
     required this.builder,
     required this.indexBuilder,
@@ -124,25 +124,17 @@ class SuperclusterLayer extends StatelessWidget {
     this.clusterWidgetSize = const Size(30, 30),
     this.loadingOverlayBuilder,
     PopupOptions? popupOptions,
-    @Deprecated(
-      'Prefer `clusterAnchorPos` instead. '
-      'This method has been renamed to clusterAnchorPos for clarity. '
-      'This method is deprecated since v5.0.0',
-    )
-    AnchorPos? anchorPos,
-    AnchorPos clusterAnchorPos = AnchorPos.defaultAnchorPos,
+    this.clusterAlignment = Alignment.center,
     this.clusterSplayDelegate = const SpreadClusterSplayDelegate(
       duration: Duration(milliseconds: 300),
       splayLineOptions: SplayLineOptions(),
     ),
   })  : isMutableSupercluster = false,
-        clusterAnchorPos = anchorPos ?? clusterAnchorPos,
         popupOptions =
-            popupOptions == null ? null : popupOptions as PopupOptionsImpl,
-        super(key: key);
+            popupOptions == null ? null : popupOptions as PopupOptionsImpl;
 
   const SuperclusterLayer.mutable({
-    Key? key,
+    super.key,
     SuperclusterMutableController? this.controller,
     required this.builder,
     this.indexBuilder,
@@ -157,21 +149,13 @@ class SuperclusterLayer extends StatelessWidget {
     this.clusterWidgetSize = const Size(30, 30),
     this.loadingOverlayBuilder,
     PopupOptions? popupOptions,
-    @Deprecated(
-      'Prefer `clusterAnchorPos` instead. '
-      'This method has been renamed to clusterAnchorPos for clarity. '
-      'This method is deprecated since v5.0.0',
-    )
-    AnchorPos? anchorPos,
-    AnchorPos clusterAnchorPos = AnchorPos.defaultAnchorPos,
+    this.clusterAlignment = Alignment.center,
     this.clusterSplayDelegate = const SpreadClusterSplayDelegate(
       duration: Duration(milliseconds: 400),
     ),
   })  : isMutableSupercluster = true,
-        clusterAnchorPos = anchorPos ?? clusterAnchorPos,
         popupOptions =
-            popupOptions == null ? null : popupOptions as PopupOptionsImpl,
-        super(key: key);
+            popupOptions == null ? null : popupOptions as PopupOptionsImpl;
 
   @override
   Widget build(BuildContext context) => InheritOrCreateSuperclusterScope(
@@ -195,11 +179,7 @@ class SuperclusterLayer extends StatelessWidget {
           clusterWidgetSize: clusterWidgetSize,
           loadingOverlayBuilder: loadingOverlayBuilder,
           popupOptions: popupOptions,
-          clusterAnchor: Anchor.fromPos(
-            clusterAnchorPos,
-            clusterWidgetSize.width,
-            clusterWidgetSize.height,
-          ),
+          clusterAlignment: clusterAlignment,
           clusterSplayDelegate: clusterSplayDelegate,
         ),
       );

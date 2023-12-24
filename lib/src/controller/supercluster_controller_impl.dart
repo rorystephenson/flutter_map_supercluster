@@ -1,6 +1,6 @@
 import 'dart:async';
 
-import 'package:flutter_map/plugin_api.dart';
+import 'package:flutter_map/flutter_map.dart';
 import 'package:flutter_map_supercluster/src/controller/marker_matcher.dart';
 import 'package:flutter_map_supercluster/src/controller/supercluster_event.dart';
 import 'package:latlong2/latlong.dart';

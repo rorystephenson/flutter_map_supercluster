@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_map/plugin_api.dart';
+import 'package:flutter_map/flutter_map.dart';
 import 'package:flutter_map_marker_popup/flutter_map_marker_popup.dart';
 import 'package:flutter_map_supercluster/flutter_map_supercluster.dart';
 import 'package:flutter_map_supercluster_example/drawer.dart';
@@ -9,7 +9,7 @@ import 'package:latlong2/latlong.dart';
 class NormalAndClusteredMarkersWithPopupsPage extends StatefulWidget {
   static const String route = 'normalAndClusteredMarkersWithPopupsPage';
 
-  const NormalAndClusteredMarkersWithPopupsPage({Key? key}) : super(key: key);
+  const NormalAndClusteredMarkersWithPopupsPage({super.key});
 
   @override
   State<NormalAndClusteredMarkersWithPopupsPage> createState() =>
@@ -43,13 +43,12 @@ class _NormalAndClusteredMarkersWithPopupsPageState
   }
 
   Marker _createMarker(LatLng point, Color color) => Marker(
-        anchorPos: const AnchorPos.align(AnchorAlign.top),
-        rotateAlignment: AnchorAlign.top.rotationAlignment,
+        alignment: Alignment.topCenter,
         height: 30,
         width: 30,
         point: point,
         rotate: true,
-        builder: (ctx) => Icon(Icons.pin_drop, color: color),
+        child: Icon(Icons.pin_drop, color: color),
       );
 
   @override
@@ -82,8 +81,7 @@ class _NormalAndClusteredMarkersWithPopupsPageState
           ),
           children: <Widget>[
             TileLayer(
-              urlTemplate: 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
-              subdomains: const ['a', 'b', 'c'],
+              urlTemplate: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
               userAgentPackageName: tileLayerPackageName,
             ),
             SuperclusterLayer.immutable(
@@ -91,7 +89,7 @@ class _NormalAndClusteredMarkersWithPopupsPageState
               indexBuilder: IndexBuilders.rootIsolate,
               controller: _superclusterController,
               clusterWidgetSize: const Size(40, 40),
-              clusterAnchorPos: const AnchorPos.align(AnchorAlign.center),
+              clusterAlignment: Alignment.center,
               popupOptions: PopupOptions(
                 selectedMarkerBuilder: (context, marker) => Icon(
                   Icons.pin_drop,

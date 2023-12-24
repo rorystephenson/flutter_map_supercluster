@@ -1,5 +1,5 @@
 import 'package:equatable/equatable.dart';
-import 'package:flutter_map/plugin_api.dart';
+import 'package:flutter_map/flutter_map.dart';
 import 'package:supercluster/supercluster.dart';
 
 /// This describes the options needed to create a Supercluster but does not

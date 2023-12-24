@@ -16,9 +16,9 @@
 - FEATURE: Splayed clusters will now be collapsed automatically when removing
   one of their points or inserting a point which causes the splay cluster to
   change.
-- FEATURE: flutter_map 6.0.0-dev.1.
-- FEATURE: flutter_map_marker_popup v5.3.0-dev.1
-- FEATURE: supercluster v3.0.0.
+- FEATURE: flutter_map 6.0.0
+- FEATURE: flutter_map_marker_popup v6.1.1
+- FEATURE: supercluster v3.0.1.
 - DEPRECATION: SuperclusterLayer's anchor has been renamed to clusterAnchorPos.
 - CHORE: Example app tidy-up. Added desktop platforms and renamed/simplified
   examples.

@@ -10,7 +10,7 @@ void main() => runApp(const MyApp());
 const tileLayerPackageName = 'ng.balanci.flutter_map_supercluster.example';
 
 class MyApp extends StatelessWidget {
-  const MyApp({Key? key}) : super(key: key);
+  const MyApp({super.key});
 
   @override
   Widget build(BuildContext context) {

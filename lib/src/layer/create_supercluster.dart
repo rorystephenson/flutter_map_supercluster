@@ -1,4 +1,4 @@
-import 'package:flutter_map/plugin_api.dart';
+import 'package:flutter_map/flutter_map.dart';
 import 'package:flutter_map_supercluster/src/layer/cluster_data.dart';
 import 'package:flutter_map_supercluster/src/layer/supercluster_parameters.dart';
 import 'package:supercluster/supercluster.dart';

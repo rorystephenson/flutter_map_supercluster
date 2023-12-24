@@ -1,8 +1,8 @@
 import 'dart:math';
 
 import 'package:flutter/material.dart';
-import 'package:flutter_map/plugin_api.dart';
-import 'package:flutter_map_supercluster/src/layer/anchor_util.dart';
+import 'package:flutter_map/flutter_map.dart';
+import 'package:flutter_map_supercluster/src/layer/alignment_util.dart';
 import 'package:flutter_map_supercluster/src/layer/map_camera_extension.dart';
 import 'package:flutter_map_supercluster/src/layer_element_extension.dart';
 import 'package:supercluster/supercluster.dart';
@@ -17,6 +17,7 @@ class ClusterWidget extends StatelessWidget {
   final Size size;
   final Point<double> position;
   final double mapRotationRad;
+  final Alignment alignment;
 
   ClusterWidget({
     Key? key,
@@ -25,11 +26,11 @@ class ClusterWidget extends StatelessWidget {
     required this.builder,
     required this.onTap,
     required this.size,
-    required Anchor anchor,
+    required this.alignment,
   })  : position = _getClusterPixel(
           mapCamera,
           cluster,
-          anchor,
+          alignment,
           size,
         ),
         mapRotationRad = mapCamera.rotationRad,
@@ -63,14 +64,14 @@ class ClusterWidget extends StatelessWidget {
   static Point<double> _getClusterPixel(
     MapCamera mapCamera,
     LayerCluster<Marker> cluster,
-    Anchor anchor,
+    Alignment alignment,
     Size size,
   ) {
-    return AnchorUtil.removeAnchor(
+    return AlignmentUtil.applyAlignment(
       mapCamera.getPixelOffset(cluster.latLng),
       size.width,
       size.height,
-      anchor,
+      alignment,
     );
   }
 }
