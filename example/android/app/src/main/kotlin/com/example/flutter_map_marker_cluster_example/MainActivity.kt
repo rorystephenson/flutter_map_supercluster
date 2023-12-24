@@ -1,4 +1,4 @@
-package com.example.flutter_map_supercluster_example
+package ng.balanci.flutter_map_supercluster_example
 
 import io.flutter.embedding.android.FlutterActivity
 

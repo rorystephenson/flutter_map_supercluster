@@ -1,4 +1,4 @@
-import 'package:flutter_map/plugin_api.dart';
+import 'package:flutter_map/flutter_map.dart';
 import 'package:flutter_map_marker_popup/extension_api.dart';
 import 'package:flutter_map_supercluster/src/layer/supercluster_layer.dart';
 import 'package:flutter_map_supercluster/src/splay/displaced_marker.dart';
@@ -14,9 +14,7 @@ class PopupSpecBuilder {
         namespace: SuperclusterLayer.popupNamespace,
         marker: displacedMarker.marker,
         markerPointOverride: displacedMarker.displacedPoint,
-        markerRotateAlignmentOveride: DisplacedMarker.rotateAlignment,
-        removeMarkerRotateOrigin: true,
-        markerAnchorPosOverride: DisplacedMarker.anchorPos,
+        markerAlignmentOverride: DisplacedMarker.alignment,
         removeIfZoomLessThan: lowestZoom,
       );
 

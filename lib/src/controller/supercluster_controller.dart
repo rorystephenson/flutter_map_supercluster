@@ -1,26 +1,14 @@
 import 'dart:async';
 
-import 'package:flutter_map/plugin_api.dart';
+import 'package:flutter_map/flutter_map.dart';
 import 'package:flutter_map_supercluster/src/controller/marker_matcher.dart';
 import 'package:latlong2/latlong.dart';
 
 import 'supercluster_controller_impl.dart';
-import 'supercluster_state.dart';
 
 abstract class SuperclusterController {
   /// Clear all of the existing Markers.
   void clear();
-
-  /// A Future that completes with an Iterable of all Markers in the order that
-  /// the inner cluster store holds them. The Future will complete when the
-  /// controller is associated with a layer and the loading of the supercluster
-  /// finishes.
-  Future<Iterable<Marker>> all();
-
-  /// A Stream of the [SuperclusterState]. Note that the [SuperclusterState]'s
-  /// aggregatedClusterData will not be calculated unless [SuperclusterLayer]'s
-  /// [calculateAggregatedClusterData] is true.
-  Stream<SuperclusterState> get stateStream;
 
   /// Collapses any splayed clusters. See SuperclusterLayer's
   /// [clusterSplayDelegate] for more information on splaying.
@@ -107,9 +95,7 @@ abstract class SuperclusterController {
 }
 
 abstract class SuperclusterImmutableController extends SuperclusterController {
-  factory SuperclusterImmutableController() => SuperclusterControllerImpl(
-        createdInternally: false,
-      );
+  factory SuperclusterImmutableController() => SuperclusterControllerImpl();
 
   /// Remove all of the existing Markers and replace them with [markers]. Note
   /// that this requires completely rebuilding the clusters and may be a slow
@@ -120,16 +106,22 @@ abstract class SuperclusterImmutableController extends SuperclusterController {
 }
 
 abstract class SuperclusterMutableController extends SuperclusterController {
-  factory SuperclusterMutableController() => SuperclusterControllerImpl(
-        createdInternally: false,
-      );
+  factory SuperclusterMutableController() => SuperclusterControllerImpl();
 
   /// Add a single [Marker]. This [Marker] will be clustered if possible.
   void add(Marker marker);
 
+  /// Add multiple [markers]. The markers will be clustered if possible. This
+  /// method is faster than [add] for multple markers.
+  void addAll(List<Marker> markers);
+
   /// Remove a single [Marker]. This may cause some clusters to be split and
   /// rebuilt.
   void remove(Marker marker);
+
+  /// Remove multiple [markers]. The markers will be clustered if possible. This
+  /// method is faster than [remove] for multple markers.
+  void removeAll(List<Marker> markers);
 
   /// Modify a Marker. Note that [oldMarker] must have the same [pos] as
   /// [newMarker]. This is an optimised function that skips re-clustering.

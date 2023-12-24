@@ -1,6 +1,6 @@
 import 'dart:async';
 
-import 'package:flutter_map/plugin_api.dart';
+import 'package:flutter_map/flutter_map.dart';
 import 'package:flutter_map_supercluster/src/controller/marker_matcher.dart';
 import 'package:latlong2/latlong.dart';
 
@@ -14,10 +14,22 @@ class AddMarkerEvent extends SuperclusterEvent {
   const AddMarkerEvent(this.marker);
 }
 
+class AddAllMarkerEvent extends SuperclusterEvent {
+  final List<Marker> markers;
+
+  const AddAllMarkerEvent(this.markers);
+}
+
 class RemoveMarkerEvent extends SuperclusterEvent {
   final Marker marker;
 
   const RemoveMarkerEvent(this.marker);
+}
+
+class RemoveAllMarkerEvent extends SuperclusterEvent {
+  final List<Marker> markers;
+
+  const RemoveAllMarkerEvent(this.markers);
 }
 
 class ReplaceAllMarkerEvent extends SuperclusterEvent {

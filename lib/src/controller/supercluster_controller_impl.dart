@@ -1,35 +1,20 @@
 import 'dart:async';
 
-import 'package:flutter_map/plugin_api.dart';
+import 'package:flutter_map/flutter_map.dart';
 import 'package:flutter_map_supercluster/src/controller/marker_matcher.dart';
 import 'package:flutter_map_supercluster/src/controller/supercluster_event.dart';
 import 'package:latlong2/latlong.dart';
-import 'package:supercluster/supercluster.dart';
 
 import 'supercluster_controller.dart';
-import 'supercluster_state.dart';
 
 class SuperclusterControllerImpl
     implements SuperclusterImmutableController, SuperclusterMutableController {
-  final bool createdInternally;
   final StreamController<SuperclusterEvent> _superclusterEventController;
-  final StreamController<SuperclusterState> _stateStreamController;
-  Future<Supercluster<Marker>> _supercluster = Future.any([]);
 
-  SuperclusterControllerImpl({required this.createdInternally})
-      : _superclusterEventController = StreamController.broadcast(),
-        _stateStreamController =
-            StreamController<SuperclusterState>.broadcast();
+  SuperclusterControllerImpl()
+      : _superclusterEventController = StreamController.broadcast();
 
   Stream<SuperclusterEvent> get stream => _superclusterEventController.stream;
-
-  @override
-  Stream<SuperclusterState> get stateStream =>
-      _stateStreamController.stream.distinct();
-
-  void setSupercluster(Future<Supercluster<Marker>> supercluster) {
-    _supercluster = supercluster;
-  }
 
   @override
   void add(Marker marker) {
@@ -37,8 +22,18 @@ class SuperclusterControllerImpl
   }
 
   @override
+  void addAll(List<Marker> markers) {
+    _superclusterEventController.add(AddAllMarkerEvent(markers));
+  }
+
+  @override
   void remove(Marker marker) {
     _superclusterEventController.add(RemoveMarkerEvent(marker));
+  }
+
+  @override
+  void removeAll(List<Marker> markers) {
+    _superclusterEventController.add(RemoveAllMarkerEvent(markers));
   }
 
   @override
@@ -55,10 +50,6 @@ class SuperclusterControllerImpl
     ));
   }
 
-  void removeSupercluster() {
-    _supercluster = Future.any([]);
-  }
-
   @override
   void replaceAll(List<Marker> markers) {
     _superclusterEventController.add(ReplaceAllMarkerEvent(markers));
@@ -67,11 +58,6 @@ class SuperclusterControllerImpl
   @override
   void clear() {
     _superclusterEventController.add(const ReplaceAllMarkerEvent([]));
-  }
-
-  @override
-  Future<Iterable<Marker>> all() {
-    return _supercluster.then((supercluster) => supercluster.getLeaves());
   }
 
   @override
@@ -92,10 +78,6 @@ class SuperclusterControllerImpl
         moveMap: moveMap,
       ),
     );
-  }
-
-  void updateState(SuperclusterState newState) {
-    _stateStreamController.add(newState);
   }
 
   @override
@@ -155,6 +137,5 @@ class SuperclusterControllerImpl
   @override
   void dispose() {
     _superclusterEventController.close();
-    _stateStreamController.close();
   }
 }

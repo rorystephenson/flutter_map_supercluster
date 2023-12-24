@@ -1,28 +1,29 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_map/plugin_api.dart';
+import 'package:flutter_map/flutter_map.dart';
 import 'package:flutter_map_marker_popup/flutter_map_marker_popup.dart';
 import 'package:flutter_map_supercluster/flutter_map_supercluster.dart';
 import 'package:flutter_map_supercluster_example/drawer.dart';
+import 'package:flutter_map_supercluster_example/main.dart';
 import 'package:latlong2/latlong.dart';
 
-class NormalAndClusteredMarkersWithPopups extends StatefulWidget {
-  static const String route = 'normalAndClusteredMarkersWithPopupPage';
+class NormalAndClusteredMarkersWithPopupsPage extends StatefulWidget {
+  static const String route = 'normalAndClusteredMarkersWithPopupsPage';
 
-  const NormalAndClusteredMarkersWithPopups({Key? key}) : super(key: key);
+  const NormalAndClusteredMarkersWithPopupsPage({super.key});
 
   @override
-  State<NormalAndClusteredMarkersWithPopups> createState() =>
-      _NormalAndClusteredMarkersWithPopupsState();
+  State<NormalAndClusteredMarkersWithPopupsPage> createState() =>
+      _NormalAndClusteredMarkersWithPopupsPageState();
 }
 
-class _NormalAndClusteredMarkersWithPopupsState
-    extends State<NormalAndClusteredMarkersWithPopups> {
+class _NormalAndClusteredMarkersWithPopupsPageState
+    extends State<NormalAndClusteredMarkersWithPopupsPage> {
   late final SuperclusterImmutableController _superclusterController;
   late final PopupController _popupController;
 
-  static final points = [
-    const LatLng(51.5, 0),
-    const LatLng(51.0, 0.5),
+  static const points = [
+    LatLng(51.5, 0),
+    LatLng(51.0, 0.5),
   ];
   late List<Marker> markersA;
   late List<Marker> markersB;
@@ -42,13 +43,12 @@ class _NormalAndClusteredMarkersWithPopupsState
   }
 
   Marker _createMarker(LatLng point, Color color) => Marker(
-        anchorPos: AnchorPos.align(AnchorAlign.top),
-        rotateAlignment: AnchorAlign.top.rotationAlignment,
+        alignment: Alignment.topCenter,
         height: 30,
         width: 30,
         point: point,
         rotate: true,
-        builder: (ctx) => Icon(Icons.pin_drop, color: color),
+        child: Icon(Icons.pin_drop, color: color),
       );
 
   @override
@@ -63,7 +63,8 @@ class _NormalAndClusteredMarkersWithPopupsState
     return Scaffold(
       appBar:
           AppBar(title: const Text('Normal and Clustered Markers With Popups')),
-      drawer: buildDrawer(context, NormalAndClusteredMarkersWithPopups.route),
+      drawer:
+          buildDrawer(context, NormalAndClusteredMarkersWithPopupsPage.route),
       body: PopupScope(
         popupController: _popupController,
         onPopupEvent: (event, selectedMarkers) => debugPrint(
@@ -71,8 +72,8 @@ class _NormalAndClusteredMarkersWithPopupsState
         ),
         child: FlutterMap(
           options: MapOptions(
-            center: points[0],
-            zoom: 5,
+            initialCenter: points[0],
+            initialZoom: 5,
             maxZoom: 15,
             onTap: (_, __) {
               _popupController.hideAllPopups();
@@ -80,15 +81,15 @@ class _NormalAndClusteredMarkersWithPopupsState
           ),
           children: <Widget>[
             TileLayer(
-              urlTemplate: 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
-              subdomains: const ['a', 'b', 'c'],
+              urlTemplate: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
+              userAgentPackageName: tileLayerPackageName,
             ),
             SuperclusterLayer.immutable(
               initialMarkers: markersA,
               indexBuilder: IndexBuilders.rootIsolate,
               controller: _superclusterController,
               clusterWidgetSize: const Size(40, 40),
-              anchor: AnchorPos.align(AnchorAlign.center),
+              clusterAlignment: Alignment.center,
               popupOptions: PopupOptions(
                 selectedMarkerBuilder: (context, marker) => Icon(
                   Icons.pin_drop,

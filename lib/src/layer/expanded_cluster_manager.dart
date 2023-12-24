@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_map/plugin_api.dart';
+import 'package:flutter_map/flutter_map.dart';
 import 'package:flutter_map_supercluster/src/widget/expanded_cluster.dart';
 import 'package:supercluster/supercluster.dart';
 
@@ -102,7 +102,45 @@ class ExpandedClusterManager {
     }
   }
 
-  /// Removes all without triggering onRemove callback.
+  void removeImmediately(ExpandedCluster expandedCluster) {
+    final removed = _expandedClusters.remove(expandedCluster.layerCluster.uuid);
+    if (removed == null) return;
+
+    // Dispose after removal so that ExpandedClusterManager never contains
+    // disposed ExpandedClusters.
+    expandedCluster.dispose();
+
+    onRemoveStart([removed]);
+    onRemoved([removed]);
+  }
+
+  void removeAllImmediately(Iterable<ExpandedCluster> expandedClusters) {
+    final removalIds = expandedClusters.map((e) => e.layerCluster.uuid).toSet();
+    final removed = <ExpandedCluster>[];
+
+    _expandedClusters.removeWhere((uuid, expandedCluster) {
+      if (removalIds.contains(uuid)) {
+        removed.add(expandedCluster);
+        return true;
+      }
+      return false;
+    });
+
+    // Dispose after removal so that ExpandedClusterManager never contains
+    // disposed ExpandedClusters.
+    for (var expandedCluster in removed) {
+      expandedCluster.dispose();
+    }
+
+    if (removed.isNotEmpty) {
+      onRemoveStart(removed);
+      onRemoved(removed);
+    }
+  }
+
+  /// Removes all without triggering onRemove callback. The removal callback is
+  /// used for hiding popups but this method should only be called after
+  /// re-initializing the supercluster which already hides popups.
   void clear() {
     final removed = List.from(_expandedClusters.values);
     _expandedClusters.clear();
