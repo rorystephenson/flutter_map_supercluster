@@ -7,7 +7,7 @@ Two different Marker clustering layers for [flutter_map](https://github.com/flea
 - `SuperclusterMutableLayer`: An slightly slower (but still very fast) Marker clustering layer.
   Markers can be added/removed.
 
-If you want beautiful clustering animations check out `flutter_map_marker_plugin`. It will perform
+If you want beautiful clustering animations check out [`flutter_map_marker_cluster`](https://pub.dev/packages/flutter_map_marker_cluster). It will perform
 well for quite a lot of Markers on most devices. If you are running in to performance issues and are
 happy to sacrifice animations then this package may be for you.
 
