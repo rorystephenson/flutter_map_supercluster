@@ -1,9 +1,8 @@
 import 'dart:math';
 
 import 'package:flutter/material.dart';
-import 'package:flutter_map/plugin_api.dart';
+import 'package:flutter_map/flutter_map.dart';
 import 'package:flutter_map_supercluster/src/layer/cluster_data.dart';
-import 'package:flutter_map_supercluster/src/layer/flutter_map_state_extension.dart';
 import 'package:flutter_map_supercluster/src/layer/supercluster_layer.dart';
 import 'package:flutter_map_supercluster/src/layer_element_extension.dart';
 import 'package:flutter_map_supercluster/src/splay/cluster_splay_delegate.dart';
@@ -67,7 +66,7 @@ class ExpandedCluster {
 
   List<DisplacedMarkerOffset> displacedMarkerOffsets(
     FlutterMapState mapState,
-    CustomPoint clusterPosition,
+    Point clusterPosition,
   ) =>
       clusterSplayDelegate.displacedMarkerOffsets(
         displacedMarkers,

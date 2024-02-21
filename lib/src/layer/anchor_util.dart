@@ -1,12 +1,12 @@
 import 'dart:math';
 import 'dart:ui';
 
-import 'package:flutter_map/plugin_api.dart';
+import 'package:flutter_map/flutter_map.dart';
 import 'package:supercluster/supercluster.dart';
 
 class AnchorUtil {
   static Point<double> removeClusterAnchor(
-    CustomPoint pos,
+    Point pos,
     LayerCluster<Marker> cluster,
     AnchorPos? clusterAnchorPos,
     Size clusterWidgetSize,

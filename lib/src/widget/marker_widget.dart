@@ -1,9 +1,8 @@
 import 'dart:math';
 
 import 'package:flutter/material.dart';
-import 'package:flutter_map/plugin_api.dart';
+import 'package:flutter_map/flutter_map.dart';
 import 'package:flutter_map_supercluster/src/layer/anchor_util.dart';
-import 'package:flutter_map_supercluster/src/layer/flutter_map_state_extension.dart';
 import 'package:flutter_map_supercluster/src/marker_extension.dart';
 import 'package:flutter_map_supercluster/src/splay/displaced_marker.dart';
 
@@ -31,7 +30,7 @@ class MarkerWidget extends StatelessWidget {
   MarkerWidget.displaced({
     Key? key,
     required DisplacedMarker displacedMarker,
-    required CustomPoint position,
+    required Point position,
     required this.markerBuilder,
     required this.onTap,
     required this.mapRotationRad,

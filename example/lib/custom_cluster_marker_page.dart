@@ -3,8 +3,9 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:flutter_map/plugin_api.dart';
 import 'package:flutter_map_supercluster/flutter_map_supercluster.dart';
-import 'package:flutter_map_supercluster_example/drawer.dart';
 import 'package:latlong2/latlong.dart';
+
+import 'drawer.dart';
 
 class CustomClusterMarkerPage extends StatelessWidget {
   static const String route = 'customClusterMarkerPage';

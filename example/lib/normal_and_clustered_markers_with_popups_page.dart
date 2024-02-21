@@ -2,8 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_map/plugin_api.dart';
 import 'package:flutter_map_marker_popup/flutter_map_marker_popup.dart';
 import 'package:flutter_map_supercluster/flutter_map_supercluster.dart';
-import 'package:flutter_map_supercluster_example/drawer.dart';
 import 'package:latlong2/latlong.dart';
+
+import 'drawer.dart';
 
 class NormalAndClusteredMarkersWithPopups extends StatefulWidget {
   static const String route = 'normalAndClusteredMarkersWithPopupPage';

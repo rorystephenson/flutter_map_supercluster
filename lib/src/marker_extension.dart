@@ -1,4 +1,4 @@
-import 'package:flutter_map/plugin_api.dart';
+import 'package:flutter_map/flutter_map.dart';
 
 extension MarkerExtension on Marker {
   Anchor get anchor => Anchor.fromPos(

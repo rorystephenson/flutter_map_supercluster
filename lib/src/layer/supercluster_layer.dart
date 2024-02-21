@@ -3,14 +3,13 @@ import 'dart:math';
 
 import 'package:async/async.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_map/plugin_api.dart';
+import 'package:flutter_map/flutter_map.dart';
 import 'package:flutter_map_marker_popup/extension_api.dart';
 import 'package:flutter_map_supercluster/src/controller/marker_matcher.dart';
 import 'package:flutter_map_supercluster/src/controller/supercluster_event.dart';
 import 'package:flutter_map_supercluster/src/controller/supercluster_state.dart';
 import 'package:flutter_map_supercluster/src/layer/create_supercluster.dart';
 import 'package:flutter_map_supercluster/src/layer/expanded_cluster_manager.dart';
-import 'package:flutter_map_supercluster/src/layer/flutter_map_state_extension.dart';
 import 'package:flutter_map_supercluster/src/layer/loading_overlay.dart';
 import 'package:flutter_map_supercluster/src/layer/supercluster_config.dart';
 import 'package:flutter_map_supercluster/src/layer_element_extension.dart';
@@ -461,7 +460,7 @@ class _SuperclusterLayerState extends State<SuperclusterLayer>
             widget.popupOptions!.selectedMarkerBuilder!(context, marker);
 
     return MarkerWidget(
-      mapState: _mapState,
+      mapCamera: _mapState,
       marker: marker,
       markerBuilder: markerBuilder,
       onTap: () => _onMarkerTap(PopupSpecBuilder.forLayerPoint(mapPoint)),

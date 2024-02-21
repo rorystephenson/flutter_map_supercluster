@@ -2,9 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_map/plugin_api.dart';
 import 'package:flutter_map_animations/flutter_map_animations.dart';
 import 'package:flutter_map_supercluster/flutter_map_supercluster.dart';
-import 'package:flutter_map_supercluster_example/drawer.dart';
-import 'package:flutter_map_supercluster_example/font/accurate_map_icons.dart';
 import 'package:latlong2/latlong.dart';
+
+import 'drawer.dart';
+import 'font/accurate_map_icons.dart';
 
 class MutableClusteringPage extends StatefulWidget {
   static const String route = 'mutableClusteringPage';
