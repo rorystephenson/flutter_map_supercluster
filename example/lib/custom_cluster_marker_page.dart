@@ -1,16 +1,16 @@
 import 'dart:math';
 
 import 'package:flutter/material.dart';
-import 'package:flutter_map/plugin_api.dart';
+import 'package:flutter_map/flutter_map.dart';
 import 'package:flutter_map_supercluster/flutter_map_supercluster.dart';
+import 'package:flutter_map_supercluster_example/drawer.dart';
+import 'package:flutter_map_supercluster_example/main.dart';
 import 'package:latlong2/latlong.dart';
-
-import 'drawer.dart';
 
 class CustomClusterMarkerPage extends StatelessWidget {
   static const String route = 'customClusterMarkerPage';
 
-  const CustomClusterMarkerPage({Key? key}) : super(key: key);
+  const CustomClusterMarkerPage({super.key});
 
   // Initialise randomly generated Markers
   static final _random = Random(42);
@@ -18,7 +18,6 @@ class CustomClusterMarkerPage extends StatelessWidget {
   static final _markers = List<CustomMarker>.generate(
     3000,
     (_) => CustomMarker(
-      builder: (context) => const Icon(Icons.location_on),
       point: LatLng(
         _random.nextDouble() * 3 - 1.5 + _initialCenter.latitude,
         _random.nextDouble() * 3 - 1.5 + _initialCenter.longitude,
@@ -26,6 +25,7 @@ class CustomClusterMarkerPage extends StatelessWidget {
       greenCount: _random.nextInt(10),
       blueCount: _random.nextInt(10),
       purpleCount: _random.nextInt(10),
+      child: const Icon(Icons.location_on),
     ),
   );
 
@@ -35,13 +35,14 @@ class CustomClusterMarkerPage extends StatelessWidget {
       appBar: AppBar(title: const Text('Custom Cluster Marker')),
       drawer: buildDrawer(context, CustomClusterMarkerPage.route),
       body: FlutterMap(
-        options: MapOptions(
-          center: _initialCenter,
-          zoom: 8,
+        options: const MapOptions(
+          initialCenter: _initialCenter,
+          initialZoom: 8,
         ),
         children: [
           TileLayer(
             urlTemplate: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
+            userAgentPackageName: tileLayerPackageName,
           ),
           SuperclusterLayer.immutable(
             // Replaces MarkerLayer
@@ -92,9 +93,9 @@ class CustomMarker extends Marker {
   final int blueCount;
   final int purpleCount;
 
-  CustomMarker({
+  const CustomMarker({
     required super.point,
-    required super.builder,
+    required super.child,
     required this.greenCount,
     required this.blueCount,
     required this.purpleCount,

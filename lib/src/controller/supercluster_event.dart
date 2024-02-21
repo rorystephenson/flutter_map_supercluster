@@ -14,10 +14,22 @@ class AddMarkerEvent extends SuperclusterEvent {
   const AddMarkerEvent(this.marker);
 }
 
+class AddAllMarkerEvent extends SuperclusterEvent {
+  final List<Marker> markers;
+
+  const AddAllMarkerEvent(this.markers);
+}
+
 class RemoveMarkerEvent extends SuperclusterEvent {
   final Marker marker;
 
   const RemoveMarkerEvent(this.marker);
+}
+
+class RemoveAllMarkerEvent extends SuperclusterEvent {
+  final List<Marker> markers;
+
+  const RemoveAllMarkerEvent(this.markers);
 }
 
 class ReplaceAllMarkerEvent extends SuperclusterEvent {

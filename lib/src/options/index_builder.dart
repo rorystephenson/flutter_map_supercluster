@@ -1,13 +1,15 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:flutter_map_supercluster/flutter_map_supercluster.dart';
-import 'package:flutter_map_supercluster/src/layer/supercluster_config.dart';
+import 'package:flutter_map_supercluster/src/layer/supercluster_parameters.dart';
 
 /// A callback used to create a supercluster index. See [IndexBuilders] for
 /// predefined builders and guidelines on which one to use.
 typedef IndexBuilder = Future<Supercluster<Marker>> Function(
-  Supercluster<Marker> Function(SuperclusterConfig config) createSupercluster,
-  SuperclusterConfig superclusterConfig,
+  Supercluster<Marker> Function(
+    SuperclusterParameters parameters,
+  ) createSupercluster,
+  SuperclusterParameters superclusterParameters,
 );
 
 /// Predefined builders for creating a supercluster index. The following is a
@@ -32,9 +34,9 @@ class IndexBuilders {
 
   /// Creates the supercluster in the root isolate. This is the best choice if
   /// you don't experience jank when creating the index.
-  static IndexBuilder rootIsolate =
-      ((createSupercluster, superclusterConfig) async =>
-          createSupercluster(superclusterConfig));
+  static final IndexBuilder rootIsolate =
+      ((createSupercluster, superclusterParameters) async =>
+          createSupercluster(superclusterParameters));
 
   /// Creates the supercluster in a separate isolate using flutter's [compute]
   /// method and then replaces the copied Marker instances in the supercluster
@@ -43,10 +45,10 @@ class IndexBuilders {
   /// down index creation for large numbers of Markers. This is unnecessary if
   /// you extend Marker and override its hashCode/== methods, in which case you
   /// should use [computeWithCopiedMarkers].
-  static IndexBuilder computeWithOriginalMarkers =
-      ((createSupercluster, superclusterConfig) async =>
-          compute(createSupercluster, superclusterConfig).then((supercluster) =>
-              supercluster..replacePoints(superclusterConfig.markers)));
+  static final IndexBuilder computeWithOriginalMarkers = ((createSupercluster,
+          superclusterParameters) async =>
+      compute(createSupercluster, superclusterParameters).then((supercluster) =>
+          supercluster..replacePoints(superclusterParameters.markers)));
 
   /// Creates the supercluster in a separate isolate using flutter's [compute]
   /// method. Dart creates copies of objects when running code in a separate
@@ -58,9 +60,9 @@ class IndexBuilders {
   ///
   /// Failure to override hashCode/== will prevent popups from working properly
   /// for splayed clusters and may cause other issues.
-  static IndexBuilder computeWithCopiedMarkers =
-      ((createSupercluster, superclusterConfig) async =>
-          compute(createSupercluster, superclusterConfig));
+  static final IndexBuilder computeWithCopiedMarkers =
+      ((createSupercluster, superclusterParameters) async =>
+          compute(createSupercluster, superclusterParameters));
 
   /// Calls the provided [indexBuilder] before replacing the resulting index's
   /// markers with the original markers. This is only necessary when the
@@ -69,8 +71,8 @@ class IndexBuilders {
   /// the index in a separate isolate or the Markers override hashCode/== you
   /// should just use a plain IndexBuilder instance.
   static IndexBuilder customWithOriginalMarkers(IndexBuilder indexBuilder) =>
-      ((createSupercluster, superclusterConfig) async => indexBuilder
-          .call(createSupercluster, superclusterConfig)
+      ((createSupercluster, superclusterParameters) async => indexBuilder
+          .call(createSupercluster, superclusterParameters)
           .then((supercluster) =>
-              supercluster..replacePoints(superclusterConfig.markers)));
+              supercluster..replacePoints(superclusterParameters.markers)));
 }

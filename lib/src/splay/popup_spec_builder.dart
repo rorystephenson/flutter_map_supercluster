@@ -14,9 +14,7 @@ class PopupSpecBuilder {
         namespace: SuperclusterLayer.popupNamespace,
         marker: displacedMarker.marker,
         markerPointOverride: displacedMarker.displacedPoint,
-        markerRotateAlignmentOveride: DisplacedMarker.rotateAlignment,
-        removeMarkerRotateOrigin: true,
-        markerAnchorPosOverride: DisplacedMarker.anchorPos,
+        markerAlignmentOverride: DisplacedMarker.alignment,
         removeIfZoomLessThan: lowestZoom,
       );
 
