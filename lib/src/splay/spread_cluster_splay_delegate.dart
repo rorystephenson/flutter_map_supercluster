@@ -97,7 +97,8 @@ class SpreadClusterSplayDelegate extends ClusterSplayDelegate {
         .toList()
       ..sort((a, b) => a.angle.compareTo(b.angle));
 
-    final circleOffsets = _clockwiseCircle(distance, markersWithAngles.length);
+    final circleOffsets = _clockwiseCircle(
+        distance + (4 * markersWithAngles.length), markersWithAngles.length);
     final clusterPointAtMaxZoom = project(clusterPosition);
 
     final result = <DisplacedMarker>[];
