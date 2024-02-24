@@ -26,6 +26,7 @@ class SpreadClusterSplayDelegate extends ClusterSplayDelegate {
   final SplayClusterWidgetBuilder? builder;
   final double clusterOpacity;
   final SplayLineOptions? splayLineOptions;
+  final double distanceIncrement;
 
   const SpreadClusterSplayDelegate({
     /// Duration of the splay animation.
@@ -48,6 +49,9 @@ class SpreadClusterSplayDelegate extends ClusterSplayDelegate {
     // Optional builder used for the expanded cluster. If provided
     // [clusterOpacity] has no affect.
     this.builder,
+
+    // the displacement radius is increased by this number depending on the markers count
+    this.distanceIncrement = 4.0,
   });
 
   @override
@@ -98,7 +102,8 @@ class SpreadClusterSplayDelegate extends ClusterSplayDelegate {
       ..sort((a, b) => a.angle.compareTo(b.angle));
 
     final circleOffsets = _clockwiseCircle(
-        distance + (4 * markersWithAngles.length), markersWithAngles.length);
+        distance + (distanceIncrement * markersWithAngles.length),
+        markersWithAngles.length);
     final clusterPointAtMaxZoom = project(clusterPosition);
 
     final result = <DisplacedMarker>[];
@@ -141,8 +146,10 @@ class SpreadClusterSplayDelegate extends ClusterSplayDelegate {
       splayLineOptions == null
           ? null
           : _DisplacedMarkerSplay(
-              width: distance + (4 * displacedMarkerOffsets.length) * 2.0,
-              height: distance + (4 * displacedMarkerOffsets.length) * 2.0,
+              width: distance +
+                  (distanceIncrement * displacedMarkerOffsets.length) * 2.0,
+              height: distance +
+                  (distanceIncrement * displacedMarkerOffsets.length) * 2.0,
               displacedMarkerOffsets: displacedMarkerOffsets,
               splayLineOptions: splayLineOptions!,
             );
