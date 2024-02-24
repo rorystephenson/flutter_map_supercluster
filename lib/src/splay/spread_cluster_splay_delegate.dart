@@ -141,8 +141,8 @@ class SpreadClusterSplayDelegate extends ClusterSplayDelegate {
       splayLineOptions == null
           ? null
           : _DisplacedMarkerSplay(
-              width: distance * 2.0,
-              height: distance * 2.0,
+              width: distance + (4 * displacedMarkerOffsets.length) * 2.0,
+              height: distance + (4 * displacedMarkerOffsets.length) * 2.0,
               displacedMarkerOffsets: displacedMarkerOffsets,
               splayLineOptions: splayLineOptions!,
             );
