@@ -682,10 +682,10 @@ class _SuperclusterLayerImplState extends State<SuperclusterLayerImpl>
         );
       case HidePopupsOnlyForEvent():
         if (widget.popupOptions == null) return;
-        widget.popupOptions?.popupController.hidePopupsOnlyFor(
+      /* widget.popupOptions?.popupController.hidePopupsOnlyFor(
           event.markers,
           disableAnimation: event.disableAnimation,
-        );
+        ); */
       case TogglePopupEvent():
         if (widget.popupOptions == null) return;
         final popupSpec = PopupSpecBuilder.build(
