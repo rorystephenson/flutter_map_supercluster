@@ -115,11 +115,13 @@ class _SuperclusterLayerImplState extends State<SuperclusterLayerImpl>
         // when zooming out but when an ExpandedCluster removal is triggered by
         // SuperclusterController.collapseSplayedClusters we need to remove the
         // popups ourselves.
-        widget.popupOptions?.popupController.hidePopupsOnlyFor(
+
+        // we don´t want to remove the popups from map!
+        /* widget.popupOptions?.popupController.hidePopupsOnlyFor(
           expandedClusters
               .expand((expandedCluster) => expandedCluster.markers)
               .toList(),
-        );
+        ); */
       },
       onRemoved: (expandedClusters) => setState(() {}),
     );
