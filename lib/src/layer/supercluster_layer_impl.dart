@@ -117,6 +117,7 @@ class _SuperclusterLayerImplState extends State<SuperclusterLayerImpl>
         // popups ourselves.
 
         // we don´t want to remove the popups from map!
+        // TODO : Make configurable
         /* widget.popupOptions?.popupController.hidePopupsOnlyFor(
           expandedClusters
               .expand((expandedCluster) => expandedCluster.markers)
@@ -378,10 +379,12 @@ class _SuperclusterLayerImplState extends State<SuperclusterLayerImpl>
       clusterAlignment: widget.clusterAlignment,
       markerBuilder: markerBuilder,
       onCollapse: () {
-        widget.popupOptions?.popupController
+        // we don´t want to remove the popups from map!
+        // TODO : Make configurable
+        /* widget.popupOptions?.popupController
             .hidePopupsOnlyFor(expandedCluster.markers.toList());
         _expandedClusterManager
-            .collapseThenRemove(expandedCluster.layerCluster);
+            .collapseThenRemove(expandedCluster.layerCluster); */
       },
       onMarkerTap: _onMarkerTap,
     );
