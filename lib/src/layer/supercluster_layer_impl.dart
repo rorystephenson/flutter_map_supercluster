@@ -638,7 +638,8 @@ class _SuperclusterLayerImplState extends State<SuperclusterLayerImpl>
           }
         });
       case CollapseSplayedClustersEvent():
-        _expandedClusterManager.collapseThenRemoveAll();
+        break;
+      //_expandedClusterManager.collapseThenRemoveAll();
       case ShowPopupsAlsoForEvent():
         if (widget.popupOptions == null) return;
         widget.popupOptions?.popupController.showPopupsAlsoForSpecs(
@@ -671,15 +672,15 @@ class _SuperclusterLayerImplState extends State<SuperclusterLayerImpl>
         );
       case HideAllPopupsEvent():
         if (widget.popupOptions == null) return;
-        widget.popupOptions?.popupController.hideAllPopups(
+      /*  widget.popupOptions?.popupController.hideAllPopups(
           disableAnimation: event.disableAnimation,
-        );
+        ); */
       case HidePopupsWhereEvent():
         if (widget.popupOptions == null) return;
-        widget.popupOptions?.popupController.hidePopupsWhere(
+      /* widget.popupOptions?.popupController.hidePopupsWhere(
           event.test,
           disableAnimation: event.disableAnimation,
-        );
+        ); */
       case HidePopupsOnlyForEvent():
         if (widget.popupOptions == null) return;
       /* widget.popupOptions?.popupController.hidePopupsOnlyFor(
