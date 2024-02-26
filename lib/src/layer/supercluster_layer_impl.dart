@@ -116,13 +116,11 @@ class _SuperclusterLayerImplState extends State<SuperclusterLayerImpl>
         // SuperclusterController.collapseSplayedClusters we need to remove the
         // popups ourselves.
 
-        // we don´t want to remove the popups from map!
-        // TODO : Make configurable
-        /* widget.popupOptions?.popupController.hidePopupsOnlyFor(
+        widget.popupOptions?.popupController.hidePopupsOnlyFor(
           expandedClusters
               .expand((expandedCluster) => expandedCluster.markers)
               .toList(),
-        ); */
+        );
       },
       onRemoved: (expandedClusters) => setState(() {}),
     );
@@ -379,12 +377,10 @@ class _SuperclusterLayerImplState extends State<SuperclusterLayerImpl>
       clusterAlignment: widget.clusterAlignment,
       markerBuilder: markerBuilder,
       onCollapse: () {
-        // we don´t want to remove the popups from map!
-        // TODO : Make configurable
-        /* widget.popupOptions?.popupController
+        widget.popupOptions?.popupController
             .hidePopupsOnlyFor(expandedCluster.markers.toList());
         _expandedClusterManager
-            .collapseThenRemove(expandedCluster.layerCluster); */
+            .collapseThenRemove(expandedCluster.layerCluster);
       },
       onMarkerTap: _onMarkerTap,
     );
@@ -638,8 +634,7 @@ class _SuperclusterLayerImplState extends State<SuperclusterLayerImpl>
           }
         });
       case CollapseSplayedClustersEvent():
-        break;
-      //_expandedClusterManager.collapseThenRemoveAll();
+        _expandedClusterManager.collapseThenRemoveAll();
       case ShowPopupsAlsoForEvent():
         if (widget.popupOptions == null) return;
         widget.popupOptions?.popupController.showPopupsAlsoForSpecs(
@@ -672,21 +667,21 @@ class _SuperclusterLayerImplState extends State<SuperclusterLayerImpl>
         );
       case HideAllPopupsEvent():
         if (widget.popupOptions == null) return;
-      /*  widget.popupOptions?.popupController.hideAllPopups(
+        widget.popupOptions?.popupController.hideAllPopups(
           disableAnimation: event.disableAnimation,
-        ); */
+        );
       case HidePopupsWhereEvent():
         if (widget.popupOptions == null) return;
-      /* widget.popupOptions?.popupController.hidePopupsWhere(
+        widget.popupOptions?.popupController.hidePopupsWhere(
           event.test,
           disableAnimation: event.disableAnimation,
-        ); */
+        );
       case HidePopupsOnlyForEvent():
         if (widget.popupOptions == null) return;
-      /* widget.popupOptions?.popupController.hidePopupsOnlyFor(
+        widget.popupOptions?.popupController.hidePopupsOnlyFor(
           event.markers,
           disableAnimation: event.disableAnimation,
-        ); */
+        );
       case TogglePopupEvent():
         if (widget.popupOptions == null) return;
         final popupSpec = PopupSpecBuilder.build(
