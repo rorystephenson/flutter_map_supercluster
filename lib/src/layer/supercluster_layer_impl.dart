@@ -723,61 +723,32 @@ class _SuperclusterLayerImplState extends State<SuperclusterLayerImpl>
         supercluster.layerPointMatching(MarkerMatcher.equalsMarker(oldMarker));
     if (foundLayerPoint == null) return;
 
-    final markerInSplayCluster =
-        _superclusterConfig.maxZoom < foundLayerPoint.lowestZoom;
-    if (markerInSplayCluster) {
+    // Is the marker part of a splay cluster?
+    if (_superclusterConfig.maxZoom < foundLayerPoint.lowestZoom) {
       // Find the parent.
       final layerCluster = supercluster.parentOf(foundLayerPoint)!;
 
-      // Shorthand for creating an ExpandedCluster.
-      /* createExpandedCluster() => ExpandedCluster(
-            vsync: this,
-            mapCamera: widget.mapCamera,
-            layerPoints: supercluster
-                .childrenOf(layerCluster)
-                .cast<LayerPoint<Marker>>(),
-            layerCluster: layerCluster,
-            clusterSplayDelegate: widget.clusterSplayDelegate,
-          ); */
-
-      // Find or create the marker's ExpandedCluster and use it to find the
-      // DisplacedMarker.
+      // Find the marker's ExpandedCluster
+      // and use it to find the DisplacedMarker.
       final expandedClusterBeforeMovement =
           _expandedClusterManager.forLayerCluster(layerCluster);
 
-      /* final createdExpandedCluster = expandedClusterBeforeMovement != null
-          ? null
-          : createExpandedCluster(); */
-      /* final displacedMarker =
-          (expandedClusterBeforeMovement ?? createdExpandedCluster)!
-              .markersToDisplacedMarkers[foundLayerPoint.originalPoint]!; */
-
-      /* (expandedClusterBeforeMovement ?? createdExpandedCluster)!
-              .markersToDisplacedMarkers[foundLayerPoint.originalPoint]! = DisplacedMarker(marker: newMarker, displacedPoint: displacedMarker.displacedPoint); */
       if (expandedClusterBeforeMovement != null) {
-        final displacedMarker = expandedClusterBeforeMovement
-            .markersToDisplacedMarkers[foundLayerPoint.originalPoint]!;
-        expandedClusterBeforeMovement
-                .markersToDisplacedMarkers[foundLayerPoint.originalPoint] =
-            DisplacedMarker(
-                marker: newMarker,
-                displacedPoint: displacedMarker.displacedPoint);
+        List<DisplacedMarker> displacedMarkers =
+            expandedClusterBeforeMovement.displacedMarkers;
+        for (var i = 0; i < displacedMarkers.length; i++) {
+          if (displacedMarkers[i].marker == oldMarker) {
+            // exchange the DisplacedMarker
+            // and make the new marker visible in the map
+            _expandedClusterManager
+                    .forLayerCluster(layerCluster)!
+                    .displacedMarkers[i] =
+                DisplacedMarker(
+                    marker: newMarker,
+                    displacedPoint: displacedMarkers[i].displacedPoint);
+          }
+        }
       }
-
-      // Determine the ExpandedCluster after movement, either:
-      //   1. We created one (without adding it to ExpandedClusterManager)
-      //      because there was none before movement.
-      //   2. Movement may have caused the ExpandedCluster to be removed in which
-      //      case we create a new one.
-      /* final splayAnimation = _expandedClusterManager.putIfAbsent(
-        layerCluster,
-        () => createdExpandedCluster ?? createExpandedCluster(),
-      ); */
-      /* if (splayAnimation != null) {
-        if (!mounted) return;
-        setState(() {});
-        await splayAnimation;
-      } */
     }
   }
 }
