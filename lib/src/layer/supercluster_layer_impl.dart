@@ -627,6 +627,7 @@ class _SuperclusterLayerImplState extends State<SuperclusterLayerImpl>
           );
 
           if (modified) {
+            _modifyDisplacedMarker(event.oldMarker, event.newMarker);
             _removeExpandedClustersOfRemovedClusters(supercluster);
             _hidePopupsInNamespaceFor([event.oldMarker]);
             _onMarkersChange();
@@ -713,5 +714,40 @@ class _SuperclusterLayerImplState extends State<SuperclusterLayerImpl>
     widget.popupOptions?.popupController.hidePopupsWhereSpec((spec) =>
         spec.namespace == SuperclusterLayer.popupNamespace &&
         markers.contains(spec.marker));
+  }
+
+  void _modifyDisplacedMarker(Marker oldMarker, Marker newMarker) async {
+    final supercluster = await _superclusterCompleter.operation.value;
+    LayerPoint<Marker>? foundLayerPoint =
+        supercluster.layerPointMatching(MarkerMatcher.equalsMarker(oldMarker));
+    if (foundLayerPoint == null) return;
+
+    // Is the marker part of a splay cluster?
+    if (_superclusterConfig.maxZoom < foundLayerPoint.lowestZoom) {
+      // Find the parent.
+      final layerCluster = supercluster.parentOf(foundLayerPoint)!;
+
+      // Find the marker's ExpandedCluster
+      // and use it to find the DisplacedMarker.
+      final expandedClusterBeforeMovement =
+          _expandedClusterManager.forLayerCluster(layerCluster);
+
+      if (expandedClusterBeforeMovement != null) {
+        List<DisplacedMarker> displacedMarkers =
+            expandedClusterBeforeMovement.displacedMarkers;
+        for (var i = 0; i < displacedMarkers.length; i++) {
+          if (displacedMarkers[i].marker == oldMarker) {
+            // exchange the DisplacedMarker
+            // and make the new marker visible in the map
+            _expandedClusterManager
+                    .forLayerCluster(layerCluster)!
+                    .displacedMarkers[i] =
+                DisplacedMarker(
+                    marker: newMarker,
+                    displacedPoint: displacedMarkers[i].displacedPoint);
+          }
+        }
+      }
+    }
   }
 }
